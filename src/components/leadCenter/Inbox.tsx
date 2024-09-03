@@ -6,6 +6,8 @@ import AttachFileRoundedIcon from '@mui/icons-material/AttachFileRounded';
 import EmojiEmotionsRoundedIcon from '@mui/icons-material/EmojiEmotionsRounded';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';
 import Chats from './chats';
+import { Box } from '@mui/material';
+
 
 interface Conversation {
 	id: number;
@@ -162,40 +164,59 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 				<div className="text-sm text-gray-600">
 					{/* Status: {conversation?.status} */}
 
-					<select className="border p-2 rounded ">
-						<option value="In Progress">unread</option>
+					<select className="border border-gray-300 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+						<option value="unread">Unread</option>
 						<option value="In Progress">In Progress</option>
 						<option value="Completed">Completed</option>
-						<option value="On Hold">active</option>
+						<option value="active">Active</option>
 						<option value="Canceled">Canceled</option>
 					</select>
 				</div>
+
 			</div>
+
+
 
 			{/* hare will be the messages */}
+			<Box
+				sx={{
+					overflowY: 'auto',
+					maxHeight: '500px', // Set max height as needed
+					mb: 0,
+					'&::-webkit-scrollbar': {
+						width: '4px',
+					},
+					'&::-webkit-scrollbar-thumb': {
+						backgroundColor: '#3b82f6', // Blue color for the scrollbar thumb
+						borderRadius: '8px',
+					},
+					'&::-webkit-scrollbar-track': {
+						backgroundColor: '#e5e7eb', // Light gray for the scrollbar track
+					},
+				}}
+			>
 
-			<div className="flex-1 p-4 overflow-y-auto">
 				<Chats messages={dummyMessages} />
-			</div>
+			</Box>
 
 			{/* hare is the input box */}
 			<div className=" border-t mb-14 bg-gray-200">
-				<div className="   p-4 bg-white border-t flex items-center">
-					<IconButton className="mr-2 text-gray-500">
+				<div className="p-2 pb-4 bg-white border-t flex items-center">
+					<IconButton className=" text-gray-500">
 						<CameraAltIcon className="text-gray-800" />
 					</IconButton>
 
-					<IconButton className="mr-2 ">
+					<IconButton  >
 						<EmojiEmotionsRoundedIcon className="text-orange-400" />
 					</IconButton>
 
-					<IconButton className="mr-2 ">
+					<IconButton  >
 						<AttachFileRoundedIcon className="text-gray-700" />
 					</IconButton>
 
 					<TextField label="Outlined" className="w-full rounded" />
 
-					<IconButton className="ml-2">
+					<IconButton>
 						<SendRoundedIcon className="text-blue-500" />
 					</IconButton>
 				</div>
