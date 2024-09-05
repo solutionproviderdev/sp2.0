@@ -14,12 +14,11 @@ import {
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-const   Filter = () => {
-  // States to manage the filter panel
+const Filter = ({ onApplyFilters }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [expanded, setExpanded] = useState<string | false>(false);
 
-  // Store selected filter values in a structured way
+  // Store selected filter values
   const [selectedFilters, setSelectedFilters] = useState<{
     status: string[];
     cre: string[];
@@ -30,9 +29,9 @@ const   Filter = () => {
     page: [],
   });
 
-  // Dummy data for the dynamic filter options
+  // Dummy data for dynamic filter options
   const filters = {
-    status: ['Unread', 'Number collected', 'Active'],
+    status: ['Unread', 'Number', 'Active'],
     cre: ['Wony', 'Mehu', 'Ritu'],
     page: ['SP-1', 'SP-2', 'SP-3'],
   };
@@ -59,8 +58,10 @@ const   Filter = () => {
     });
   };
 
-  // Function to clear all selected filters
-  const clearAllFilters = () => {
+  const applyFilters = () => {
+    onApplyFilters(selectedFilters);
+    setAnchorEl(null);
+    setExpanded(false);
     setSelectedFilters({
       status: [],
       cre: [],
@@ -68,25 +69,12 @@ const   Filter = () => {
     });
   };
 
-  // Function to apply filters and clear selected items
-  const filterAndSortData = () => {
-    console.log('Filter by this data:', selectedFilters, );
-    // Implement filtering and sorting logic based on selectedFilters
-
-    // Clear all filters after applying
-    clearAllFilters();
-    setExpanded(false)
-    setAnchorEl(null)
-  };
-
   return (
-    <div className='overflow-y-hidden'>
-      {/* Main Filter Button */}
+    <div>
       <IconButton onClick={handleFilterButtonClick}>
         <FilterListRoundedIcon className="text-blue-600" />
       </IconButton>
 
-      {/* Filter Panel */}
       <Popover
         open={Boolean(anchorEl)}
         anchorEl={anchorEl}
@@ -95,11 +83,7 @@ const   Filter = () => {
         transformOrigin={{ vertical: 'top', horizontal: 'left' }}
         disableRestoreFocus
       >
-        <Box
-          p={2}
-          width="280px"
-        >
-          {/* Accordion for Filter Categories */}
+        <Box p={2} width="280px">
           {Object.keys(filters).map((filter) => (
             <Accordion
               key={filter}
@@ -125,7 +109,6 @@ const   Filter = () => {
               </AccordionDetails>
             </Accordion>
           ))}
-          {/* Display selected filter chips */}
           <Box className="flex flex-wrap gap-2 mt-2">
             {Object.entries(selectedFilters).map(([category, items]) =>
               items.map((item) => (
@@ -139,13 +122,7 @@ const   Filter = () => {
               ))
             )}
           </Box>
-          {/* Button to apply filters and clear selected items */}
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={filterAndSortData}
-            className="!mt-2 !w-full"
-          >
+          <Button variant="contained" color="primary" onClick={applyFilters} className="!mt-2 !w-full">
             Apply Filters
           </Button>
         </Box>
