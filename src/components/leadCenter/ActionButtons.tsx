@@ -4,7 +4,7 @@ import { MdNotificationImportant } from 'react-icons/md';
 
 const ActionButtons = () => {
   return (
-<div className="flex justify-center gap-2">
+<div className="flex justify-between">
 							<Button
 								variant="text" // Use variant="text" to remove default background
 								size="small"
@@ -13,14 +13,7 @@ const ActionButtons = () => {
 							>
 								Have to Call
 							</Button>
-							<Button
-								variant="text"
-								size="small"
-								startIcon={<MdNotificationImportant />}
-								className="!bg-red-400 hover:!bg-red-500 !text-white h-7 text-xs !px-2 py-0"
-							>
-								Important
-							</Button>
+							 
 							<Button
 								variant="text"
 								size="small"
