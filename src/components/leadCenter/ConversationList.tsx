@@ -208,11 +208,11 @@ const ConversationList = ({ onSelectConversation }) => {
         </Box>
       )}
 
-      {!showAll && filteredConversations.length > 0 && filteredConversations.length < conversations.length && (
+      {/* {!showAll && filteredConversations.length > 0 && filteredConversations.length < conversations.length && (
         <Button variant="contained" onClick={handleShowAll} className='!h-7 mt-2'>
           Show All
         </Button>
-      )}
+      )} */}
     </div>
   );
 };

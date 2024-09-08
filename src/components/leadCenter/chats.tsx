@@ -2,7 +2,8 @@ import React from 'react';
 
 const Chats = ({ messages }) => {
 	return (
-		<div className="flex-1 p-4 overflow-y-auto">
+		<div className="p-4 overflow-y-auto">
+		
 			{messages.map(message => (
 				<div
 					key={message.id}
