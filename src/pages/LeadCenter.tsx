@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import ConversationList from '../components/leadCenter/ConversationList';
-import Inbox from '../components/leadCenter/Inbox';
+import ConversationList from '../components/leadCenter/conversations/ConversationList';
+import Inbox from '../components/leadCenter/Inbox/Inbox';
 
 interface Conversation {
 	id: number;

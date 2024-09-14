@@ -115,7 +115,7 @@ import { Button, Box, Typography } from '@mui/material';
 import Filter from './Filter';
 import SearchInput from './SearchBar';
 import ActionButtons from './ActionButtons';
-import conversations from '../../assets/conversation.json';
+import conversations from '../../../assets/conversation.json';
 
 const ConversationList = ({ onSelectConversation }) => {
   const [filteredConversations, setFilteredConversations] = useState(conversations);
