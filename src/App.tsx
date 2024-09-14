@@ -11,7 +11,7 @@ import LoggedOutRoute from "./layouts/LoggedOutRoute";
 import LoggedInRoute from "./layouts/LoggedInRoute";
 import AdminLayout from "./layouts/AdminLayout";
 import OperatorLayout from "./layouts/OperatorLayout";
-import { store } from "./app/store";
+import store from "./app/store";
 import LoginLayout from "./layouts/LoginLayout";
 import Login from "./pages/authentication/Login";
 import Dashboard from "./pages/Dashboard";

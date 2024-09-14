@@ -1,19 +1,18 @@
 
-
-
-
 // import React, { useState } from 'react';
 // import { Button, Box, Typography } from '@mui/material';
 // import Filter from './Filter';
 // import SearchInput from './SearchBar';
 // import ActionButtons from './ActionButtons';
-// import conversations from '../../assets/conversation.json';
+// import conversations from '../../../assets/conversation.json';
+// import { useGetAllConversationsQuery } from '../../../features/conversation/conversationApi';
 
 // const ConversationList = ({ onSelectConversation }) => {
+//   const { data, error, isLoading } = useGetAllConversationsQuery();
+  
 //   const [filteredConversations, setFilteredConversations] = useState(conversations);
 //   const [showAll, setShowAll] = useState(false);
 
-//   // Apply filters based on the selected criteria
 //   const applyFilters = (filters) => {
 //     const filtered = conversations.filter((conversation) => {
 //       const matchesStatus = filters.status.length === 0 || filters.status.includes(conversation.status);
@@ -24,44 +23,51 @@
 //     setFilteredConversations(filtered);
 //   };
 
-//   // Handle search input changes
 //   const handleSearchChange = (searchText) => {
-//     const normalizedSearchText = searchText.trim().toLowerCase(); // Normalize the input for consistent search
+//     const normalizedSearchText = searchText.trim().toLowerCase();
 
 //     if (normalizedSearchText === '') {
 //       setFilteredConversations(conversations);
 //       setShowAll(false);
 //     } else {
-//       const filtered = conversations.filter((conversation) =>
-//         conversation.name.toLowerCase().includes(normalizedSearchText) ||
-//         conversation.cre.toLowerCase().includes(normalizedSearchText) ||
-//         conversation.page.toLowerCase().includes(normalizedSearchText)
+//       const startWithMatches = conversations.filter((conversation) =>
+//         conversation.name.toLowerCase().startsWith(normalizedSearchText) 
+//         // conversation.cre.toLowerCase().startsWith(normalizedSearchText) ||
+//         // conversation.page.toLowerCase().startsWith(normalizedSearchText)
 //       );
-//       setFilteredConversations(filtered); // Show all matching results
+
+//       const includeMatches = conversations.filter((conversation) =>
+//         !startWithMatches.includes(conversation) && (
+//           conversation.name.toLowerCase().includes(normalizedSearchText) 
+//         //   conversation.cre.toLowerCase().includes(normalizedSearchText) ||
+//         //   conversation.page.toLowerCase().includes(normalizedSearchText)
+//         )
+//       );
+
+//       const filtered = [...startWithMatches, ...includeMatches];
+
+//       setFilteredConversations(filtered);
 //       setShowAll(false);
 //     }
 //   };
 
-//   // Handle showing all conversations
 //   const handleShowAll = () => {
 //     setFilteredConversations(conversations);
 //     setShowAll(true);
 //   };
 
+// console.log("all conversation hare",data)
+
 //   return (
 //     <div className="h-full flex flex-col">
 //       <div className="p-4">
-//         {/* Pass the handleSearchChange function directly to the onSearchChange prop */}
 //         <SearchInput onSearchChange={handleSearchChange} />
 
 //         <div className="flex items-center justify-between mt-2">
 //           <div className="flex gap-2">
-//             {/* Button to show all conversations */}
 //             <Button variant="contained" onClick={handleShowAll} className='!h-7'>All</Button>
-//             {/* Button to apply a specific filter */}
 //             <Button variant="contained" onClick={() => applyFilters({ status: ['Unread'], cre: [], page: [] })} className='!h-7'>Unread</Button>
 //           </div>
-//           {/* Filter component to apply different filters */}
 //           <Filter onApplyFilters={applyFilters} />
 //         </div>
 //       </div>
@@ -96,11 +102,11 @@
 //         </Box>
 //       )}
 
-//       {!showAll && filteredConversations.length > 0 && filteredConversations.length < conversations.length && (
+//       {/* {!showAll && filteredConversations.length > 0 && filteredConversations.length < conversations.length && (
 //         <Button variant="contained" onClick={handleShowAll} className='!h-7 mt-2'>
 //           Show All
 //         </Button>
-//       )}
+//       )} */}
 //     </div>
 //   );
 // };
@@ -109,22 +115,35 @@
 
 
 
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Box, Typography } from '@mui/material';
 import Filter from './Filter';
 import SearchInput from './SearchBar';
 import ActionButtons from './ActionButtons';
-import conversations from '../../../assets/conversation.json';
+// Remove the static import as we will use the data from the backend
+// import conversations from '../../../assets/conversation.json';
+import { useGetAllConversationsQuery } from '../../../features/conversation/conversationApi';
 
 const ConversationList = ({ onSelectConversation }) => {
-  const [filteredConversations, setFilteredConversations] = useState(conversations);
+  const { data, error, isLoading } = useGetAllConversationsQuery();
+  
+  // Initialize filteredConversations with an empty array
+  const [filteredConversations, setFilteredConversations] = useState([]);
   const [showAll, setShowAll] = useState(false);
 
+  // Update the conversations list when data is loaded
+  useEffect(() => {
+    if (data && data.leads) {
+      setFilteredConversations(data.leads);
+    }
+  }, [data]);
+
   const applyFilters = (filters) => {
-    const filtered = conversations.filter((conversation) => {
+    if (!data || !data.leads) return;
+
+    const filtered = data.leads.filter((conversation) => {
       const matchesStatus = filters.status.length === 0 || filters.status.includes(conversation.status);
-      const matchesCre = filters.cre.length === 0 || filters.cre.includes(conversation.cre);
+      const matchesCre = filters.cre.length === 0 || filters.cre.includes(conversation.creName);
       const matchesPage = filters.page.length === 0 || filters.page.includes(conversation.page);
       return matchesStatus && matchesCre && matchesPage;
     });
@@ -135,21 +154,15 @@ const ConversationList = ({ onSelectConversation }) => {
     const normalizedSearchText = searchText.trim().toLowerCase();
 
     if (normalizedSearchText === '') {
-      setFilteredConversations(conversations);
+      setFilteredConversations(data ? data.leads : []); // Use data from backend
       setShowAll(false);
     } else {
-      const startWithMatches = conversations.filter((conversation) =>
-        conversation.name.toLowerCase().startsWith(normalizedSearchText) 
-        // conversation.cre.toLowerCase().startsWith(normalizedSearchText) ||
-        // conversation.page.toLowerCase().startsWith(normalizedSearchText)
+      const startWithMatches = data.leads.filter((conversation) =>
+        conversation.name.toLowerCase().startsWith(normalizedSearchText)
       );
 
-      const includeMatches = conversations.filter((conversation) =>
-        !startWithMatches.includes(conversation) && (
-          conversation.name.toLowerCase().includes(normalizedSearchText) 
-        //   conversation.cre.toLowerCase().includes(normalizedSearchText) ||
-        //   conversation.page.toLowerCase().includes(normalizedSearchText)
-        )
+      const includeMatches = data.leads.filter((conversation) =>
+        !startWithMatches.includes(conversation) && conversation.name.toLowerCase().includes(normalizedSearchText)
       );
 
       const filtered = [...startWithMatches, ...includeMatches];
@@ -160,9 +173,19 @@ const ConversationList = ({ onSelectConversation }) => {
   };
 
   const handleShowAll = () => {
-    setFilteredConversations(conversations);
+    setFilteredConversations(data ? data.leads : []); // Show all data from backend
     setShowAll(true);
   };
+
+  console.log("all conversation here", data);
+
+  if (isLoading) {
+    return <Typography>Loading...</Typography>;
+  }
+
+  if (error) {
+    return <Typography color="red">Error fetching conversations: {error.message}</Typography>;
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -185,7 +208,7 @@ const ConversationList = ({ onSelectConversation }) => {
       ) : (
         <Box sx={{ overflowY: 'auto', maxHeight: '500px', mb: 8, '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#3b82f6', borderRadius: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#e5e7eb' } }}>
           {filteredConversations.map((conversation) => (
-            <div key={conversation.id} className="p-4 border-b cursor-pointer" onClick={() => onSelectConversation(conversation)}>
+            <div key={conversation._id} className="p-4 border-b cursor-pointer" onClick={() => onSelectConversation(conversation)}>
               <div className="flex items-center p-1">
                 <img src={conversation.profile} alt="Profile" className="w-10 h-10 rounded-full" />
                 <div className="ml-4 flex-1">
@@ -207,12 +230,6 @@ const ConversationList = ({ onSelectConversation }) => {
           ))}
         </Box>
       )}
-
-      {/* {!showAll && filteredConversations.length > 0 && filteredConversations.length < conversations.length && (
-        <Button variant="contained" onClick={handleShowAll} className='!h-7 mt-2'>
-          Show All
-        </Button>
-      )} */}
     </div>
   );
 };
