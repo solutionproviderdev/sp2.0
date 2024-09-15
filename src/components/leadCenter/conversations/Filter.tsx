@@ -31,7 +31,7 @@ const Filter = ({ onApplyFilters }) => {
 
   // Dummy data for dynamic filter options
   const filters = {
-    status: ['Unread', 'Number', 'Active'],
+    status: ['Unread', 'Number Collected', 'Active'],
     cre: ['Wony', 'Mehu', 'Ritu'],
     page: ['SP-1', 'SP-2', 'SP-3'],
   };
@@ -62,11 +62,18 @@ const Filter = ({ onApplyFilters }) => {
     onApplyFilters(selectedFilters);
     setAnchorEl(null);
     setExpanded(false);
-    setSelectedFilters({
+    setSelectedFilters(({
       status: [],
       cre: [],
       page: [],
-    });
+    }))
+  };
+
+  const handleDeleteChip = (category: string, item: string) => {
+    setSelectedFilters((prevFilters) => ({
+      ...prevFilters,
+      [category]: prevFilters[category as keyof typeof prevFilters].filter((i) => i !== item),
+    }));
   };
 
   return (
@@ -109,13 +116,14 @@ const Filter = ({ onApplyFilters }) => {
               </AccordionDetails>
             </Accordion>
           ))}
+          {/* Display selected filters as chips */}
           <Box className="flex flex-wrap gap-2 mt-2">
             {Object.entries(selectedFilters).map(([category, items]) =>
               items.map((item) => (
                 <Chip
                   key={item}
-                  label={item}
-                  onDelete={() => handleCheckboxChange(category, item)}
+                  label={`${item} (${category})`}
+                  onDelete={() => handleDeleteChip(category, item)}
                   color="primary"
                   variant="outlined"
                 />

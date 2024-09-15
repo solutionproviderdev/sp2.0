@@ -24,17 +24,13 @@ import apiSlice from "../api/apiSlice";
 const conversationApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     // Fetch all conversations
-    getAllConversations: builder.query<GetAllConversationsResponse, void>({
-      query: () => "/lead/conversation", // Assuming your backend endpoint for fetching conversations is "/conversations"
+    getAllConversations: builder.query<GetAllConversationsResponse, { page: number; limit: number }>({
+      query: ({ page, limit }) => `/lead/conversation?page=${page}&limit=${limit}`, // Adjust endpoint to include pagination
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
-          // Await the query's result
           const { data } = await queryFulfilled;
-          // Log the successful response
-          console.log("Fetched---------- Conversations:", data);
-          
+          console.log("Fetched Conversations:", data);
         } catch (error) {
-          // Log any errors encountered
           console.error("Error fetching conversations:", error);
         }
       },
