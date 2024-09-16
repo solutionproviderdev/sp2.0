@@ -37,8 +37,8 @@ const conversationApi = apiSlice.injectEndpoints({
     }),
 
     // Fetch a specific conversation by ID
-    getConversationById: builder.query<GetConversationByIdResponse, string>({
-      query: (id: string) => `/lead/conversation/${id}`,
+    getConversationMessages: builder.query<GetConversationByIdResponse, string>({
+      query: (id: string) => `/lead/conversation/${id}/messages/`,
     }),
     
 }),
@@ -48,7 +48,7 @@ overrideExisting: false, // Optional: Prevents overriding existing endpoints
 // Export the auto-generated hooks for usage in functional components
 export const {
   useGetAllConversationsQuery,
-  useGetConversationByIdQuery
+  useGetConversationMessagesQuery
 } = conversationApi;
 
 export default conversationApi;

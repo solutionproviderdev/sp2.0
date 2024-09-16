@@ -17,7 +17,8 @@ const LeadCenter = () => {
 		useState<Conversation | null>(null);
 
 	const handleSelectConversation = (conversation: Conversation) => {
-		setSelectedConversation(conversation);
+		setSelectedConversation(conversation._id);
+		// console.log('lead er id',conversation._id)
 	};
 
 	return (
