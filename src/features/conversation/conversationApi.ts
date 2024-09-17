@@ -40,6 +40,10 @@ const conversationApi = apiSlice.injectEndpoints({
     getConversationMessages: builder.query<GetConversationByIdResponse, string>({
       query: (id: string) => `/lead/conversation/${id}/messages/`,
     }),
+    // Requirements
+    updateRequirement: builder.mutation({
+      query: (id: string) => `/lead/${id}/requirements/`
+    }),
     
 }),
 overrideExisting: false, // Optional: Prevents overriding existing endpoints
@@ -48,7 +52,8 @@ overrideExisting: false, // Optional: Prevents overriding existing endpoints
 // Export the auto-generated hooks for usage in functional components
 export const {
   useGetAllConversationsQuery,
-  useGetConversationMessagesQuery
+  useGetConversationMessagesQuery,
+  useUpdateRequirementMutation
 } = conversationApi;
 
 export default conversationApi;

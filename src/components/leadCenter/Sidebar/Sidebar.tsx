@@ -17,6 +17,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
 import SendIcon from '@mui/icons-material/Send';
 
+import { RiScales2Fill } from "react-icons/ri";
+import Requirements from './Requirements';
+
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
@@ -38,15 +41,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const [editReminderIndex, setEditReminderIndex] = useState<number | null>(null);
   const [showAllNumbers, setShowAllNumbers] = useState<boolean>(false);
   const [showAllLocations, setShowAllLocations] = useState<boolean>(false);
-  const [showAllRequirements, setShowAllRequirements] = useState<boolean>(false);
   const [showAllReminders, setShowAllReminders] = useState<boolean>(false);
   const [showAllComments, setShowAllComments] = useState<boolean>(false);
   const [showAllCallLogs, setShowAllCallLogs] = useState<boolean>(false);
-
+  
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     defaultValues: { newNumber: '', newReminder: '', newLocation: '' },
   });
-
+  
   const addNumber = (data: FormValues) => {
     const trimmedNumber = data.newNumber.trim();
     if (trimmedNumber !== '') {
@@ -66,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const handleLocationChange = (index: number, value: string) => {
     setLocations(locations.map((location, i) => (i === index ? value : location)));
   };
-
+  
   const handleEditLocation = (index: number) => {
     setEditIndex(index);
   };
@@ -85,45 +87,46 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const handleEditNumber = (index: number) => {
     setEditIndex(index);
   };
-
+  
   const handleSaveEdit = () => {
     if (editIndex !== null && numbers[editIndex].trim() === '') {
       setNumbers(numbers.filter((_, i) => i !== editIndex));
     }
     setEditIndex(null);
   };
-
+  
   const handleSidebarClick = (event: React.MouseEvent) => {
     event.stopPropagation();
   };
+  
+  // const [showAllRequirements, setShowAllRequirements] = useState<boolean>(false);
+  // const [requirements, setRequirements] = useState<string[]>(['Kitchen', 'Bedroom']);
+  // const [newRequirement, setNewRequirement] = useState<string>('');
+  // const [editRequirementIndex, setEditRequirementIndex] = useState<number | null>(null);
 
-  const [requirements, setRequirements] = useState<string[]>(['Kitchen', 'Bedroom']);
-  const [newRequirement, setNewRequirement] = useState<string>('');
-  const [editRequirementIndex, setEditRequirementIndex] = useState<number | null>(null);
+  // const addRequirement = () => {
+  //   if (newRequirement.trim() !== '') {
+  //     setRequirements([...requirements, newRequirement]);
+  //     setNewRequirement('');
+  //   }
+  // };
 
-  const addRequirement = () => {
-    if (newRequirement.trim() !== '') {
-      setRequirements([...requirements, newRequirement]);
-      setNewRequirement('');
-    }
-  };
+  // const handleRequirementChange = (index: number, value: string) => {
+  //   setRequirements(requirements.map((req, i) => (i === index ? value : req)));
+  // };
 
-  const handleRequirementChange = (index: number, value: string) => {
-    setRequirements(requirements.map((req, i) => (i === index ? value : req)));
-  };
+  // const handleEditRequirement = (index: number) => {
+  //   setEditRequirementIndex(index);
+  // };
 
-  const handleEditRequirement = (index: number) => {
-    setEditRequirementIndex(index);
-  };
-
-  const handleSaveRequirement = () => {
-    if (editRequirementIndex !== null) {
-      if (requirements[editRequirementIndex].trim() === '') {
-        setRequirements(requirements.filter((_, i) => i !== editRequirementIndex));
-      }
-      setEditRequirementIndex(null);
-    }
-  };
+  // const handleSaveRequirement = () => {
+  //   if (editRequirementIndex !== null) {
+  //     if (requirements[editRequirementIndex].trim() === '') {
+  //       setRequirements(requirements.filter((_, i) => i !== editRequirementIndex));
+  //     }
+  //     setEditRequirementIndex(null);
+  //   }
+  // };
 
   const handleAddReminder = () => {
     const trimmedReminder = newReminder.trim();
@@ -300,9 +303,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
         </div>
 
         <Divider />
+<Requirements />
 
         {/* Requirements Section */}
-        <Box sx={{ marginBottom: 2 }}>
+        {/* <Box sx={{ marginBottom: 2 }}>
           <Typography variant="body2">Requirements:</Typography>
           {(showAllRequirements ? requirements : requirements.slice(0, 1)).map((requirement, index) => (
             <div key={index} className="flex items-center mb-2">
@@ -317,8 +321,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                   <IconButton size="small" onClick={handleSaveRequirement}>
                     <DoneIcon />
                   </IconButton>
-                </>
-              ) : (
+                </> */}
+              {/* ) : (
                 <>
                   <Typography variant="body2" sx={{ flexGrow: 1 }}>
                     {requirement}
@@ -329,8 +333,8 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
                 </>
               )}
             </div>
-          ))}
-          {!showAllRequirements && requirements.length > 1 && (
+          ))} */}
+          {/* {!showAllRequirements && requirements.length > 1 && (
             <Button onClick={() => setShowAllRequirements(true)} size="small">
               Show All
             </Button>
@@ -339,9 +343,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             <Button onClick={() => setShowAllRequirements(false)} size="small">
               Show Less
             </Button>
-          )}
+          )} */}
           {/* Add Requirement Input */}
-          <div className="flex items-center mb-2">
+          {/* <div className="flex items-center mb-2">
             <TextField
               label="Add Requirement"
               value={newRequirement}
@@ -353,7 +357,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               Add
             </Button>
           </div>
-        </Box>
+        </Box> */}
 
         <Divider />
 
@@ -505,3 +509,200 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 };
 
 export default Sidebar;
+
+
+
+
+
+
+
+
+
+
+
+// import React, { useState, useRef, useEffect } from 'react';
+// import { Box, Drawer, Divider } from '@mui/material';
+// import { useForm, FormProvider } from 'react-hook-form';
+
+// import LeadInformation from './LeadInformation';
+// import PhoneNumbers from './PhoneNumbers';
+// import Locations from './Locations';
+// import Requirements from './Requirements';
+// import Reminders from './Reminders';
+// import CallLogs from './CallLogs';
+// import Comments from './Comments';
+
+// interface SidebarProps {
+//   isOpen: boolean;
+//   onClose: () => void;
+// }
+
+// const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+//   const [numbers, setNumbers] = useState<string[]>(['01957795943', '01234629732']);
+//   const [locations, setLocations] = useState<string[]>(['12/b Banani', 'Awwal Tower Gulshan']);
+//   const [newLocation, setNewLocation] = useState<string>('');
+//   const [editIndex, setEditIndex] = useState<number | null>(null);
+//   const [showAllNumbers, setShowAllNumbers] = useState<boolean>(false);
+//   const [showAllLocations, setShowAllLocations] = useState<boolean>(false);
+
+//   const [requirements, setRequirements] = useState<string[]>(['Kitchen', 'Bedroom']);
+//   const [newRequirement, setNewRequirement] = useState<string>('');
+//   const [showAllRequirements, setShowAllRequirements] = useState<boolean>(false);
+//   const [editRequirementIndex, setEditRequirementIndex] = useState<number | null>(null);
+
+//   const [reminders, setReminders] = useState<string[]>(['Have to call - 25-Aug, 10:30 am']);
+//   const [newReminder, setNewReminder] = useState<string>('');
+//   const [editReminderIndex, setEditReminderIndex] = useState<number | null>(null);
+//   const [showAllReminders, setShowAllReminders] = useState<boolean>(false);
+
+//   const [comments, setComments] = useState<string[]>(['Wony: She is good - 25-06-2024, 2:36 am']);
+//   const [newComment, setNewComment] = useState<string>('');
+//   const [showAllComments, setShowAllComments] = useState<boolean>(false);
+
+//   const [showAllCallLogs, setShowAllCallLogs] = useState<boolean>(false);
+
+//   const methods = useForm({ defaultValues: { newNumber: '' } });
+
+//   const sidebarRef = useRef<HTMLDivElement | null>(null);
+
+//   const handleClickOutside = (event: MouseEvent) => {
+//     if (sidebarRef.current && !sidebarRef.current.contains(event.target as Node)) {
+//       onClose();
+//     }
+//   };
+
+//   useEffect(() => {
+//     if (isOpen) {
+//       document.addEventListener('mousedown', handleClickOutside);
+//     } else {
+//       document.removeEventListener('mousedown', handleClickOutside);
+//     }
+
+//     // Clean up the event listener when the component is unmounted
+//     return () => {
+//       document.removeEventListener('mousedown', handleClickOutside);
+//     };
+//   }, [isOpen]);
+
+//   return (
+//     <Drawer anchor="right" open={isOpen} onClose={onClose}>
+//       <Box ref={sidebarRef} sx={{ width: 400, padding: 2 }}>
+//         {/* Lead Information */}
+//         <LeadInformation />
+
+//         {/* Use FormProvider to share form context methods */}
+//         <FormProvider {...methods}>
+//           {/* Phone Numbers */}
+//           <PhoneNumbers
+//             numbers={numbers}
+//             showAllNumbers={showAllNumbers}
+//             setShowAllNumbers={setShowAllNumbers}
+//             addNumber={(data) => {
+//               const trimmedNumber = data.newNumber.trim();
+//               if (trimmedNumber !== '') {
+//                 setNumbers([...numbers, trimmedNumber]);
+//               }
+//               methods.reset({ newNumber: '' });
+//             }}
+//             handleNumberChange={(index, value) =>
+//               setNumbers(numbers.map((number, i) => (i === index ? value : number)))
+//             }
+//             handleEditNumber={setEditIndex}
+//             handleSaveEdit={() => setEditIndex(null)}
+//             editIndex={editIndex}
+//           />
+//         </FormProvider>
+
+//         {/* Locations */}
+//         <Locations
+//           locations={locations}
+//           showAllLocations={showAllLocations}
+//           setShowAllLocations={setShowAllLocations}
+//           newLocation={newLocation}
+//           setNewLocation={setNewLocation}
+//           addLocation={() => {
+//             const trimmedLocation = newLocation.trim();
+//             if (trimmedLocation !== '') {
+//               setLocations([...locations, trimmedLocation]);
+//               setNewLocation('');
+//             }
+//           }}
+//           handleLocationChange={(index, value) =>
+//             setLocations(locations.map((location, i) => (i === index ? value : location)))
+//           }
+//           handleEditLocation={setEditIndex}
+//           handleSaveLocation={() => setEditIndex(null)}
+//           editIndex={editIndex}
+//         />
+
+//         <Divider />
+
+//         {/* Requirements */}
+//         <Requirements
+//           requirements={requirements}
+//           newRequirement={newRequirement}
+//           setNewRequirement={setNewRequirement}
+//           showAllRequirements={showAllRequirements}
+//           setShowAllRequirements={setShowAllRequirements}
+//           handleRequirementChange={(index, value) =>
+//             setRequirements(requirements.map((req, i) => (i === index ? value : req)))
+//           }
+//           handleEditRequirement={setEditRequirementIndex}
+//           handleSaveRequirement={() => setEditRequirementIndex(null)}
+//           addRequirement={() => {
+//             if (newRequirement.trim() !== '') {
+//               setRequirements([...requirements, newRequirement]);
+//               setNewRequirement('');
+//             }
+//           }}
+//           editRequirementIndex={editRequirementIndex}
+//         />
+
+//         <Divider />
+
+//         {/* Reminders */}
+//         <Reminders
+//           reminders={reminders}
+//           newReminder={newReminder}
+//           setNewReminder={setNewReminder}
+//           showAllReminders={showAllReminders}
+//           setShowAllReminders={setShowAllReminders}
+//           handleAddReminder={() => {
+//             const trimmedReminder = newReminder.trim();
+//             if (trimmedReminder !== '') {
+//               setReminders([...reminders, trimmedReminder]);
+//               setNewReminder('');
+//             }
+//           }}
+//           handleEditReminder={setEditReminderIndex}
+//           handleSaveReminder={() => setEditReminderIndex(null)}
+//           editReminderIndex={editReminderIndex}
+//         />
+
+//         <Divider />
+
+//         {/* Call Logs */}
+//         <CallLogs showAllCallLogs={showAllCallLogs} setShowAllCallLogs={setShowAllCallLogs} />
+
+//         <Divider />
+
+//         {/* Comments */}
+//         <Comments
+//           comments={comments}
+//           newComment={newComment}
+//           setNewComment={setNewComment}
+//           showAllComments={showAllComments}
+//           setShowAllComments={setShowAllComments}
+//           addComment={() => {
+//             if (newComment.trim() !== '') {
+//               setComments([...comments, newComment]);
+//               setNewComment('');
+//             }
+//           }}
+//         />
+//       </Box>
+//     </Drawer>
+//   );
+// };
+
+// export default Sidebar;
