@@ -4,23 +4,41 @@ import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
+import { useGetSingleLeadQuery, useUpdateRequirementMutation } from '../../../features/conversation/conversationApi';
 
+interface Conversation {
+  id: number;
+}
 
+interface InboxProps {
+  conversation: Conversation | null;
+}
 
+const Requirements: React.FC<InboxProps> = ({ conversation }) => {
 
-const Requirements= () => {
+  const { data, error, loading:isLoading, isFetching, refetch } = useGetSingleLeadQuery(conversation);
+  const requirement=data?.requirements
+  console.log('singlelead from requirement found hare  ',requirement,conversation)
+
+  const [updateRequirement, { loading, isSuccess, isError }] = useUpdateRequirementMutation();
+
+  console.log('requirement theke converasation', conversation)
   const [showAllRequirements, setShowAllRequirements] = useState<boolean>(false);
 
-  const [requirements, setRequirements] = useState<string[]>(['Kitchen', 'Bedroom']);
+  const [requirements, setRequirements] = useState<string[]>([]);
   const [newRequirement, setNewRequirement] = useState<string>('');
   const [editRequirementIndex, setEditRequirementIndex] = useState<number | null>(null);
 
 
   const addRequirement = () => {
+
     if (newRequirement.trim() !== '') {
       setRequirements([...requirements, newRequirement]);
       setNewRequirement('');
     }
+    updateRequirement({ id: conversation, requirements: [...requirements, newRequirement] })
+    refetch()
+    console.log("update mutation", conversation, newRequirement,isLoading, isSuccess, isError)
   };
 
   const handleRequirementChange = (index: number, value: string) => {
@@ -28,10 +46,13 @@ const Requirements= () => {
   };
 
   const handleEditRequirement = (index: number) => {
+    console.log("updateRequirement updateRequirement updateRequirement")
+
     setEditRequirementIndex(index);
   };
 
   const handleSaveRequirement = () => {
+    console.log("updateRequirement updateRequirement updateRequirement")
     if (editRequirementIndex !== null) {
       if (requirements[editRequirementIndex].trim() === '') {
         setRequirements(requirements.filter((_, i) => i !== editRequirementIndex));
@@ -39,59 +60,64 @@ const Requirements= () => {
       setEditRequirementIndex(null);
     }
   };
+
+
+
+
   return (
-        <Box sx={{ marginBottom: 2 }}>
-          <Typography variant="body2">Requirements:</Typography>
-          {(showAllRequirements ? requirements : requirements.slice(0, 1)).map((requirement, index) => (
-            <div key={index} className="flex items-center mb-2">
-              {editRequirementIndex === index ? (
-                <>
-                  <TextField
-                    value={requirement}
-                    onChange={(e) => handleRequirementChange(index, e.target.value)}
-                    size="small"
-                    sx={{ flexGrow: 1, marginRight: 1 }}
-                  />
-                  <IconButton size="small" onClick={handleSaveRequirement}>
-                    <DoneIcon />
-                  </IconButton>
-                </>
-              ) : (
-                <>
-                  <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                    {requirement}
-                  </Typography>
-                  <IconButton size="small" onClick={() => handleEditRequirement(index)}>
-                    <EditIcon />
-                  </IconButton>
-                </>
-              )}
-            </div>
-          ))}
-          {!showAllRequirements && requirements.length > 1 && (
-            <Button onClick={() => setShowAllRequirements(true)} size="small">
-              Show All
-            </Button>
+    <Box sx={{ marginBottom: 2 }}>
+      <Typography variant="body2">Requirements:</Typography>
+      {(showAllRequirements ? requirements : requirements.slice(0, 1)).map((requirement, index) => (
+        <div key={index} className="flex items-center mb-2">
+          {editRequirementIndex === index ? (
+            <>
+              <TextField
+                value={requirement}
+                onChange={(e) => handleRequirementChange(index, e.target.value)}
+                size="small"
+                sx={{ flexGrow: 1, marginRight: 1 }}
+              />
+              <IconButton size="small" onClick={handleSaveRequirement}>
+                <DoneIcon />
+              </IconButton>
+            </>
+          ) : (
+            <>
+              <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                {requirement}
+              </Typography>
+              <IconButton size="small" onClick={() => handleEditRequirement(index)}>
+                <EditIcon />
+              </IconButton>
+            </>
           )}
-          {showAllRequirements && (
-            <Button onClick={() => setShowAllRequirements(false)} size="small">
-              Show Less
-            </Button>
-          )}
-          {/* Add Requirement Input */}
-          <div className="flex items-center mb-2">
-            <TextField
-              label="Add Requirement"
-              value={newRequirement}
-              onChange={(e) => setNewRequirement(e.target.value)}
-              size="small"
-              sx={{ flexGrow: 1, marginRight: 1 }}
-            />
-            <Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={addRequirement}>
-              Add
-            </Button>
-          </div>
-        </Box>
+        </div>
+      ))}
+      {!showAllRequirements && requirements.length > 1 && (
+        <Button onClick={() => setShowAllRequirements(true)} size="small">
+          Show All
+        </Button>
+      )}
+      {showAllRequirements && (
+        <Button onClick={() => setShowAllRequirements(false)} size="small">
+          Show Less
+        </Button>
+      )}
+      {/* Add Requirement Input */}
+      <div className="flex items-center mb-2">
+        <TextField
+          label="Add Requirement"
+          value={newRequirement}
+          onChange={(e) => setNewRequirement(e.target.value)}
+          size="small"
+          sx={{ flexGrow: 1, marginRight: 1 }}
+        />
+        <Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={addRequirement}>
+          Add
+        </Button>
+
+      </div>
+    </Box>
   );
 };
 

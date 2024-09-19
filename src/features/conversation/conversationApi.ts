@@ -23,6 +23,10 @@ import apiSlice from "../api/apiSlice";
 // Extend the apiSlice with specific endpoints for conversations
 const conversationApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
+    // get all leads
+    getSingleLead: builder.query<GetConversationByIdResponse, string>({
+      query: (id: string) => `/lead/${id}`,
+    }),
     // Fetch all conversations
     getAllConversations: builder.query<GetAllConversationsResponse, { page: number; limit: number }>({
       query: ({ page, limit }) => `/lead/conversation?page=${page}&limit=${limit}`, // Adjust endpoint to include pagination
@@ -42,7 +46,11 @@ const conversationApi = apiSlice.injectEndpoints({
     }),
     // Requirements
     updateRequirement: builder.mutation({
-      query: (id: string) => `/lead/${id}/requirements/`
+      query: ({ id, requirements }) => ({
+        url: `/lead/${id}/requirements`,  
+        method: 'PUT',                  
+        body: { requirements },          
+      }),
     }),
     
 }),
@@ -53,7 +61,8 @@ overrideExisting: false, // Optional: Prevents overriding existing endpoints
 export const {
   useGetAllConversationsQuery,
   useGetConversationMessagesQuery,
-  useUpdateRequirementMutation
+  useUpdateRequirementMutation,
+  useGetSingleLeadQuery
 } = conversationApi;
 
 export default conversationApi;

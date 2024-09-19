@@ -17,8 +17,8 @@ const LeadCenter = () => {
 		useState<Conversation | null>(null);
 
 	const handleSelectConversation = (conversation: Conversation) => {
-		setSelectedConversation(conversation._id);
-		// console.log('lead er id',conversation._id)
+		setSelectedConversation(conversation);
+		console.log('lead er id,lets see hare name available or not',conversation)
 	};
 
 	return (
