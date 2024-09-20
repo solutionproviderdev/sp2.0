@@ -1,43 +1,51 @@
-// src/components/Locations.tsx
-import React from 'react';
-import { Typography, TextField, IconButton, Button } from '@mui/material';
+
+import React, { useState } from 'react';
+import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
 import DoneIcon from '@mui/icons-material/Done';
 
-interface LocationsProps {
-  locations: string[];
-  showAllLocations: boolean;
-  setShowAllLocations: React.Dispatch<React.SetStateAction<boolean>>;
-  newLocation: string;
-  setNewLocation: React.Dispatch<React.SetStateAction<string>>;
-  addLocation: () => void;
-  handleLocationChange: (index: number, value: string) => void;
-  handleEditLocation: (index: number) => void;
-  handleSaveLocation: () => void;
-  editIndex: number | null;
-}
+const Locations: React.FC = () => {
+  // Local state to manage locations list
+  const [locations, setLocations] = useState<string[]>([]);
+  const [newLocation, setNewLocation] = useState<string>(''); // To hold the new location input
+  const [editLocationIndex, setEditLocationIndex] = useState<number | null>(null); // Track the index being edited
+  const [showAllLocations, setShowAllLocations] = useState<boolean>(false); // Control display of all locations
 
-const Locations: React.FC<LocationsProps> = ({
-  locations,
-  showAllLocations,
-  setShowAllLocations,
-  newLocation,
-  setNewLocation,
-  addLocation,
-  handleLocationChange,
-  handleEditLocation,
-  handleSaveLocation,
-  editIndex
-}) => {
+  // Add a new location to the list
+  const addLocation = () => {
+    if (newLocation.trim() !== '') {
+      const updatedLocations = [...locations, newLocation]; // Append the new location
+      setLocations(updatedLocations);
+      setNewLocation(''); // Reset the input field
+    }
+  };
+
+  // Edit a location in the list
+  const handleLocationChange = (index: number, value: string) => {
+    const updatedLocations = locations.map((location, i) => (i === index ? value : location));
+    setLocations(updatedLocations); // Update the list
+  };
+
+  // Save the updated location
+  const handleSaveLocation = () => {
+    setEditLocationIndex(null); // Exit edit mode
+  };
+
+  // Remove a location
+  const handleRemoveLocation = (index: number) => {
+    const updatedLocations = locations.filter((_, i) => i !== index); // Remove location by index
+    setLocations(updatedLocations);
+  };
+
   return (
-    <div className="flex flex-col my-2">
-      <Typography variant="body2" sx={{ marginTop: 1 }}>
-        🗺️ Locations:
-      </Typography>
+    <Box sx={{ marginTop: 1 }}>
+      <Typography variant="body2">🗺️ Locations:</Typography>
+
+      {/* Display Locations */}
       {(showAllLocations ? locations : locations.slice(0, 1)).map((location, index) => (
         <div key={index} className="flex items-center mb-2">
-          {editIndex === index ? (
+          {editLocationIndex === index ? (
             <>
               <TextField
                 value={location}
@@ -48,19 +56,40 @@ const Locations: React.FC<LocationsProps> = ({
               <IconButton size="small" onClick={handleSaveLocation}>
                 <DoneIcon />
               </IconButton>
+              <Button onClick={() => handleRemoveLocation(index)} size="small" color="error">
+                Remove
+              </Button>
             </>
           ) : (
             <>
-              <Typography variant="body2" sx={{ flexGrow: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  flexGrow: 1,
+                  padding: '8px',
+                  backgroundColor: '#e0f7fa',
+                  borderRadius: '5px',
+                  transition: 'background-color 0.3s ease',
+                }}
+              >
                 {location}
               </Typography>
-              <IconButton size="small" onClick={() => handleEditLocation(index)}>
+              <IconButton
+                size="small"
+                sx={{
+                  color: '#0288d1',
+                  '&:hover': { color: '#01579b' },
+                }}
+                onClick={() => setEditLocationIndex(index)}
+              >
                 <EditIcon />
               </IconButton>
             </>
           )}
         </div>
       ))}
+
+      {/* Show/Hide All Locations Button */}
       {!showAllLocations && locations.length > 1 && (
         <Button onClick={() => setShowAllLocations(true)} size="small">
           Show All
@@ -71,6 +100,8 @@ const Locations: React.FC<LocationsProps> = ({
           Show Less
         </Button>
       )}
+
+      {/* Add Location Input */}
       <div className="flex items-center mb-2">
         <TextField
           label="Add Location"
@@ -79,11 +110,11 @@ const Locations: React.FC<LocationsProps> = ({
           size="small"
           sx={{ flexGrow: 1, marginRight: 1 }}
         />
-        <Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={addLocation}>
+        <Button variant="outlined" size="medium" startIcon={<AddIcon />} onClick={addLocation}>
           Add
         </Button>
       </div>
-    </div>
+    </Box>
   );
 };
 

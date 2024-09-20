@@ -1,25 +1,25 @@
 import apiSlice from "../api/apiSlice";
- 
-  interface Conversation {
-    _id: string;
-    name: string;
-    status: string;
-    creName: string | null;
-    messagesSeen: boolean;
-    createdAt: string;
-    lastMessage: string;
-    lastMessageTime: string;
-    sentByMe: boolean;
-  }
-  
-  interface GetAllConversationsResponse {
-    conversations: Conversation[];
-  }
-  
-  interface GetConversationByIdResponse {
-    conversation: Conversation;
-  }
-  
+
+interface Conversation {
+  _id: string;
+  name: string;
+  status: string;
+  creName: string | null;
+  messagesSeen: boolean;
+  createdAt: string;
+  lastMessage: string;
+  lastMessageTime: string;
+  sentByMe: boolean;
+}
+
+interface GetAllConversationsResponse {
+  conversations: Conversation[];
+}
+
+interface GetConversationByIdResponse {
+  conversation: Conversation;
+}
+
 // Extend the apiSlice with specific endpoints for conversations
 const conversationApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
@@ -47,14 +47,22 @@ const conversationApi = apiSlice.injectEndpoints({
     // Requirements
     updateRequirement: builder.mutation({
       query: ({ id, requirements }) => ({
-        url: `/lead/${id}/requirements`,  
-        method: 'PUT',                  
-        body: { requirements },          
+        url: `/lead/${id}/requirements`,
+        method: 'PUT',
+        body: { requirements },
+      }),
+    }),
+    //Update reminder or follow-up
+    updateReminder: builder.mutation({
+      query: ({ id, reminders }) => ({
+        url: `/lead/${id}/reminders`,
+        method: 'post',
+        body: { reminders },
       }),
     }),
     
-}),
-overrideExisting: false, // Optional: Prevents overriding existing endpoints
+  }),
+  overrideExisting: false, // Optional: Prevents overriding existing endpoints
 });
 
 // Export the auto-generated hooks for usage in functional components
@@ -62,7 +70,8 @@ export const {
   useGetAllConversationsQuery,
   useGetConversationMessagesQuery,
   useUpdateRequirementMutation,
-  useGetSingleLeadQuery
+  useGetSingleLeadQuery,
+  useUpdateReminderMutation
 } = conversationApi;
 
 export default conversationApi;

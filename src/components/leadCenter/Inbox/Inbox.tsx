@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { TextField, IconButton, Box, Button, Typography } from '@mui/material';
+import { TextField, IconButton, Box, Button, Typography, InputAdornment } from '@mui/material';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import AttachFileRoundedIcon from '@mui/icons-material/AttachFileRounded';
 import EmojiEmotionsRoundedIcon from '@mui/icons-material/EmojiEmotionsRounded';
@@ -10,6 +10,8 @@ import Chats from './chats';
 import NoMessagesImage from '../../../assets/nomessageimg.jpg';
 import Sidebar from '../Sidebar/Sidebar';
 import { useGetConversationMessagesQuery } from '../../../features/conversation/conversationApi';
+import SendIcon from '@mui/icons-material/Send';
+
 
 interface Conversation {
   id: number;
@@ -25,17 +27,17 @@ interface InboxProps {
 
 const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 
-  console.log('inbox theke coversation id with messages',conversation)
+  console.log('inbox theke coversation id with messages', conversation)
   const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false); // State to control sidebar visibility
   const [messages, setMessages] = useState([]);
-  
-  const { data, error, isLoading } = useGetConversationMessagesQuery(conversation?._id);
-  
 
-//   Fetch messages when the conversation changes
+  const { data, error, isLoading } = useGetConversationMessagesQuery(conversation?._id);
+
+
+  //   Fetch messages when the conversation changes
   useEffect(() => {
     if (data && data.messages) {
-		setMessages(data.messages);
+      setMessages(data.messages);
       // console.log('inbox messages got',data);
     }
   }, [data]);
@@ -112,11 +114,26 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
           <AttachFileRoundedIcon className="text-gray-700" />
         </IconButton>
 
-        <TextField label="Type a message..." className="w-full" />
-
-        <IconButton>
-          <SendRoundedIcon className="text-blue-500" />
-        </IconButton>
+        {/* <TextField label="Type a message..." className="w-full" /> */}
+        <TextField
+          label="send message"
+          size="small"
+          fullWidth
+          className='!mr-4'
+          sx={{ marginBottom: 1, backgroundColor: '#fff', borderRadius: '5px' }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  color="primary"
+                  aria-label="send comment"
+                >
+                  <SendIcon />
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
+        />
       </div>
     </div>
   );

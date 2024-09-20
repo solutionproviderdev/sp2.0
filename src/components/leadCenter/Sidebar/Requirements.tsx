@@ -1,5 +1,5 @@
-// src/components/Requirements.tsx
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -7,7 +7,7 @@ import DoneIcon from '@mui/icons-material/Done';
 import { useGetSingleLeadQuery, useUpdateRequirementMutation } from '../../../features/conversation/conversationApi';
 
 interface Conversation {
-  id: number;
+  id: string;
 }
 
 interface InboxProps {
@@ -15,58 +15,72 @@ interface InboxProps {
 }
 
 const Requirements: React.FC<InboxProps> = ({ conversation }) => {
+  // Fetch lead data (requirements) based on the conversation (lead) ID
+  console.log('pitoitary gland ', conversation)
+  const { data, error, isLoading, refetch } = useGetSingleLeadQuery(conversation ?? '');
 
-  const { data, error, loading:isLoading, isFetching, refetch } = useGetSingleLeadQuery(conversation);
-  const requirement=data?.requirements
-  console.log('singlelead from requirement found hare  ',requirement,conversation)
+  const [updateRequirement, { isLoading: isUpdating, isSuccess, isError }] = useUpdateRequirementMutation();
 
-  const [updateRequirement, { loading, isSuccess, isError }] = useUpdateRequirementMutation();
-
-  console.log('requirement theke converasation', conversation)
-  const [showAllRequirements, setShowAllRequirements] = useState<boolean>(false);
-
+  // Local state to manage the requirements list
   const [requirements, setRequirements] = useState<string[]>([]);
   const [newRequirement, setNewRequirement] = useState<string>('');
   const [editRequirementIndex, setEditRequirementIndex] = useState<number | null>(null);
+  const [showAllRequirements, setShowAllRequirements] = useState<boolean>(false);
 
-
-  const addRequirement = () => {
-
-    if (newRequirement.trim() !== '') {
-      setRequirements([...requirements, newRequirement]);
-      setNewRequirement('');
+  // Update local state when data is fetched
+  useEffect(() => {
+    if (data && data && data?.requirements) {
+      setRequirements(data?.requirements); // Load requirements from the lead data
     }
-    updateRequirement({ id: conversation, requirements: [...requirements, newRequirement] })
-    refetch()
-    console.log("update mutation", conversation, newRequirement,isLoading, isSuccess, isError)
+  }, [data]);
+
+  // Add new requirement (without overwriting)
+  const addRequirement = async () => {
+    if (newRequirement.trim() !== '') {
+      const updatedRequirements = [...requirements, newRequirement]; // Append new requirement to the list
+      setRequirements(updatedRequirements);
+      setNewRequirement('');
+
+      // Update requirements in the backend
+      await updateRequirement({ id: conversation, requirements: updatedRequirements });
+      refetch(); // Refetch to get the latest data
+    }
   };
 
+  // Edit requirement
   const handleRequirementChange = (index: number, value: string) => {
-    setRequirements(requirements.map((req, i) => (i === index ? value : req)));
+    const updatedRequirements = requirements.map((req, i) => (i === index ? value : req));
+    setRequirements(updatedRequirements);
   };
 
-  const handleEditRequirement = (index: number) => {
-    console.log("updateRequirement updateRequirement updateRequirement")
-
-    setEditRequirementIndex(index);
-  };
-
-  const handleSaveRequirement = () => {
-    console.log("updateRequirement updateRequirement updateRequirement")
+  // Handle saving updated requirement
+  const handleSaveRequirement = async () => {
     if (editRequirementIndex !== null) {
       if (requirements[editRequirementIndex].trim() === '') {
-        setRequirements(requirements.filter((_, i) => i !== editRequirementIndex));
+        setRequirements(requirements.filter((_, i) => i !== editRequirementIndex)); // Remove empty requirement
       }
       setEditRequirementIndex(null);
+
+      // Update requirements in the backend
+      await updateRequirement({ id: conversation, requirements });
+      refetch(); // Refetch to get the latest data
     }
   };
 
+  // Remove empty requirements
+  const handleRemoveRequirement = async (index: number) => {
+    const updatedRequirements = requirements.filter((_, i) => i !== index); // Remove requirement by index
+    setRequirements(updatedRequirements);
 
-
+    // Update the backend with the updated list
+    await updateRequirement({ id: conversation, requirements: updatedRequirements });
+    refetch();
+  };
 
   return (
-    <Box sx={{ marginBottom: 2 }}>
-      <Typography variant="body2">Requirements:</Typography>
+    <Box sx={{ marginTop: 1 }}>
+      <Typography variant="body2">📋 Requirements:</Typography>
+
       {(showAllRequirements ? requirements : requirements.slice(0, 1)).map((requirement, index) => (
         <div key={index} className="flex items-center mb-2">
           {editRequirementIndex === index ? (
@@ -80,19 +94,42 @@ const Requirements: React.FC<InboxProps> = ({ conversation }) => {
               <IconButton size="small" onClick={handleSaveRequirement}>
                 <DoneIcon />
               </IconButton>
+              <Button onClick={() => handleRemoveRequirement(index)} size="small" color="error">
+                Remove
+              </Button>
             </>
           ) : (
+
             <>
-              <Typography variant="body2" sx={{ flexGrow: 1 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  flexGrow: 1,
+                  padding: '8px',
+                  backgroundColor: '#e0f7fa',
+                  borderRadius: '5px',
+                  transition: 'background-color 0.3s ease',
+                }}
+              >
                 {requirement}
               </Typography>
-              <IconButton size="small" onClick={() => handleEditRequirement(index)}>
+
+              <IconButton
+                size="small"
+                sx={{
+                  color: '#0288d1',
+                  '&:hover': { color: '#01579b' },
+                }}
+                onClick={() => setEditRequirementIndex(index)}
+              >
                 <EditIcon />
               </IconButton>
             </>
+
           )}
         </div>
       ))}
+
       {!showAllRequirements && requirements.length > 1 && (
         <Button onClick={() => setShowAllRequirements(true)} size="small">
           Show All
@@ -103,6 +140,7 @@ const Requirements: React.FC<InboxProps> = ({ conversation }) => {
           Show Less
         </Button>
       )}
+
       {/* Add Requirement Input */}
       <div className="flex items-center mb-2">
         <TextField
@@ -112,10 +150,9 @@ const Requirements: React.FC<InboxProps> = ({ conversation }) => {
           size="small"
           sx={{ flexGrow: 1, marginRight: 1 }}
         />
-        <Button variant="outlined" size="small" startIcon={<AddIcon />} onClick={addRequirement}>
+        <Button variant="outlined" size="medium" startIcon={<AddIcon />} onClick={addRequirement}>
           Add
         </Button>
-
       </div>
     </Box>
   );
