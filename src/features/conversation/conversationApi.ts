@@ -69,14 +69,23 @@ const conversationApi = apiSlice.injectEndpoints({
       }),
     }),
     // sent message to leads
+    // sentMessage: builder.mutation({
+    //   query: ({ id, message }) => ({
+    //     url: `/lead/conversation/${id}/messages`,
+    //     method: 'POST',
+    //     body: message,
+    //   }),
+    // }),
+    
     sentMessage: builder.mutation({
       query: ({ id, message }) => ({
         url: `/lead/conversation/${id}/messages`,
         method: 'POST',
         body: message,
       }),
-    }),
     
+    }),
+
   }),
   overrideExisting: false, // Optional: Prevents overriding existing endpoints
 });

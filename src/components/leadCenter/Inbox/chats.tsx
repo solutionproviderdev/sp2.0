@@ -1,11 +1,16 @@
 
 
-import React from 'react';
+
+
+import React, { useEffect, useRef } from 'react';
 import { Tooltip, Box } from '@mui/material';
 
 const Chats = ({ messages }) => {
+
+
   return (
     <div className="p-4 overflow-y-auto">
+      {/* <div className='hb-0' ref={messagesEndRef} /> */}
       {messages.map((message) => (
         <div
           key={message._id} // Use _id as key from the message data
@@ -18,6 +23,7 @@ const Chats = ({ messages }) => {
             arrow // Adds an arrow pointing to the message
           >
             <div
+
               className={`max-w-xs p-2 rounded-lg ${
                 message.sentByMe ? 'bg-blue-500 text-white' : 'bg-gray-200 text-black'
               }`}
@@ -32,3 +38,7 @@ const Chats = ({ messages }) => {
 };
 
 export default Chats;
+
+
+
+
