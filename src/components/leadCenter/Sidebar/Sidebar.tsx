@@ -51,8 +51,8 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
 
-   const [showAllComments, setShowAllComments] = useState<boolean>(false);
- 
+  const [showAllComments, setShowAllComments] = useState<boolean>(false);
+
   const { control, handleSubmit, reset, formState: { errors } } = useForm<FormValues>({
     defaultValues: { newNumber: '', newReminder: '', newLocation: '' },
   });
@@ -68,7 +68,7 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
     reset({ newNumber: '' });
   };
 
- 
+
 
   const handleSaveEdit = () => {
     if (editIndex !== null && numbers[editIndex].trim() === '') {
@@ -101,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
         </Typography>
 
         {/* Numbers Section */}
-        <PhoneNumbers />
+        <PhoneNumbers conversation={conversation?._id} />
         <Divider />
 
 
@@ -126,7 +126,7 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
         <Divider />
 
         {/* Comments Section */}
-<Comments />
+        <Comments />
 
         {/* <Box sx={{ marginTop: 2 }}>
           <Typography variant="body2">All Comments:</Typography>

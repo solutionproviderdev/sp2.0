@@ -60,6 +60,22 @@ const conversationApi = apiSlice.injectEndpoints({
         body: { reminders },
       }),
     }),
+    // Update leads
+    updateLeads: builder.mutation({
+      query: ({ id, phone }) => ({
+        url: `/lead/${id}`,
+        method: 'put',
+        body: { phone },
+      }),
+    }),
+    // sent message to leads
+    sentMessage: builder.mutation({
+      query: ({ id, message }) => ({
+        url: `/lead/conversation/${id}/messages`,
+        method: 'POST',
+        body: message,
+      }),
+    }),
     
   }),
   overrideExisting: false, // Optional: Prevents overriding existing endpoints
@@ -71,7 +87,9 @@ export const {
   useGetConversationMessagesQuery,
   useUpdateRequirementMutation,
   useGetSingleLeadQuery,
-  useUpdateReminderMutation
+  useUpdateReminderMutation,
+  useUpdateLeadsMutation,
+  useSentMessageMutation
 } = conversationApi;
 
 export default conversationApi;

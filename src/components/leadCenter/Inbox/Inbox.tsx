@@ -9,12 +9,11 @@ import { FaCircleInfo } from 'react-icons/fa6';
 import Chats from './chats';
 import NoMessagesImage from '../../../assets/nomessageimg.jpg';
 import Sidebar from '../Sidebar/Sidebar';
-import { useGetConversationMessagesQuery } from '../../../features/conversation/conversationApi';
+import { useGetConversationMessagesQuery, useSentMessageMutation } from '../../../features/conversation/conversationApi';
 import SendIcon from '@mui/icons-material/Send';
 
-
 interface Conversation {
-  id: number;
+  _id: string;
   name: string;
   lastMessage: string;
   lastMessageTime: string;
@@ -26,24 +25,45 @@ interface InboxProps {
 }
 
 const Inbox: React.FC<InboxProps> = ({ conversation }) => {
-
-  console.log('inbox theke coversation id with messages', conversation)
-  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false); // State to control sidebar visibility
+  const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
   const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState('');
 
   const { data, error, isLoading } = useGetConversationMessagesQuery(conversation?._id);
+  const [sendMessage] = useSentMessageMutation();
 
-
-  //   Fetch messages when the conversation changes
   useEffect(() => {
     if (data && data.messages) {
       setMessages(data.messages);
-      // console.log('inbox messages got',data);
     }
   }, [data]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSendMessage = async () => {
+    if (newMessage.trim() && conversation?._id) {
+      try {
+        await sendMessage({
+          id: conversation._id,
+          message: {
+            messageType: "text",
+            content: {
+              text: newMessage
+            }
+          }
+        }).unwrap();
+        
+        // Clear the input field after sending
+        setNewMessage('');
+        
+        // Optionally, you can refetch the messages or update the local state
+        // to include the new message immediately
+      } catch (err) {
+        console.error('Failed to send message:', err);
+      }
+    }
   };
 
   return (
@@ -61,7 +81,6 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
             <option value="Canceled">Canceled</option>
           </select>
 
-          {/* Button to toggle sidebar */}
           <Button onClick={toggleSidebar} sx={{ marginLeft: 1 }}>
             <FaCircleInfo className="h-6 w-6" />
             <Sidebar conversation={conversation} isOpen={isSidebarOpen} onClose={toggleSidebar} />
@@ -114,12 +133,13 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
           <AttachFileRoundedIcon className="text-gray-700" />
         </IconButton>
 
-        {/* <TextField label="Type a message..." className="w-full" /> */}
         <TextField
           label="send message"
           size="small"
           fullWidth
           className='!mr-4'
+          value={newMessage}
+          onChange={(e) => setNewMessage(e.target.value)}
           sx={{ marginBottom: 1, backgroundColor: '#fff', borderRadius: '5px' }}
           InputProps={{
             endAdornment: (
@@ -127,6 +147,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
                 <IconButton
                   color="primary"
                   aria-label="send comment"
+                  onClick={handleSendMessage}
                 >
                   <SendIcon />
                 </IconButton>
