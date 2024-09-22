@@ -97,7 +97,7 @@ const Comments: React.FC = ({conversation}) => {
           endAdornment: (
             <InputAdornment position="end">
               <IconButton
-                onClick={commentHandler}
+                onChange={commentHandler}
                 color="primary"
                 aria-label="send comment"
               >
