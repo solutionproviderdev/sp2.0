@@ -18,7 +18,7 @@ const Reminders: React.FC<RemindersProps> = ({ conversation }) => {
   // Fetch lead data (reminders) based on the conversation (lead) ID
   const { data, error, isLoading, refetch } = useGetSingleLeadQuery(conversation ?? '');
   const [updateRequirement, { isLoading: isUpdating ,isSuccess}] = useUpdateRequirementMutation();
-console.log('reminder save or not ',isSuccess)
+// console.log('reminder save or not ',isSuccess)
   // Local state to manage reminders list
   const [reminders, setReminders] = useState<string[]>([]);
   const [newReminder, setNewReminder] = useState<string>('');

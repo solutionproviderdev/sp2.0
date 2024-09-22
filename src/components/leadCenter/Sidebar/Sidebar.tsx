@@ -121,12 +121,12 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
         <Divider />
 
         {/* Call Logs */}
-        <CallLogs />
+        <CallLogs conversation={conversation?._id} />
 
         <Divider />
 
         {/* Comments Section */}
-        <Comments />
+        <Comments conversation={conversation?._id} />
 
         {/* <Box sx={{ marginTop: 2 }}>
           <Typography variant="body2">All Comments:</Typography>
