@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
-import { Box, Typography, List, ListItem, TextField, IconButton, InputAdornment, Button, Divider, styled } from '@mui/material';
+
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, List, ListItem, ListItemAvatar, Avatar, ListItemText, TextField, IconButton, InputAdornment, Button, Divider, styled } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import AttachFileIcon from '@mui/icons-material/AttachFile';
+import ClearIcon from '@mui/icons-material/Clear';
 import { useAddCommentMutation } from '../../../features/conversation/conversationApi';
 
-const Comments: React.FC = ({conversation}) => {
-  console.log('comment----------',conversation)
-  const [addComment, { isError, isSuccess }] = useAddCommentMutation()
+const Comments: React.FC = ({ conversation }) => {
+  const [addComment, { isError, isSuccess }] = useAddCommentMutation();
+  console.log('comment----------', isError, isSuccess);
+
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
     clipPath: 'inset(50%)',
@@ -19,52 +21,85 @@ const Comments: React.FC = ({conversation}) => {
     whiteSpace: 'nowrap',
     width: 1,
   });
+
   // Local state to manage comments and input
-  const [comments, setComments] = useState<string[]>([]);
-
-  
-
-  const [selectedFile, setSelectedFile] = useState();
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showFileIndicator, setShowFileIndicator] = useState(false);
   const [showAllComments, setShowAllComments] = useState<boolean>(false);
-  const comment={
-    comment: newComment,
-    images: [selectedFile]
+
+  // Define comment interface for data consistency
+  interface Comment {
+    comment: string;
+    images: string[];
+    timestamp: string; // Add timestamp for time display (you can remove this if you don't want to show time)
   }
-  console.log('comment seleted file', comment)
+
+  // Generate a timestamp for new comments (you can remove this if you don't want to show time)
+  // ... (implementation can be removed)
+
   // Add new comment
   const commentHandler = () => {
     if (newComment.trim() !== '') {
-      setComments([...comments, newComment]);
-      addComment({id:conversation,comments:comment})
+      const newCommentObj: Comment = {
+        comment: newComment,
+        images: selectedFile ? [selectedFile.name] : [],
+       };
+      setComments([...comments, newCommentObj]);
+      addComment({ id: conversation, comments: newCommentObj });
       setNewComment(''); // Clear the input field
+      setSelectedFile(null);
+      setShowFileIndicator(false); // Hide file indicator after adding
     }
   };
 
+  // Handle file selection and deselection
+  const handleFileChange = (e) => {
+    setSelectedFile(e.target.files[0]);
+    setShowFileIndicator(true);
+ 
+
+   };
+
+  const handleFileDeselect = (e) => {
+     setSelectedFile(null);
+    setShowFileIndicator(false);
+ 
+
+   };
 
   return (
     <Box sx={{ marginTop: 2, padding: 2, border: '1px solid #e0e0e0', borderRadius: '10px', backgroundColor: '#f9f9f9' }}>
       <Typography variant="h6" sx={{ marginBottom: 1, display: 'flex', alignItems: 'center' }}>
-        💬 Comments
+         Comments
       </Typography>
+
       <List>
         {(showAllComments ? comments : comments.slice(0, 1)).map((comment, index) => (
           <ListItem key={index} sx={{ padding: '8px 0', display: 'flex', alignItems: 'center' }}>
-            <EmojiEmotionsIcon sx={{ color: '#fbc02d', marginRight: 1 }} />
-            <Box>
-              <Typography
-                variant="body2"
-                sx={{
-                  backgroundColor: '#e0f7fa',
-                  padding: '6px 10px',
-                  borderRadius: '8px',
-                  wordWrap: 'break-word',
-                  boxShadow: '1px 1px 3px rgba(0,0,0,0.1)',
-                }}
-              >
-                {comment}
-              </Typography>
-            </Box>
+            <ListItemAvatar>
+              <Avatar alt="Profile Picture" src="https://example.com/profile_pic.jpg" /> {/* Replace with your avatar logic */}
+            </ListItemAvatar>
+            <ListItemText
+              primary={comment.comment}
+              secondary={
+                <>
+                  {/* You can remove the following section if you don't want to show time */}
+                  <Typography variant="caption" display="block">
+                    {comment.timestamp}
+                  </Typography>
+                  {/* ------ */}
+                  {comment.images.length > 0 && (
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center' }}>
+                      {comment.images.map((image, i) => (
+                        <img key={i} src={image} alt={`Image ${i + 1}`} style={{ width: '50px', height: '50px', marginRight: '5px' }} />
+                      ))}
+                    </Box>
+                  )}
+                </>
+              }
+            />
           </ListItem>
         ))}
       </List>
@@ -97,7 +132,7 @@ const Comments: React.FC = ({conversation}) => {
           endAdornment: (
             <InputAdornment position="end">
               <IconButton
-                onChange={commentHandler}
+                onClick={commentHandler}
                 color="primary"
                 aria-label="send comment"
               >
@@ -112,21 +147,20 @@ const Comments: React.FC = ({conversation}) => {
               >
                 <VisuallyHiddenInput
                   type="file"
-                  onChange={(event) => setSelectedFile(event.target.files)}
+                  onChange={handleFileChange}
                   multiple
                 />
-                <AttachFileIcon />
+                <AttachFileIcon className={ selectedFile === null ? 'text-gray-500' : 'text-red-600' } />
+                {showFileIndicator && (
+                  <ClearIcon className="text-gray-800 ml-2" onClick={handleFileDeselect} />
+                )}
               </IconButton>
             </InputAdornment>
-
           ),
         }}
       />
     </Box>
   );
 };
-
-
-
 
 export default Comments;
