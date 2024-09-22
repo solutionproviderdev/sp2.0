@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Button, Box, Typography, IconButton } from '@mui/material';
+import { Button, Box, Typography, IconButton, CircularProgress } from '@mui/material';
 import Filter from './Filter';
 import SearchInput from './SearchBar';
 import ActionButtons from './ActionButtons';
@@ -91,7 +91,7 @@ const ConversationList = ({ onSelectConversation }) => {
   );
 
   if (isLoading && page === 1) {
-    return <Typography>Loading...</Typography>;
+    return <CircularProgress size={40} />;
   }
 
   if (error) {
@@ -100,7 +100,7 @@ const ConversationList = ({ onSelectConversation }) => {
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-4">
+      <div className="p-2">
         <SearchInput onSearchChange={handleSearchChange} />
         <div className="flex items-center justify-between mt-2">
           <div className="flex gap-2">
@@ -120,7 +120,7 @@ const ConversationList = ({ onSelectConversation }) => {
           {filteredConversations.map((conversation, index) => (
             <div
               key={conversation._id}
-              className="p-4 border-b cursor-pointer"
+              className="p-2 border-b cursor-pointer"
               onClick={() => onSelectConversation(conversation)}
               ref={index === filteredConversations.length - 1 ? lastConversationRef : null} // Attach observer to the last conversation
             >
@@ -130,15 +130,9 @@ const ConversationList = ({ onSelectConversation }) => {
                   <div className="flex justify-between items-center">
                     <div className="font-bold">{conversation.name}</div>
                     <div className="flex items-center">
-                      {conversation.creName ? (
-                        <Button variant="contained" color="primary" size="small" sx={{ padding: '2px 8px', marginRight: '4px' }}>
-                          {conversation.creName}
-                        </Button>
-                      ) : (
-                        <Button variant="contained" color="primary" size="small" sx={{ padding: '2px 8px', marginRight: '4px' }}>
-                          cre
-                        </Button>
-                      )}
+                      <Button className='!text-xs' variant="contained" color="primary" size="small" sx={{ padding: '2px 2px', marginRight: '4px' }}>
+                        {conversation.status}
+                      </Button>
                       <img src={conversation.profile} alt="Tiny Profile" className="w-6 h-6 rounded-full" />
                     </div>
                   </div>
@@ -150,7 +144,6 @@ const ConversationList = ({ onSelectConversation }) => {
                   </div>
                 </div>
               </div>
-              <ActionButtons />
             </div>
           ))}
         </Box>

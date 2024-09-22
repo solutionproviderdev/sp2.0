@@ -69,23 +69,21 @@ const conversationApi = apiSlice.injectEndpoints({
       }),
     }),
     // sent message to leads
-    // sentMessage: builder.mutation({
-    //   query: ({ id, message }) => ({
-    //     url: `/lead/conversation/${id}/messages`,
-    //     method: 'POST',
-    //     body: message,
-    //   }),
-    // }),
-    
     sentMessage: builder.mutation({
       query: ({ id, message }) => ({
         url: `/lead/conversation/${id}/messages`,
         method: 'POST',
         body: message,
       }),
-    
     }),
-
+    // add comment to leads
+    addComment: builder.mutation({
+      query: ({ id, comment }) => ({
+        url: `/lead/${id}/comments`,
+        method: 'POST',
+        body: comment,
+      }),
+    }),
   }),
   overrideExisting: false, // Optional: Prevents overriding existing endpoints
 });
@@ -98,7 +96,8 @@ export const {
   useGetSingleLeadQuery,
   useUpdateReminderMutation,
   useUpdateLeadsMutation,
-  useSentMessageMutation
+  useSentMessageMutation,
+  useAddCommentMutation
 } = conversationApi;
 
 export default conversationApi;

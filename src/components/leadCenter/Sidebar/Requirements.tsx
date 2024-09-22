@@ -16,7 +16,7 @@ interface InboxProps {
 
 const Requirements: React.FC<InboxProps> = ({ conversation }) => {
   // Fetch lead data (requirements) based on the conversation (lead) ID
-  console.log('pitoitary gland ', conversation)
+  // console.log('pitoitary gland ', conversation)
   const { data, error, isLoading, refetch } = useGetSingleLeadQuery(conversation ?? '');
 
   const [updateRequirement, { isLoading: isUpdating, isSuccess, isError }] = useUpdateRequirementMutation();

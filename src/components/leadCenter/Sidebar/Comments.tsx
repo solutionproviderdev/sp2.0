@@ -1,23 +1,46 @@
 import React, { useState } from 'react';
-import { Box, Typography, List, ListItem, TextField, IconButton, InputAdornment, Button, Divider } from '@mui/material';
+import { Box, Typography, List, ListItem, TextField, IconButton, InputAdornment, Button, Divider, styled } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
+import AttachFileIcon from '@mui/icons-material/AttachFile';
+import { useAddCommentMutation } from '../../../features/conversation/conversationApi';
 
-const Comments: React.FC = () => {
+const Comments: React.FC = ({conversation}) => {
+  console.log('comment----------',conversation)
+  const [addComment, { isError, isSuccess }] = useAddCommentMutation()
+  const VisuallyHiddenInput = styled('input')({
+    clip: 'rect(0 0 0 0)',
+    clipPath: 'inset(50%)',
+    height: 1,
+    overflow: 'hidden',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    whiteSpace: 'nowrap',
+    width: 1,
+  });
   // Local state to manage comments and input
-  const [comments, setComments] = useState<string[]>([
-    'Wony: She is good - 25-06-2024, 2:36 am',
-  ]);
+  const [comments, setComments] = useState<string[]>([]);
+
+  
+
+  const [selectedFile, setSelectedFile] = useState();
   const [newComment, setNewComment] = useState<string>('');
   const [showAllComments, setShowAllComments] = useState<boolean>(false);
-
+  const comment={
+    comment: newComment,
+    images: [selectedFile]
+  }
+  console.log('comment seleted file', comment)
   // Add new comment
-  const addComment = () => {
+  const commentHandler = () => {
     if (newComment.trim() !== '') {
       setComments([...comments, newComment]);
+      addComment({id:conversation,comments:comment})
       setNewComment(''); // Clear the input field
     }
   };
+
 
   return (
     <Box sx={{ marginTop: 2, padding: 2, border: '1px solid #e0e0e0', borderRadius: '10px', backgroundColor: '#f9f9f9' }}>
@@ -74,7 +97,7 @@ const Comments: React.FC = () => {
           endAdornment: (
             <InputAdornment position="end">
               <IconButton
-                onClick={addComment}
+                onClick={commentHandler}
                 color="primary"
                 aria-label="send comment"
               >
@@ -82,10 +105,28 @@ const Comments: React.FC = () => {
               </IconButton>
             </InputAdornment>
           ),
+          startAdornment: (
+            <InputAdornment position="start">
+              <IconButton
+                component="label"
+              >
+                <VisuallyHiddenInput
+                  type="file"
+                  onChange={(event) => setSelectedFile(event.target.files)}
+                  multiple
+                />
+                <AttachFileIcon />
+              </IconButton>
+            </InputAdornment>
+
+          ),
         }}
       />
     </Box>
   );
 };
+
+
+
 
 export default Comments;
