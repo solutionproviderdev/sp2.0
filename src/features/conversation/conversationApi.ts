@@ -62,10 +62,10 @@ const conversationApi = apiSlice.injectEndpoints({
     }),
     // Update leads
     updateLeads: builder.mutation({
-      query: ({ id, phone }) => ({
+      query: ({ id, data }) => ({
         url: `/lead/${id}`,
         method: 'put',
-        body: { phone },
+        body:  data ,
       }),
     }),
     // sent message to leads
@@ -84,6 +84,22 @@ const conversationApi = apiSlice.injectEndpoints({
         body: comment,
       }),
     }),
+    // add phon nuber 
+    addPhone: builder.mutation({
+      query: ({ id, phoneNumber }) => ({
+        url: `/lead/${id}/add-phone-number`,
+        method: 'PUT',
+        body: phoneNumber,
+      }),
+    }),
+    // add reminder follow up    
+    addReminder: builder.mutation({
+      query: ({ id, reminder }) => ({
+        url: `/lead/${id}/reminders`,
+        method: 'POST',
+        body: reminder,
+      }),
+    }),
   }),
   overrideExisting: false, // Optional: Prevents overriding existing endpoints
 });
@@ -97,7 +113,8 @@ export const {
   useUpdateReminderMutation,
   useUpdateLeadsMutation,
   useSentMessageMutation,
-  useAddCommentMutation
+  useAddCommentMutation,
+  useAddPhoneMutation
 } = conversationApi;
 
 export default conversationApi;

@@ -101,7 +101,7 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
         </Typography>
 
         {/* Numbers Section */}
-        <PhoneNumbers conversation={conversation?._id} />
+        <PhoneNumbers leadId={conversation?._id} phoneNumbers={data?.phone} />
         <Divider />
 
 
