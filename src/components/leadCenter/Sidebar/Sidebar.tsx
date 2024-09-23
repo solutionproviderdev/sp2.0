@@ -46,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
   // if(conversation?._id === null){
   //   <div>loading...</div>
   // }
-  console.log('from sidebar to get the conversation', conversation)
+  // console.log('from sidebar to get the conversation', conversation)
   const [numbers, setNumbers] = useState<string[]>(['01957795943', '01234629732']);
 
   const [editIndex, setEditIndex] = useState<number | null>(null);
