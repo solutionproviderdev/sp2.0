@@ -24,7 +24,7 @@ const LeadCenter = () => {
 	return (
 		<div className="flex h-screen ">
 			{/* Fixed width for conversation list */}
-			<div className="w-3/12 border-r border-gray-300">
+			<div className="w-3/12 h-full border-r border-gray-300">
 				<ConversationList onSelectConversation={handleSelectConversation} />
 			</div>
 			{/* Flexible width for inbox and make it scrollable */}

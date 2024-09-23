@@ -116,7 +116,7 @@ const ConversationList = ({ onSelectConversation }) => {
           No data found for selected filters.
         </Typography>
       ) : (
-        <Box sx={{ overflowY: 'auto', maxHeight: '500px', mb: 8, '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#3b82f6', borderRadius: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#e5e7eb' } }}>
+        <Box sx={{ overflowY: 'auto', maxHeight: 'full', mb: 8, '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { backgroundColor: '#3b82f6', borderRadius: '8px' }, '&::-webkit-scrollbar-track': { backgroundColor: '#e5e7eb' } }}>
           {filteredConversations.map((conversation, index) => (
             <div
               key={conversation._id}
