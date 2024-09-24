@@ -3,13 +3,12 @@ import Image from '../../UI/Image';
 import { useEffect, useRef } from 'react';
 
 const Chats = ({ messages }) => {
-	console.log(messages);
 
 	const endOfMessagesRef = useRef(null);
 
-	useEffect(() => {
-		endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
-	}, [messages]);
+	// useEffect(() => {
+	// 	endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+	// }, [messages]);
 
 	const renderMessageContent = msg => {
 		const renderMultipleImages = fileUrl => (

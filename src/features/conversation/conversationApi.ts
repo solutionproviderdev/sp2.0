@@ -1,3 +1,4 @@
+import { patch } from '@mui/material';
 import { getSocket } from '../../hooks/getSocket';
 import apiSlice from '../api/apiSlice';
 
@@ -74,7 +75,7 @@ const conversationApi = apiSlice.injectEndpoints({
 					// Define the socket listener for conversation updates
 					const handleConversationUpdate = (conversation: Conversation) => {
 						updateCachedData(draft => {
-							console.log('conversation', conversation);
+							// console.log('conversation', conversation);
 
 							// Find the index of the updated conversation
 							const index = draft.leads.findIndex(
@@ -203,6 +204,38 @@ const conversationApi = apiSlice.injectEndpoints({
 				body: phoneNumber,
 			}),
 		}),
+
+		markAsSeen: builder.mutation({
+			query: ({ id }) => ({
+				url: `/lead/conversation/${id}/mark-messages-seen`,
+				method: 'PUT',
+			}),
+			async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
+				// Optimistically update the cache with the seen status
+				console.log('from outside of dispatch function', id);
+				const patchResult = dispatch(
+					apiSlice.util.updateQueryData(
+						'getAllConversations',
+						{ page: 1, limit: 10 },
+						draft => {
+							console.log('from inside of dispatch function', id);
+							const index = draft.leads.findIndex(lead => lead._id === id);
+							if (index !== -1) {
+								draft.leads[index].messagesSeen = true;
+							}
+						}
+					)
+				);
+
+				console.log(patchResult);
+
+				try {
+					await queryFulfilled; // Wait for the mutation to succeed
+				} catch {
+					patchResult.undo(); // Revert the optimistic update if the mutation fails
+				}
+			},
+		}),
 	}),
 	overrideExisting: false, // Optional: Prevents overriding existing endpoints
 });
@@ -218,6 +251,7 @@ export const {
 	useSentMessageMutation,
 	useAddCommentMutation,
 	useAddPhoneMutation,
+	useMarkAsSeenMutation,
 } = conversationApi;
 
 export default conversationApi;
