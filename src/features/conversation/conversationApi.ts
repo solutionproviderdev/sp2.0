@@ -196,6 +196,13 @@ const conversationApi = apiSlice.injectEndpoints({
 				body: comment,
 			}),
 		}),
+		addPhone: builder.mutation({
+			query: ({ id, phoneNumber }) => ({
+				url: `/lead/${id}/add-phone-number`,
+				method: 'PUT',
+				body: phoneNumber,
+			}),
+		}),
 	}),
 	overrideExisting: false, // Optional: Prevents overriding existing endpoints
 });
@@ -210,6 +217,7 @@ export const {
 	useUpdateLeadsMutation,
 	useSentMessageMutation,
 	useAddCommentMutation,
+	useAddPhoneMutation,
 } = conversationApi;
 
 export default conversationApi;
