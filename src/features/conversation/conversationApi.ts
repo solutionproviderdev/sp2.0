@@ -52,7 +52,9 @@ const conversationApi = apiSlice.injectEndpoints({
 		// get all leads
 		getSingleLead: builder.query<GetConversationByIdResponse, string>({
 			query: (id: string) => `/lead/${id}`,
+			providesTags: (result, error, id) => [{ type: 'Lead', id }],
 		}),
+
 		// Fetch all conversations
 		getAllConversations: builder.query<
 			GetAllConversationsResponse,
@@ -170,11 +172,12 @@ const conversationApi = apiSlice.injectEndpoints({
 		}),
 		// Update leads
 		updateLeads: builder.mutation({
-			query: ({ id, phone }) => ({
+			query: ({ id, data }) => ({
 				url: `/lead/${id}`,
 				method: 'put',
-				body: { phone },
+				body: data,
 			}),
+			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
 		}),
 
 		// sent message to leads

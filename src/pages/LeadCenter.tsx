@@ -18,7 +18,6 @@ const LeadCenter = () => {
 
 	const handleSelectConversation = (conversation: Conversation) => {
 		setSelectedConversation(conversation);
-		console.log('lead er id,lets see hare name available or not',conversation)
 	};
 
 	return (
@@ -29,12 +28,11 @@ const LeadCenter = () => {
 			</div>
 			{/* Flexible width for inbox and make it scrollable */}
 			<div className="w-9/12  ">
-				<Inbox conversation={selectedConversation} />
-				
+				{/* Inbox component */}
+				{selectedConversation && <Inbox conversation={selectedConversation} />}
 			</div>
 		</div>
 	);
 };
 
 export default LeadCenter;
-

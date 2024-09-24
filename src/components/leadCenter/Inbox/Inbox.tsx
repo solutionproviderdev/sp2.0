@@ -89,7 +89,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
       </div>
 
       {/* Messages */}
-      <Box
+      {/* <Box
         sx={{
           flex: '1',
           overflowY: 'auto',
@@ -105,7 +105,8 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
             backgroundColor: '#e5e7eb',
           },
         }}
-      >
+        className="flex flex-col h-full"
+      > */}
         {messages.length > 0 ? (
           <Chats messages={messages} />
         ) : (
@@ -117,7 +118,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
             />
           </div>
         )}
-      </Box>
+      {/* </Box> */}
 
       {/* Input Box */}
       <div className="mb-20 pt-2 bg-white border-t flex items-center">
