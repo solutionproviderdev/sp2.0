@@ -164,11 +164,14 @@ const conversationApi = apiSlice.injectEndpoints({
 		}),
 		//Update reminder or follow-up
 		updateReminder: builder.mutation({
-			query: ({ id, reminders }) => ({
-				url: `/lead/${id}/reminders`,
-				method: 'post',
-				body: { reminders },
-			}),
+			query: ({ id, reminders }) => {
+				console.log('update reminder logs rtk---', id, reminders)
+				return ({
+					url: `/lead/${id}/reminders`,
+					method: 'post',
+					body: reminders,
+				})
+			}
 		}),
 		// Update leads
 		updateLeads: builder.mutation({
@@ -190,18 +193,32 @@ const conversationApi = apiSlice.injectEndpoints({
 		}),
 
 		addComment: builder.mutation({
-			query: ({ id, comment }) => ({
-				url: `/lead/${id}/comments`,
-				method: 'POST',
-				body: comment,
-			}),
+			query: ({ id, comment }) => {
+				return ({
+					url: `/lead/${id}/comments`,
+					method: 'POST',
+					body: comment,
+				})
+			},
 		}),
+		// add phone number
 		addPhone: builder.mutation({
 			query: ({ id, phoneNumber }) => ({
 				url: `/lead/${id}/add-phone-number`,
 				method: 'PUT',
 				body: phoneNumber,
 			}),
+		}),
+		// add call logs        
+		addCallLogs: builder.mutation({
+			query: ({ id, data }) => {
+				console.log("calllogs-------rtk", id, data)
+				return ({
+					url: `/lead/${id}/call-logs`,
+					method: 'POST',
+					body: data,
+				})
+			},
 		}),
 	}),
 	overrideExisting: false, // Optional: Prevents overriding existing endpoints
@@ -218,6 +235,7 @@ export const {
 	useSentMessageMutation,
 	useAddCommentMutation,
 	useAddPhoneMutation,
+	useAddCallLogsMutation
 } = conversationApi;
 
 export default conversationApi;

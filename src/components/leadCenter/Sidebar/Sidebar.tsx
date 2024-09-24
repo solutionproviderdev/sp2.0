@@ -109,9 +109,9 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
 					{data?.name}
 				</Typography>
 
-        {/* Numbers Section */}
-        <PhoneNumbers leadId={conversation?._id} phoneNumbers={data?.phone} />
-        <Divider />
+				{/* Numbers Section */}
+				<PhoneNumbers leadId={conversation?._id} phoneNumbers={data?.phone} />
+				<Divider />
 
 
 				{/* location sactions */}
@@ -124,59 +124,19 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
 				<Divider />
 
 				{/* Follow-up Section */}
-				<Reminders conversation={conversation?._id} />
+				<Reminders leadId={conversation?._id} leadReminders={data?.reminder} refetch={refetch} />
 
 				<Divider />
 
-				{/* Call Logs */}
-				<CallLogs conversation={conversation?._id} />
+				{/* Call Logs */}  
+				<CallLogs callLogsId={conversation?._id} leadCallLogs={data?.callLogs} refetch={refetch} />
 
 				<Divider />
 
 				{/* Comments Section */}
 				<Comments conversation={conversation?._id} />
 
-				{/* <Box sx={{ marginTop: 2 }}>
-          <Typography variant="body2">All Comments:</Typography>
-          <List>
-            {(showAllComments ? comments : comments.slice(0, 1)).map((comment, index) => (
-              <ListItem key={index}>
-                <Typography variant="body2">{comment}</Typography>
-              </ListItem>
-            ))}
-          </List>
-          {!showAllComments && comments.length > 1 && (
-            <Button onClick={() => setShowAllComments(true)} size="small">
-              Show All
-            </Button>
-          )}
-          {showAllComments && (
-            <Button onClick={() => setShowAllComments(false)} size="small">
-              Show Less
-            </Button>
-          )}
-          <TextField
-            label="Add a comment"
-            size="small"
-            fullWidth
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            sx={{ marginTop: 1 }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={addComment}
-                    color="primary"
-                    aria-label="send comment"
-                  >
-                    <SendIcon />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </Box> */}
+			 
 			</Box>
 		</Drawer>
 	);
