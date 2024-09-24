@@ -1,7 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { TextField, IconButton, Box, Button, Typography, InputAdornment } from '@mui/material';
-import SendRoundedIcon from '@mui/icons-material/SendRounded';
 import AttachFileRoundedIcon from '@mui/icons-material/AttachFileRounded';
 import EmojiEmotionsRoundedIcon from '@mui/icons-material/EmojiEmotionsRounded';
 import CameraAltIcon from '@mui/icons-material/CameraAlt';

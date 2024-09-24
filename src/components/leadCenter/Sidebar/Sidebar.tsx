@@ -109,9 +109,10 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
 					{data?.name}
 				</Typography>
 
-				{/* Numbers Section */}
-				<PhoneNumbers conversation={conversation?._id} />
-				<Divider />
+        {/* Numbers Section */}
+        <PhoneNumbers leadId={conversation?._id} phoneNumbers={data?.phone} />
+        <Divider />
+
 
 				{/* location sactions */}
 				<AddressCard leadId={conversation?._id} address={data?.address} />
