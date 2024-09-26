@@ -211,12 +211,12 @@ const conversationApi = apiSlice.injectEndpoints({
 		}),
 		// add call logs        
 		addCallLogs: builder.mutation({
-			query: ({ id, data }) => {
-				console.log("calllogs-------rtk", id, data)
+			query: ({ id, newCallLog }) => {
+				console.log("calllogs---rtk --rtk--rtk", id, newCallLog)
 				return ({
 					url: `/lead/${id}/call-logs`,
 					method: 'POST',
-					body: data,
+					body: newCallLog,
 				})
 			},
 		}),

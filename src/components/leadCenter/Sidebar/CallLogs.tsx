@@ -1,98 +1,238 @@
-
-
-// import React, { useState } from 'react';
-// import { Box, Typography, Button, List, ListItem, TextField } from '@mui/material';
+// import React, { useState, useEffect } from 'react';
+// import {
+//   Box,
+//   Typography,
+//   Button,
+//   List,
+//   ListItem,
+//   Modal,
+//   TextField,
+//   MenuItem,
+// } from '@mui/material';
 // import AddIcon from '@mui/icons-material/Add';
+// import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+// import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+// import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+// import dayjs from 'dayjs';
+// import { useAddCallLogsMutation } from '../../../features/conversation/conversationApi';
 
 // interface CallLog {
-//   name: string;
-//   details: string;
-//   date: string;
+//   recipientNumber: string;
+//   callDuration: number;
+//   timestamp: string;
+//   callType: string;
+//   status: string;
 // }
 
-// const CallLogs: React.FC = ({callLogsId,leadCallLogs,refetch}) => {
-//   // Local state to manage the call logs list
-//   const [callLogs, setCallLogs] = useState<CallLog[]>([
-//     { name: 'John Doe', details: 'Duration: 2:30 min', date: '25-Aug, 10:44 am' },
+// interface CallLogsProps {
+//   conversation: any;
+//   leadCallLogs: CallLog[];
+//   refetch: () => void;
+// }
 
-//   ]);
-//   const [newCallLog, setNewCallLog] = useState<CallLog>({ name: '', details: '', date: '' });
-//   const [showAllCallLogs, setShowAllCallLogs] = useState<boolean>(false);
+// const CallLogs: React.FC<CallLogsProps> = ({ conversation, leadCallLogs, refetch }) => {
+//   const [addCallLogs, { isLoading }] = useAddCallLogsMutation();
+//   const [callLogs, setCallLogs] = useState<CallLog[]>(leadCallLogs);
+//   const [isModalOpen, setModalOpen] = useState<boolean>(false);
+//   const [phoneError, setPhoneError] = useState<boolean>(false);
+//   const [newCallLog, setNewCallLog] = useState<CallLog>({
+//     recipientNumber: '',
+//     callDuration: 0,
+//     timestamp: dayjs().toISOString(),
+//     callType: 'Outgoing',
+//     status: 'Received',
+//   });
+//   const [durationInput, setDurationInput] = useState<string>('');
 
+//   useEffect(() => {
+//     setCallLogs(leadCallLogs);
+//   }, [leadCallLogs]);
 
-//   // Add a new call log
-//   const addCallLog = () => {
-//     if (newCallLog.name.trim() && newCallLog.details.trim() && newCallLog.date.trim()) {
-//       setCallLogs([...callLogs, newCallLog]);
-//       setNewCallLog({ name: '', details: '', date: '' }); // Clear input
+//   // Simple phone validation (accepts + followed by 10-14 digits)
+//   const validatePhoneNumber = () => {
+//     const phoneNumberRegex = /^\+?[0-9]{10,14}$/;
+//     return phoneNumberRegex.test(newCallLog.recipientNumber);
+//   };
+
+//   // Convert MM:SS to total seconds
+//   const convertToSeconds = (duration: string) => {
+//     const [minutes, seconds] = duration.split(':').map(Number);
+//     return minutes * 60 + seconds;
+//   };
+
+//   // Save call log and show error if validation fails
+//   const handleSaveCallLog = async () => {
+//     if (!validatePhoneNumber()) {
+//       setPhoneError(true);
+//       return;
 //     }
+
+//     // Convert MM:SS to total seconds and set call duration in seconds
+//     const totalSeconds = convertToSeconds(durationInput);
+//     setNewCallLog({ ...newCallLog, callDuration: totalSeconds });
+
+//     console.log('Saving call log:', newCallLog);
+//     setModalOpen(false);
+//     const response = await addCallLogs({ id: conversation?._id, newCallLog });
+//     console.log('Call logs mutation response', response);
+//     refetch();
+//   };
+
+//   // Helper function to get emoji based on call status
+//   const getStatusEmoji = (status: string) => {
+//     return status === 'Missed' ? '📵' : '📞';
 //   };
 
 //   return (
 //     <Box sx={{ marginTop: 1 }}>
-//       <Typography variant="body2" sx={{}}>
-//       ☎️ Call Logs:
-//       </Typography>
+//       <Typography variant="body2">☎️ Call Logs:</Typography>
 
 //       {/* Display Call Logs */}
+
 //       <List>
-//         {(showAllCallLogs ? callLogs : callLogs.slice(0, 1)).map((log, index) => (
-//           <ListItem key={index} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 0 }}>
-//             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-//               {log.name}
+//         {callLogs?.map((log, index) => (
+//           <ListItem
+//             key={index}
+//             sx={{
+//               display: 'flex',
+//               justifyContent: 'space-between', // This will ensure space between the items
+//               alignItems: 'center',
+//               padding: '10px',
+//               backgroundColor: '#f0f0f0',
+//               marginBottom: '8px',
+//               borderRadius: '8px',
+//               boxShadow: 1,
+//             }}
+//           >
+//             {/* Status Emoji */}
+//             <Typography variant="body1" sx={{ marginRight: '8px' }}>
+//               {getStatusEmoji(log.status)}
 //             </Typography>
 
-//             <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-//               <Typography variant="body2">{log.details}</Typography>
-//               <Typography variant="body2" sx={{ textAlign: 'right', color: 'gray' }}>
-//                 {log.date}
+//             {/* Recipient Number */}
+//             <Typography variant="body2" sx={{ fontWeight: 'bold', marginRight: '8px' }}>
+//               {log.recipientNumber}
+//             </Typography>
+
+//             {/* Duration and Timestamp */}
+//             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+//               <Typography variant="body2">{`Duration: ${Math.floor(log.callDuration / 60)}m ${log.callDuration % 60}s`}</Typography>
+//               <Typography variant="body2" sx={{ color: 'gray' }}>
+//                 {dayjs(log.timestamp).format('DD-MM-YYYY HH:mm')}
 //               </Typography>
 //             </Box>
-
 //           </ListItem>
 //         ))}
 //       </List>
 
-//       {/* Show/Hide All Call Logs Button */}
-//       {!showAllCallLogs && callLogs.length > 1 && (
-//         <Button onClick={() => setShowAllCallLogs(true)} size="small">
-//           Show All
-//         </Button>
-//       )}
-//       {showAllCallLogs && (
-//         <Button onClick={() => setShowAllCallLogs(false)} size="small">
-//           Show Less
-//         </Button>
-//       )}
 
-//       {/* Add Call Log Input */}
-//       <div className="flex items-center mb-2">
-//         <TextField
-//           label="Name"
-//           value={newCallLog.name}
-//           onChange={(e) => setNewCallLog({ ...newCallLog, name: e.target.value })}
-//           size="small"
-//           sx={{ flexGrow: 1, marginRight: 1 }}
-//         />
-//         <TextField
-//           label="Durations"
-//           value={newCallLog.details}
-//           onChange={(e) => setNewCallLog({ ...newCallLog, details: e.target.value })}
-//           size="small"
-//           sx={{ flexGrow: 1, marginRight: 1, marginTop: 1 }}
-//         />
-//         <TextField
-//           label="Date"
-//           value={newCallLog.date}
-//           onChange={(e) => setNewCallLog({ ...newCallLog, date: e.target.value })}
-//           size="small"
-//           sx={{ flexGrow: 1, marginRight: 1 }}
-//         />
-//         <Button variant="outlined" size="medium" startIcon={<AddIcon />} onClick={addCallLog}>
-//           Add
-//         </Button>
-//       </div>
+//       <Button
+//         variant="contained"
+//         startIcon={<AddIcon />}
+//         onClick={() => setModalOpen(true)}
+//         sx={{
+//           backgroundColor: 'primary.main',
+//           '&:hover': { backgroundColor: 'primary.dark' },
+//           width: '100%',
+//           marginTop: '20px',
+//         }}
+//       >
+//         Add Call Log
+//       </Button>
 
+//       {/* Modal to Add Call Log */}
+//       <Modal open={isModalOpen} onClose={() => setModalOpen(false)}>
+//         <Box
+//           sx={{
+//             position: 'absolute',
+//             top: '50%',
+//             left: '50%',
+//             transform: 'translate(-50%, -50%)',
+//             bgcolor: 'background.paper',
+//             boxShadow: 24,
+//             p: 4,
+//             borderRadius: 2,
+//             width: 400,
+//           }}
+//         >
+//           <Typography variant="h6" mb={2}>
+//             Add Call Log
+//           </Typography>
+
+//           {/* Recipient Number Input with validation */}
+//           <TextField
+//             label="Recipient Number"
+//             value={newCallLog.recipientNumber}
+//             onChange={(e) => {
+//               setNewCallLog({ ...newCallLog, recipientNumber: e.target.value });
+//               setPhoneError(false);
+//             }}
+//             fullWidth
+//             margin="normal"
+//             error={phoneError}
+//             helperText={phoneError ? 'Please enter a valid phone number (e.g. +8801234567890)' : ''}
+//           />
+
+//           {/* Call Type Input */}
+//           <TextField
+//             select
+//             label="Call Type"
+//             value={newCallLog.callType}
+//             onChange={(e) => setNewCallLog({ ...newCallLog, callType: e.target.value })}
+//             fullWidth
+//             margin="normal"
+//           >
+//             <MenuItem value="Outgoing">Outgoing</MenuItem>
+//             <MenuItem value="Incoming">Incoming</MenuItem>
+//           </TextField>
+
+//           {/* Status Input */}
+//           <TextField
+//             select
+//             label="Status"
+//             value={newCallLog.status}
+//             onChange={(e) => setNewCallLog({ ...newCallLog, status: e.target.value })}
+//             fullWidth
+//             margin="normal"
+//           >
+//             <MenuItem value="Received">Received</MenuItem>
+//             <MenuItem value="Missed">Missed</MenuItem>
+//           </TextField>
+
+//           {/* Call Duration Input (MM:SS) */}
+//           <TextField
+//             label="Call Duration (MM:SS)"
+//             value={durationInput}
+//             onChange={(e) => setDurationInput(e.target.value)}
+//             fullWidth
+//             margin="normal"
+//             placeholder="e.g. 2:45"
+//           />
+
+
+//           {/* Timestamp Input */}
+//           <LocalizationProvider dateAdapter={AdapterDayjs}>
+//             <DateTimePicker
+//               className='w-full'
+//               label="Timestamp"
+//               value={dayjs(newCallLog.timestamp)}
+//               onChange={(newValue) =>
+//                 setNewCallLog({ ...newCallLog, timestamp: newValue?.toISOString() || '' })
+//               }
+//               renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+//             />
+//           </LocalizationProvider>
+
+//           <Box mt={2} display="flex" justifyContent="space-between">
+//             <Button variant="contained" onClick={handleSaveCallLog}>
+//               Save
+//             </Button>
+//             <Button variant="outlined" onClick={() => setModalOpen(false)}>
+//               Cancel
+//             </Button>
+//           </Box>
+//         </Box>
+//       </Modal>
 //     </Box>
 //   );
 // };
@@ -109,139 +249,250 @@
 
 
 
-
-
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, List, ListItem, TextField } from '@mui/material';
+import {
+  Box,
+  Typography,
+  Button,
+  List,
+  ListItem,
+  Modal,
+  TextField,
+  MenuItem,
+} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import { useAddCallLogsMutation } from '../../../features/conversation/conversationApi'; // Import the mutation
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import { useAddCallLogsMutation } from '../../../features/conversation/conversationApi';
 
 interface CallLog {
-  name: string;
-  details: string;
-  date: string;
+  recipientNumber: string;
+  callDuration: number | string; // Allow string format as "MM:SS"
+  timestamp: string;
+  callType: string;
+  status: string;
 }
 
 interface CallLogsProps {
-  callLogsId: string; // Conversation ID
-  leadCallLogs: CallLog[]; // Call logs fetched from the database
-  refetch: () => void; // Refetch function to reload the data after an update
+  conversation: any;
+  leadCallLogs: CallLog[];
+  refetch: () => void;
 }
 
-const CallLogs: React.FC<CallLogsProps> = ({ callLogsId, leadCallLogs, refetch }) => {
-  // Local state for managing the call logs list
-  const [callLogs, setCallLogs] = useState<CallLog[]>(leadCallLogs);
-  const [newCallLog, setNewCallLog] = useState<CallLog>({ name: '', details: '', date: '' });
-  const [showAllCallLogs, setShowAllCallLogs] = useState<boolean>(false);
-
-  // RTK Mutation hook for adding call logs
+const CallLogs: React.FC<CallLogsProps> = ({ conversation, leadCallLogs, refetch }) => {
   const [addCallLogs, { isLoading }] = useAddCallLogsMutation();
+  const [callLogs, setCallLogs] = useState<CallLog[]>(leadCallLogs);
+  const [isModalOpen, setModalOpen] = useState<boolean>(false);
+  const [phoneError, setPhoneError] = useState<boolean>(false);
+  const [durationError, setDurationError] = useState<boolean>(false); // To track invalid duration input
+  const [newCallLog, setNewCallLog] = useState<CallLog>({
+    recipientNumber: '',
+    callDuration: '0:00', // Default duration in MM:SS format
+    timestamp: dayjs().toISOString(),
+    callType: 'Outgoing',
+    status: 'Received',
+  });
+  const [durationInput, setDurationInput] = useState<string>(''); // For MM:SS input
 
-  // Sync local state with leadCallLogs from props
   useEffect(() => {
     setCallLogs(leadCallLogs);
   }, [leadCallLogs]);
 
-  // Add a new call log and send it to the backend
-  const addCallLog = async () => {
-    if (newCallLog.name.trim() && newCallLog.details.trim() && newCallLog.date.trim()) {
-      try {
-        // Call the mutation with the conversation ID (callLogsId) and the new call log data
-        const response = await addCallLogs({
-          id: callLogsId,
-          data: {
-            recipientNumber: newCallLog.name,
-            callType: 'Outgoing', // Assuming outgoing as an example
-            status: 'Received', // Assuming received as an example
-            callDuration: newCallLog.details, // Assuming this is call duration
-            timestamp: newCallLog.date, // Date as timestamp
-          },
-        }).unwrap();
+  // Simple phone validation (accepts + followed by 10-14 digits)
+  const validatePhoneNumber = () => {
+    const phoneNumberRegex = /^\+?[0-9]{10,14}$/;
+    return phoneNumberRegex.test(newCallLog.recipientNumber);
+  };
 
-        // Log success message and refetch to get the latest data
-        console.log('Call log added successfully:', response);
-        refetch(); // Refetch the data to see the updated call logs
+  // Validate the duration input in MM:SS format
+  const validateDuration = (duration: string) => {
+    const durationRegex = /^([0-5]?[0-9]):([0-5][0-9])$/; // MM:SS format (0-59 for minutes and seconds)
+    return durationRegex.test(duration);
+  };
 
-        // Clear input fields after adding the log
-        setNewCallLog({ name: '', details: '', date: '' });
-      } catch (error) {
-        console.error('Error adding call log:', error);
-      }
+  // Save call log and show error if validation fails
+  const handleSaveCallLog = async () => {
+    // Validate phone number and duration input
+    if (!validatePhoneNumber()) {
+      setPhoneError(true);
+      return;
     }
+    if (!validateDuration(durationInput)) {
+      setDurationError(true);
+      return;
+    }
+    console.log("durationInput",durationInput)
+
+    // Proceed to save if validations pass
+    setDurationError(false); // Clear the error state
+
+    // Set call duration as string in MM:SS format
+    const updatedCallLog = { ...newCallLog, callDuration:durationInput};
+
+    console.log('Saving call log:', updatedCallLog);
+    setModalOpen(false);
+    const response = await addCallLogs({ id: conversation?._id, newCallLog: updatedCallLog });
+    console.log('Call logs mutation response', response);
+    refetch();
+  };
+
+  // Helper function to get emoji based on call status
+  const getStatusEmoji = (status: string) => {
+    return status === 'Missed' ? '📵' : '📞';
   };
 
   return (
     <Box sx={{ marginTop: 1 }}>
-      <Typography variant="body2" sx={{}}>
-        ☎️ Call Logs:
-      </Typography>
+      <Typography variant="body2">☎️ Call Logs:</Typography>
 
       {/* Display Call Logs */}
+
       <List>
-        {(showAllCallLogs ? callLogs : callLogs.slice(0, 1)).map((log, index) => (
+        {callLogs?.map((log, index) => (
           <ListItem
             key={index}
-            sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: 0 }}
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between', // This will ensure space between the items
+              alignItems: 'center',
+              padding: '10px',
+              backgroundColor: '#f0f0f0',
+              marginBottom: '8px',
+              borderRadius: '8px',
+              boxShadow: 1,
+            }}
           >
-            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              {log.name}
+            {/* Status Emoji */}
+            <Typography variant="body1" sx={{ marginRight: '8px' }}>
+              {getStatusEmoji(log.status)}
             </Typography>
 
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-              <Typography variant="body2">{log.details}</Typography>
-              <Typography variant="body2" sx={{ textAlign: 'right', color: 'gray' }}>
-                {log.date}
+            {/* Recipient Number */}
+            <Typography variant="body2" sx={{ fontWeight: 'bold', marginRight: '8px' }}>
+              {log.recipientNumber}
+            </Typography>
+
+            {/* Duration and Timestamp */}
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+              <Typography variant="body2">{`Duration: ${log.callDuration}`}</Typography>
+              <Typography variant="body2" sx={{ color: 'gray' }}>
+                {dayjs(log.timestamp).format('DD-MM-YYYY HH:mm')}
               </Typography>
             </Box>
           </ListItem>
         ))}
       </List>
 
-      {/* Show/Hide All Call Logs Button */}
-      {!showAllCallLogs && callLogs.length > 1 && (
-        <Button onClick={() => setShowAllCallLogs(true)} size="small">
-          Show All
-        </Button>
-      )}
-      {showAllCallLogs && (
-        <Button onClick={() => setShowAllCallLogs(false)} size="small">
-          Show Less
-        </Button>
-      )}
+      <Button
+        variant="contained"
+        startIcon={<AddIcon />}
+        onClick={() => setModalOpen(true)}
+        sx={{
+          backgroundColor: 'primary.main',
+          '&:hover': { backgroundColor: 'primary.dark' },
+          width: '100%',
+          marginTop: '20px',
+        }}
+      >
+        Add Call Log
+      </Button>
 
-      {/* Add Call Log Input */}
-      <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: 2 }}>
-        <TextField
-          label="Name"
-          value={newCallLog.name}
-          onChange={(e) => setNewCallLog({ ...newCallLog, name: e.target.value })}
-          size="small"
-          sx={{ flexGrow: 1, marginRight: 1 }}
-        />
-        <TextField
-          label="Duration"
-          value={newCallLog.details}
-          onChange={(e) => setNewCallLog({ ...newCallLog, details: e.target.value })}
-          size="small"
-          sx={{ flexGrow: 1, marginRight: 1 }}
-        />
-        <TextField
-          label="Date"
-          value={newCallLog.date}
-          onChange={(e) => setNewCallLog({ ...newCallLog, date: e.target.value })}
-          size="small"
-          sx={{ flexGrow: 1, marginRight: 1 }}
-        />
-        <Button
-          variant="outlined"
-          size="medium"
-          startIcon={<AddIcon />}
-          onClick={addCallLog}
-          disabled={isLoading} // Disable the button when loading
+      {/* Modal to Add Call Log */}
+      <Modal open={isModalOpen} onClose={() => setModalOpen(false)}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 4,
+            borderRadius: 2,
+            width: 400,
+          }}
         >
-          {isLoading ? 'Adding...' : 'Add'}
-        </Button>
-      </Box>
+          <Typography variant="h6" mb={2}>
+            Add Call Log
+          </Typography>
+
+          {/* Recipient Number Input with validation */}
+          <TextField
+            label="Recipient Number"
+            value={newCallLog.recipientNumber}
+            onChange={(e) => {
+              setNewCallLog({ ...newCallLog, recipientNumber: e.target.value });
+              setPhoneError(false);
+            }}
+            fullWidth
+            margin="normal"
+            error={phoneError}
+            helperText={phoneError ? 'Please enter a valid phone number (e.g. +8801234567890)' : ''}
+          />
+
+          {/* Call Type Input */}
+          <TextField
+            select
+            label="Call Type"
+            value={newCallLog.callType}
+            onChange={(e) => setNewCallLog({ ...newCallLog, callType: e.target.value })}
+            fullWidth
+            margin="normal"
+          >
+            <MenuItem value="Outgoing">Outgoing</MenuItem>
+            <MenuItem value="Incoming">Incoming</MenuItem>
+          </TextField>
+
+          {/* Status Input */}
+          <TextField
+            select
+            label="Status"
+            value={newCallLog.status}
+            onChange={(e) => setNewCallLog({ ...newCallLog, status: e.target.value })}
+            fullWidth
+            margin="normal"
+          >
+            <MenuItem value="Received">Received</MenuItem>
+            <MenuItem value="Missed">Missed</MenuItem>
+          </TextField>
+
+          {/* Call Duration Input (MM:SS) */}
+          <TextField
+            label="Call Duration (MM:SS)"
+            value={durationInput}
+            onChange={(e) => setDurationInput(e.target.value)}
+            fullWidth
+            margin="normal"
+            error={durationError} // Show red border when input is invalid
+            helperText={durationError ? 'Please enter a valid duration in MM:SS format' : ''}
+            placeholder="e.g. 2:30"
+          />
+
+          {/* Timestamp Input */}
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DateTimePicker
+              className='w-full'
+              label="Timestamp"
+              value={dayjs(newCallLog.timestamp)}
+              onChange={(newValue) =>
+                setNewCallLog({ ...newCallLog, timestamp: newValue?.toISOString() || '' })
+              }
+              renderInput={(params) => <TextField {...params} fullWidth margin="normal" />}
+            />
+          </LocalizationProvider>
+
+          <Box mt={2} display="flex" justifyContent="space-between">
+            <Button variant="contained" onClick={handleSaveCallLog} disabled={isLoading}>
+              {isLoading ? 'Saving...' : 'Save'}
+            </Button>
+            <Button variant="outlined" onClick={() => setModalOpen(false)}>
+              Cancel
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
     </Box>
   );
 };

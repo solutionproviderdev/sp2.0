@@ -129,7 +129,7 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
 				<Divider />
 
 				{/* Call Logs */}  
-				<CallLogs callLogsId={conversation?._id} leadCallLogs={data?.callLogs} refetch={refetch} />
+				<CallLogs conversation={conversation} leadCallLogs={data?.callLogs} refetch={refetch} />
 
 				<Divider />
 
