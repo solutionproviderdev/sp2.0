@@ -7,42 +7,35 @@ import {
 	Typography,
 	InputAdornment,
 } from '@mui/material';
-import AttachFileRoundedIcon from '@mui/icons-material/AttachFileRounded';
-import EmojiEmotionsRoundedIcon from '@mui/icons-material/EmojiEmotionsRounded';
-import CameraAltIcon from '@mui/icons-material/CameraAlt';
+import {
+	AttachFileRounded as AttachFileIcon,
+	EmojiEmotionsRounded as EmojiIcon,
+	CameraAlt as CameraIcon,
+	Send as SendIcon,
+} from '@mui/icons-material';
 import { FaCircleInfo } from 'react-icons/fa6';
-import Chats from './chats';
-import NoMessagesImage from '../../../assets/nomessageimg.jpg';
 import Sidebar from '../Sidebar/Sidebar';
+import NoMessagesImage from '../../../assets/nomessageimg.jpg';
 import {
 	useGetConversationMessagesQuery,
 	useSentMessageMutation,
 } from '../../../features/conversation/conversationApi';
-import SendIcon from '@mui/icons-material/Send';
 import { useParams } from 'react-router-dom';
-
-interface Conversation {
-	_id: string;
-	name: string;
-	lastMessage: string;
-	lastMessageTime: string;
-	status?: string;
-}
+import Chats from './chats';
 
 interface InboxProps {
-	conversation: Conversation | null;
+	conversation?: {
+		name: string;
+	};
 }
 
 const Inbox: React.FC<InboxProps> = ({ conversation }) => {
-	const [isSidebarOpen, setIsSidebarOpen] = useState<boolean>(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 	const [messages, setMessages] = useState([]);
 	const [newMessage, setNewMessage] = useState('');
 
-	const { leadId } = useParams();
-
-	const { data, error, isLoading } = useGetConversationMessagesQuery(
-		leadId ?? ''
-	);
+	const { leadId } = useParams(); // Use leadId from params
+	const { data } = useGetConversationMessagesQuery(leadId ?? '');
 	const [sendMessage] = useSentMessageMutation();
 
 	useEffect(() => {
@@ -51,28 +44,20 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 		}
 	}, [data]);
 
-	const toggleSidebar = () => {
-		setIsSidebarOpen(!isSidebarOpen);
-	};
+	const toggleSidebar = () => setIsSidebarOpen(prev => !prev);
 
 	const handleSendMessage = async () => {
-		if (newMessage.trim() && conversation?._id) {
+		if (newMessage.trim() && leadId) {
+			// Use leadId here
 			try {
 				await sendMessage({
-					id: conversation._id,
+					id: leadId, // Replace conversation._id with leadId
 					message: {
 						messageType: 'text',
-						content: {
-							text: newMessage,
-						},
+						content: { text: newMessage },
 					},
 				}).unwrap();
-
-				// Clear the input field after sending
-				setNewMessage('');
-
-				// Optionally, you can refetch the messages or update the local state
-				// to include the new message immediately
+				setNewMessage(''); // Clear input field
 			} catch (err) {
 				console.error('Failed to send message:', err);
 			}
@@ -82,89 +67,73 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 	return (
 		<div className="flex flex-col h-full">
 			{/* Header */}
-			<div className="p-4 border-b flex justify-between">
-				<div className="font-bold">{conversation?.name}</div>
+			<Box className="p-4 border-b flex justify-between">
+				<Typography variant="h6">{conversation?.name}</Typography>
 
-				<div className="text-sm text-gray-600 gap-1 flex items-center">
-					<select className="border border-gray-300 p-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+				<Box className="flex items-center gap-1">
+					<select className="border p-1 rounded focus:ring-2 focus:ring-blue-500">
 						<option value="unread">Unread</option>
-						<option value="In Progress">In Progress</option>
-						<option value="Completed">Completed</option>
+						<option value="in-progress">In Progress</option>
+						<option value="completed">Completed</option>
 						<option value="active">Active</option>
-						<option value="Canceled">Canceled</option>
+						<option value="canceled">Canceled</option>
 					</select>
 
-					<Button onClick={toggleSidebar} sx={{ marginLeft: 1 }}>
+					<Button onClick={toggleSidebar} sx={{ ml: 1 }}>
 						<FaCircleInfo className="h-6 w-6" />
-						<Sidebar
-							conversation={conversation}
-							isOpen={isSidebarOpen}
-							onClose={toggleSidebar}
-						/>
 					</Button>
-				</div>
-			</div>
+				</Box>
 
-			{/* Messages */}
-			{/* <Box
-        sx={{
-          flex: '1',
-          overflowY: 'auto',
-          mb: 0,
-          '&::-webkit-scrollbar': {
-            width: '4px',
-          },
-          '&::-webkit-scrollbar-thumb': {
-            backgroundColor: '#3b82f6',
-            borderRadius: '8px',
-          },
-          '&::-webkit-scrollbar-track': {
-            backgroundColor: '#e5e7eb',
-          },
-        }}
-        className="flex flex-col h-full"
-      > */}
-			{messages.length > 0 ? (
-				<Chats messages={messages} />
-			) : (
-				<div className="flex justify-center items-center w-full h-full">
-					<img
-						src={NoMessagesImage}
-						alt="No messages here"
-						className="max-w-full max-h-full object-contain"
-					/>
-				</div>
-			)}
-			{/* </Box> */}
+				<Sidebar
+					leadId={leadId}
+					isOpen={isSidebarOpen}
+					onClose={toggleSidebar}
+				/>
+			</Box>
+
+			{/* Messages Section */}
+			<Box className="flex-1 overflow-y-auto">
+				{messages.length > 0 ? (
+					<Chats messages={messages} />
+				) : (
+					<Box className="flex justify-center items-center h-full">
+						<img
+							src={NoMessagesImage}
+							alt="No messages here"
+							className="max-w-full max-h-full object-contain"
+						/>
+					</Box>
+				)}
+			</Box>
 
 			{/* Input Box */}
-			<div className="mb-20 pt-2 bg-white border-t flex items-center">
-				<IconButton className="text-gray-500">
-					<CameraAltIcon className="text-gray-800" />
+			<Box className="mb-20 pt-2 bg-white border-t flex items-center">
+				<IconButton>
+					<CameraIcon className="text-gray-800" />
 				</IconButton>
 
 				<IconButton>
-					<EmojiEmotionsRoundedIcon className="text-orange-400" />
+					<EmojiIcon className="text-orange-400" />
 				</IconButton>
 
 				<IconButton>
-					<AttachFileRoundedIcon className="text-gray-700" />
+					<AttachFileIcon className="text-gray-700" />
 				</IconButton>
 
 				<TextField
-					label="send message"
+					label="Send message"
 					size="small"
 					fullWidth
 					className="!mr-4"
 					value={newMessage}
 					onChange={e => setNewMessage(e.target.value)}
-					sx={{ marginBottom: 1, backgroundColor: '#fff', borderRadius: '5px' }}
+					sx={{ mb: 1, backgroundColor: '#fff', borderRadius: '5px' }}
 					InputProps={{
 						endAdornment: (
 							<InputAdornment position="end">
 								<IconButton
 									color="primary"
-									aria-label="send comment"
+									aria-label="send message"
 									onClick={handleSendMessage}
 								>
 									<SendIcon />
@@ -173,7 +142,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 						),
 					}}
 				/>
-			</div>
+			</Box>
 		</div>
 	);
 };

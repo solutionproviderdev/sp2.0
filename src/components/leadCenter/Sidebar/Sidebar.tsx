@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React from 'react';
 import { Box, Drawer, Typography, Divider } from '@mui/material';
 import { useGetSingleLeadQuery } from '../../../features/conversation/conversationApi';
 import Requirements from './Requirements';
@@ -10,16 +9,8 @@ import CallLogs from './CallLogs';
 import Comments from './Comments';
 import AddressCard from './Locations';
 
-interface Conversation {
-	id: number;
-	name: string;
-	lastMessage: string;
-	lastMessageTime: string;
-	status?: string;
-}
-
 interface SidebarProps {
-	conversation: Conversation | null;
+	leadId: string | null;
 	isOpen: boolean;
 	onClose: () => void;
 }
@@ -28,12 +19,8 @@ interface FormValues {
 	newNumber: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
-	const { control, reset } = useForm<FormValues>({
-		defaultValues: { newNumber: '' },
-	});
-
-	const { data } = useGetSingleLeadQuery(conversation?._id ?? '');
+const Sidebar: React.FC<SidebarProps> = ({ leadId, isOpen, onClose }) => {
+	const { data } = useGetSingleLeadQuery(leadId ?? '');
 
 	const handleSidebarClick = (event: React.MouseEvent) => {
 		event.stopPropagation();
@@ -51,27 +38,27 @@ const Sidebar: React.FC<SidebarProps> = ({ conversation, isOpen, onClose }) => {
 				</Typography>
 
 				{/* Phone Numbers Section */}
-				<PhoneNumbers leadId={conversation?._id} phoneNumbers={data?.phone} />
+				<PhoneNumbers leadId={leadId} phoneNumbers={data?.phone} />
 				<Divider />
 
 				{/* Location Section */}
-				<AddressCard leadId={conversation?._id} address={data?.address} />
+				<AddressCard leadId={leadId} address={data?.address} />
 				<Divider />
 
 				{/* Requirements Section */}
-				<Requirements conversation={conversation?._id} />
+				<Requirements leadId={leadId} />
 				<Divider />
 
 				{/* Reminders Section */}
-				<Reminders conversation={conversation?._id} />
+				<Reminders leadId={leadId} />
 				<Divider />
 
 				{/* Call Logs Section */}
-				<CallLogs conversation={conversation?._id} />
+				<CallLogs leadId={leadId} />
 				<Divider />
 
 				{/* Comments Section */}
-				<Comments conversation={conversation?._id} />
+				<Comments leadId={leadId} />
 			</Box>
 		</Drawer>
 	);

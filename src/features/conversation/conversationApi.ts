@@ -56,34 +56,64 @@ const conversationApi = apiSlice.injectEndpoints({
 			providesTags: (result, error, id) => [{ type: 'Lead', id }],
 		}),
 
-		// Fetch all conversations
 		getAllConversations: builder.query<
 			GetAllConversationsResponse,
 			{ page: number; limit: number }
 		>({
 			query: ({ page, limit }) =>
-				`/lead/conversation?page=${page}&limit=${limit}`, // API endpoint
+				`/lead/conversation?page=${page}&limit=${limit}`,
 
-			// Adding cache update functionality on socket events
+			// // Use the merge function to combine the new data with the current cache
+			// merge: (currentCache, newItems) => {
+			// 	console.log('runing merge function');
+			// 	// Make sure newItems contains leads to be merged
+			// 	if (newItems && newItems.leads) {
+			// 		// Append new items to the existing cache
+			// 		newItems.leads.forEach(newConversation => {
+			// 			const existingIndex = currentCache.leads.findIndex(
+			// 				conv => conv._id === newConversation._id
+			// 			);
+
+			// 			if (existingIndex !== -1) {
+			// 				// Update the existing conversation if it already exists
+			// 				currentCache.leads[existingIndex] = newConversation;
+			// 			} else {
+			// 				// Otherwise, add the new conversation to the list
+			// 				currentCache.leads.push(newConversation);
+			// 			}
+			// 		});
+
+			// 		// Sort conversations by lastMessageTime
+			// 		currentCache.leads.sort(
+			// 			(a, b) =>
+			// 				new Date(b.lastMessageTime).getTime() -
+			// 				new Date(a.lastMessageTime).getTime()
+			// 		);
+			// 	}
+			// },
+
+			// Use a constant cache key for all pages
+			// serializeQueryArgs: ({ endpointName }) => endpointName,
+
+			// // Refetch when the page number changes
+			// forceRefetch({ currentArg, previousArg }) {
+			// 	return currentArg.page !== previousArg.page;
+			// },
+
+			// Handle real-time socket updates
 			async onCacheEntryAdded(
 				arg,
 				{ updateCachedData, cacheDataLoaded, cacheEntryRemoved }
 			) {
 				try {
-					await cacheDataLoaded; // Wait until the cache is available
+					await cacheDataLoaded;
 
 					// Define the socket listener for conversation updates
 					const handleConversationUpdate = (conversation: Conversation) => {
 						updateCachedData(draft => {
-							// console.log('conversation', conversation);
-
-							// Find the index of the updated conversation
 							const index = draft.leads.findIndex(
 								({ _id }) => _id === conversation._id
 							);
-
-							console.log(index);
-
 							if (index !== -1) {
 								// Update the existing conversation
 								draft.leads[index] = conversation;
@@ -92,10 +122,11 @@ const conversationApi = apiSlice.injectEndpoints({
 								draft.leads.unshift(conversation);
 							}
 
-							// Sort conversations by the lastMessageTime
+							// Sort conversations by lastMessageTime
 							draft.leads.sort(
 								(a, b) =>
-									new Date(b.lastMessageTime) - new Date(a.lastMessageTime)
+									new Date(b.lastMessageTime).getTime() -
+									new Date(a.lastMessageTime).getTime()
 							);
 						});
 					};
@@ -106,8 +137,8 @@ const conversationApi = apiSlice.injectEndpoints({
 					// Clean up the socket listener when cache entry is removed
 					await cacheEntryRemoved;
 					socket.off('conversation', handleConversationUpdate);
-				} catch {
-					// Handle errors here if necessary
+				} catch (error) {
+					console.error('Error handling socket updates:', error);
 				}
 			},
 		}),
@@ -216,9 +247,8 @@ const conversationApi = apiSlice.injectEndpoints({
 				const patchResult = dispatch(
 					apiSlice.util.updateQueryData(
 						'getAllConversations',
-						{ page: 1, limit: 10 },
+						{ page: 1, limit: 500 },
 						draft => {
-							console.log('from inside of dispatch function', id);
 							const index = draft.leads.findIndex(lead => lead._id === id);
 							if (index !== -1) {
 								draft.leads[index].messagesSeen = true;

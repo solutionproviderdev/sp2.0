@@ -1,109 +1,87 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Button, Box, Typography, CircularProgress } from '@mui/material';
+import React, { useState } from 'react';
+import { Typography, CircularProgress } from '@mui/material';
 import {
 	useGetAllConversationsQuery,
 	useMarkAsSeenMutation,
 } from '../../../features/conversation/conversationApi';
-import SearchInput from './SearchBar';
-import Filter from './Filter';
-import ConversationItem from './ConversationItem'; // Importing the new component
+import SearchInput from './SearchInput';
+import ConversationFilter from './ConversationFilter'; // Import the new filter component
 import { useNavigate } from 'react-router-dom';
+import ConversationItem from './ConversationItem';
 
 const ConversationList = () => {
-	const [page, setPage] = useState(1);
-	const limit = 10;
-	const { data, error, isLoading, isFetching } = useGetAllConversationsQuery({
+	// Set the page to 1 and the limit to 500
+	const page = 1;
+	const limit = 500;
+	const { data, error, isLoading } = useGetAllConversationsQuery({
 		page,
 		limit,
 	});
+
 	const navigate = useNavigate();
-	const [conversations, setConversations] = useState([]);
-	const [filteredConversations, setFilteredConversations] = useState([]);
-	const [searchText, setSearchText] = useState('');
-	const [filters, setFilters] = useState({ status: [], cre: [], page: [] });
-	const observer = useRef(null);
 	const [markAsSeen] = useMarkAsSeenMutation();
+	const [filters, setFilters] = useState({
+		statuses: [], // Initialize the filter for statuses
+		pages: [], // Initialize the filter for pages
+		creNames: [], // Initialize the filter for CRE names
+		messagesSeen: null, // Initialize the filter for messages seen (read/unread)
+		searchText: '', // Search text state
+	});
 
-	useEffect(() => {
-		if (data && data.leads) {
-			setConversations(prev =>
-				page === 1 ? data.leads : [...prev, ...data.leads]
-			);
-		}
-	}, [data, page]);
-
+	// Handle selecting a conversation
 	const handleSelectConversation = async selectedLeadId => {
 		await markAsSeen({ id: selectedLeadId });
 		navigate(`/admin/lead-center/${selectedLeadId}`);
 	};
 
-	useEffect(() => {
-		applyFilters(conversations);
-	}, [conversations, filters, searchText]);
-
 	const applyFilters = conversations => {
-		let updatedConversations = conversations;
+		if (!conversations) return [];
 
-		if (searchText) {
-			const normalizedSearchText = searchText.replace(/\s+/g, '').toLowerCase();
-			updatedConversations = updatedConversations.filter(conversation =>
+		let filtered = [...conversations];
+
+		// Apply search filter
+		if (filters.searchText) {
+			const normalizedSearchText = filters.searchText
+				.replace(/\s+/g, '')
+				.toLowerCase();
+			filtered = filtered.filter(conversation =>
 				conversation.name
-					.replace(/\s+/g, '')
+					?.replace(/\s+/g, '')
 					.toLowerCase()
 					.includes(normalizedSearchText)
 			);
 		}
 
-		updatedConversations = updatedConversations.filter(conversation => {
-			const matchesStatus =
-				!filters.status.length || filters.status.includes(conversation.status);
-			const matchesCre =
-				!filters.cre.length || filters.cre.includes(conversation.creName);
-			const matchesPage =
-				!filters.page.length ||
-				filters.page.includes(conversation.sourcePageName);
-			return matchesStatus && matchesCre && matchesPage;
-		});
+		// Apply filters for statuses
+		if (filters.statuses.length > 0) {
+			filtered = filtered.filter(conversation =>
+				filters.statuses.includes(conversation.status)
+			);
+		}
 
-		setFilteredConversations(updatedConversations);
+		// Apply filters for creNames
+		if (filters.creNames.length > 0) {
+			filtered = filtered.filter(conversation =>
+				filters.creNames.includes(conversation.creName)
+			);
+		}
+
+		// Apply filters for pages (using pageInfo.pageId)
+		if (filters.pages.length > 0) {
+			filtered = filtered.filter(conversation =>
+				filters.pages.includes(conversation.pageInfo?.pageId)
+			);
+		}
+
+		// Apply messagesSeen filter ONLY if it's true or false (ignore null)
+		if (filters.messagesSeen !== null) {
+			filtered = filtered.filter(
+				conversation => conversation.messagesSeen === filters.messagesSeen
+			);
+		}
+
+		return filtered;
 	};
-
-	const handleSearchChange = text => {
-		setSearchText(text);
-		setPage(1);
-	};
-
-	const handleShowAll = () => {
-		setFilters({ status: [], cre: [], page: [] });
-		setSearchText('');
-		setPage(1);
-	};
-
-	const handleFilterUnread = () => {
-		setFilters({ status: ['unread'], cre: [], page: [] });
-		setPage(1);
-	};
-
-	const handleApplyFilters = newFilters => {
-		setFilters(newFilters);
-		setPage(1);
-	};
-
-	const lastConversationRef = useCallback(
-		node => {
-			if (isFetching) return;
-			if (observer.current) observer.current.disconnect();
-
-			observer.current = new IntersectionObserver(entries => {
-				if (entries[0].isIntersecting && data?.totalPages > page) {
-					setPage(prevPage => prevPage + 1);
-				}
-			});
-
-			if (node) observer.current.observe(node);
-		},
-		[isFetching, data, page]
-	);
 
 	if (isLoading && page === 1) {
 		return <CircularProgress size={40} />;
@@ -117,47 +95,31 @@ const ConversationList = () => {
 		);
 	}
 
+	// Apply filters and search directly to the data
+	const filteredConversations = applyFilters(data?.leads);
+
 	return (
 		<div className="h-full flex flex-col">
 			<div className="p-2">
-				<SearchInput onSearchChange={handleSearchChange} />
-				<div className="flex items-center justify-between mt-2">
-					<div className="flex gap-2">
-						<Button
-							variant="contained"
-							onClick={handleShowAll}
-							className="!h-7"
-						>
-							All
-						</Button>
-						<Button
-							variant="contained"
-							onClick={handleFilterUnread}
-							className="!h-7"
-						>
-							Unread
-						</Button>
-					</div>
-					<Filter onApplyFilters={handleApplyFilters} />
-				</div>
+				<SearchInput filters={filters} setFilters={setFilters} />
+				<ConversationFilter
+					filters={filters}
+					setFilters={setFilters}
+					availableFilters={data?.filters} // Pass the filters here
+				/>
 			</div>
 
-			{filteredConversations.length === 0 ? (
+			{filteredConversations?.length === 0 ? (
 				<Typography variant="body2" color="red" className="p-4">
 					No data found for selected filters.
 				</Typography>
 			) : (
 				<div className="flex flex-col gap-2 p-2 overflow-y-auto scrollbar-none">
-					{filteredConversations.map((conversation, index) => (
+					{filteredConversations?.map(conversation => (
 						<ConversationItem
 							key={conversation._id}
 							conversation={conversation}
 							onSelect={handleSelectConversation}
-							refCallback={
-								index === filteredConversations.length - 1
-									? lastConversationRef
-									: null
-							}
 						/>
 					))}
 				</div>

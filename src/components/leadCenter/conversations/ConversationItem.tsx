@@ -2,7 +2,7 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import moment from 'moment';
 
-const ConversationItem = ({ conversation, onSelect, refCallback }) => {
+const ConversationItem = ({ conversation, onSelect }) => {
 	// console.log(conversation);
 
 	// Check if the message is seen or not
@@ -12,7 +12,6 @@ const ConversationItem = ({ conversation, onSelect, refCallback }) => {
 		<div
 			className="p-2 border-b cursor-pointer"
 			onClick={() => onSelect(conversation._id)}
-			ref={refCallback} // Attach observer to the last conversation if necessary
 		>
 			<div className="flex items-center p-1">
 				{/* Page Profile Picture */}
@@ -47,9 +46,7 @@ const ConversationItem = ({ conversation, onSelect, refCallback }) => {
 								isMessageSeen ? 'text-gray-600' : 'font-bold'
 							}`}
 						>
-							{conversation.lastMessage.length > 25
-								? `${conversation.lastMessage.slice(0, 25)}...`
-								: conversation.lastMessage}
+							{conversation.lastMessage}
 						</Typography>
 						<Typography
 							variant="caption"

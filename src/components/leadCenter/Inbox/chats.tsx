@@ -3,7 +3,6 @@ import Image from '../../UI/Image';
 import { useEffect, useRef } from 'react';
 
 const Chats = ({ messages }) => {
-
 	const endOfMessagesRef = useRef(null);
 
 	// useEffect(() => {
@@ -16,7 +15,7 @@ const Chats = ({ messages }) => {
 				key={fileUrl}
 				src={fileUrl}
 				alt="Attachment"
-				className="w-40 h-40 object-cover rounded-md mr-2"
+				className="w-40 h-40 object-cover rounded-md"
 			/>
 		);
 
@@ -25,28 +24,40 @@ const Chats = ({ messages }) => {
 				key={fileUrl}
 				src={fileUrl}
 				alt="Attachment"
-				className="w-[30%] h-auto object-cover rounded-md mr-2"
+				className="w-[25%] h-auto object-cover rounded-md"
 			/>
 		);
 
-		if (msg.fileUrl?.length > 0) {
-			if (msg.fileUrl.length > 1) {
-				return <>{msg.fileUrl.map(renderMultipleImages)}</>;
-			}
+		if (msg?.fileUrl?.length > 4) {
+			return (
+				<div className="grid grid-cols-3 gap-2">
+					{msg?.fileUrl?.map(renderMultipleImages)}
+				</div>
+			);
+		}
 
-			return <>{msg.fileUrl.map(renderSingleImage)}</>;
+		if (msg?.fileUrl?.length > 1 && msg?.fileUrl?.length <= 4) {
+			return (
+				<div className="grid grid-cols-2 gap-2">
+					{msg?.fileUrl?.map(renderMultipleImages)}
+				</div>
+			);
+		}
+
+		if (msg?.fileUrl?.length > 0) {
+			return <>{msg?.fileUrl?.map(renderSingleImage)}</>;
 		}
 
 		return (
 			<div
-				key={msg.date}
+				key={msg?.date}
 				className={`rounded-md px-2 py-1 max-w-[80%] text-base overflow-hidden ${
-					msg.sentByMe
+					msg?.sentByMe
 						? 'bg-blue-500 text-white'
 						: 'bg-dark-tremor-brand-faint/20 dark:bg-white text-dark'
 				}`}
 			>
-				{msg.content || '...'}
+				{msg?.content || '...'}
 			</div>
 		);
 	};
@@ -76,4 +87,3 @@ const Chats = ({ messages }) => {
 };
 
 export default Chats;
- 
