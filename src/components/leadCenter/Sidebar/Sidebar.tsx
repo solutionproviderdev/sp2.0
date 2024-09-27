@@ -12,6 +12,7 @@ import AddressCard from './Locations';
 interface SidebarProps {
 	leadId: string | null;
 	isOpen: boolean;
+	lead: any;
 	onClose: () => void;
 }
 
@@ -19,8 +20,8 @@ interface FormValues {
 	newNumber: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ leadId, isOpen, onClose }) => {
-	const { data } = useGetSingleLeadQuery(leadId ?? '');
+const Sidebar: React.FC<SidebarProps> = ({ leadId, lead, isOpen, onClose }) => {
+	// const { lead } = useGetSingleLeadQuery(leadId ?? '');
 
 	const handleSidebarClick = (event: React.MouseEvent) => {
 		event.stopPropagation();
@@ -34,15 +35,15 @@ const Sidebar: React.FC<SidebarProps> = ({ leadId, isOpen, onClose }) => {
 				onClick={handleSidebarClick}
 			>
 				<Typography variant="h6" sx={{ fontWeight: 'bold' }}>
-					{data?.name}
+					{lead?.name}
 				</Typography>
 
 				{/* Phone Numbers Section */}
-				<PhoneNumbers leadId={leadId} phoneNumbers={data?.phone} />
+				<PhoneNumbers leadId={leadId} phoneNumbers={lead?.phone} />
 				<Divider />
 
 				{/* Location Section */}
-				<AddressCard leadId={leadId} address={data?.address} />
+				<AddressCard leadId={leadId} address={lead?.address} />
 				<Divider />
 
 				{/* Requirements Section */}
@@ -50,7 +51,7 @@ const Sidebar: React.FC<SidebarProps> = ({ leadId, isOpen, onClose }) => {
 				<Divider />
 
 				{/* Reminders Section */}
-				<Reminders leadId={leadId} />
+				<Reminders leadId={leadId} leadReminders={lead?.reminder} />
 				<Divider />
 
 				{/* Call Logs Section */}

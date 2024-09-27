@@ -199,8 +199,9 @@ const conversationApi = apiSlice.injectEndpoints({
 			query: ({ id, reminders }) => ({
 				url: `/lead/${id}/reminders`,
 				method: 'post',
-				body: { reminders },
+				body: { time: reminders },
 			}),
+			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
 		}),
 		// Update leads
 		updateLeads: builder.mutation({
@@ -244,7 +245,6 @@ const conversationApi = apiSlice.injectEndpoints({
 			}),
 			async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
 				// Optimistically update the cache with the seen status
-				console.log('from outside of dispatch function', id);
 				const patchResult = dispatch(
 					apiSlice.util.updateQueryData(
 						'getAllConversations',
@@ -258,13 +258,22 @@ const conversationApi = apiSlice.injectEndpoints({
 					)
 				);
 
-				console.log(patchResult);
-
 				try {
 					await queryFulfilled; // Wait for the mutation to succeed
 				} catch {
 					patchResult.undo(); // Revert the optimistic update if the mutation fails
 				}
+			},
+		}),
+		// add call logs
+		addCallLogs: builder.mutation({
+			query: ({ id, newCallLog }) => {
+				console.log('calllogs---rtk --rtk--rtk', id, newCallLog);
+				return {
+					url: `/lead/${id}/call-logs`,
+					method: 'POST',
+					body: newCallLog,
+				};
 			},
 		}),
 	}),
@@ -282,6 +291,7 @@ export const {
 	useSentMessageMutation,
 	useAddCommentMutation,
 	useAddPhoneMutation,
+	useAddCallLogsMutation,
 	useMarkAsSeenMutation,
 } = conversationApi;
 

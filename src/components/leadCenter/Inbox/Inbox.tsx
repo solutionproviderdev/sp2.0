@@ -18,6 +18,7 @@ import Sidebar from '../Sidebar/Sidebar';
 import NoMessagesImage from '../../../assets/nomessageimg.jpg';
 import {
 	useGetConversationMessagesQuery,
+	useGetSingleLeadQuery,
 	useSentMessageMutation,
 } from '../../../features/conversation/conversationApi';
 import { useParams } from 'react-router-dom';
@@ -35,6 +36,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 	const [newMessage, setNewMessage] = useState('');
 
 	const { leadId } = useParams(); // Use leadId from params
+	const { data: lead } = useGetSingleLeadQuery(leadId ?? '');
 	const { data } = useGetConversationMessagesQuery(leadId ?? '');
 	const [sendMessage] = useSentMessageMutation();
 
@@ -68,7 +70,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 		<div className="flex flex-col h-full">
 			{/* Header */}
 			<Box className="p-4 border-b flex justify-between">
-				<Typography variant="h6">{conversation?.name}</Typography>
+				<Typography variant="h6">{lead?.name}</Typography>
 
 				<Box className="flex items-center gap-1">
 					<select className="border p-1 rounded focus:ring-2 focus:ring-blue-500">
@@ -86,6 +88,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 
 				<Sidebar
 					leadId={leadId}
+					lead={lead}
 					isOpen={isSidebarOpen}
 					onClose={toggleSidebar}
 				/>
