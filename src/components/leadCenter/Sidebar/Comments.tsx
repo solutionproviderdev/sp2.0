@@ -8,7 +8,7 @@ import { useAddCommentMutation } from '../../../features/conversation/conversati
 
 const Comments: React.FC = ({ conversation }) => {
   const [addComment, { isError, isSuccess }] = useAddCommentMutation();
-  console.log('comment----------', isError, isSuccess);
+  // console.log('comment----------', isError, isSuccess);
 
   const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',

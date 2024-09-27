@@ -228,6 +228,7 @@ const conversationApi = apiSlice.injectEndpoints({
 				body: comment,
 			}),
 		}),
+		// add phone number
 		addPhone: builder.mutation({
 			query: ({ id, phoneNumber }) => ({
 				url: `/lead/${id}/add-phone-number`,
