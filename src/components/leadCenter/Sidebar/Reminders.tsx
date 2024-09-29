@@ -51,7 +51,7 @@ const Reminders: React.FC<RemindersProps> = ({ leadId, leadReminders }) => {
 					id: leadId,
 					reminders: selectedDateTime,
 				});
-				console.log('Reminder component response', response);
+				// console.log('Reminder component response', response);
 			} catch (error) {
 				console.error('Error updating reminder:', error);
 			}

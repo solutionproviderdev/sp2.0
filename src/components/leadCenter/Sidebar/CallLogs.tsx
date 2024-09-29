@@ -73,7 +73,7 @@ const CallLogs: React.FC<CallLogsProps> = ({ conversation, leadCallLogs, refetch
       setDurationError(true);
       return;
     }
-    console.log("durationInput",durationInput)
+    // console.log("durationInput",durationInput)
 
     // Proceed to save if validations pass
     setDurationError(false); // Clear the error state
@@ -81,10 +81,10 @@ const CallLogs: React.FC<CallLogsProps> = ({ conversation, leadCallLogs, refetch
     // Set call duration as string in MM:SS format
     const updatedCallLog = { ...newCallLog, callDuration:durationInput};
 
-    console.log('Saving call log:', updatedCallLog);
+    // console.log('Saving call log:', updatedCallLog);
     setModalOpen(false);
     const response = await addCallLogs({ id: conversation?._id, newCallLog: updatedCallLog });
-    console.log('Call logs mutation response', response);
+    // console.log('Call logs mutation response', response);
     refetch();
   };
 

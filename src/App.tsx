@@ -17,6 +17,7 @@ import Login from './pages/authentication/Login';
 import Dashboard from './pages/Dashboard';
 import LeadCenter from './pages/LeadCenter';
 import Inbox from './components/leadCenter/Inbox/Inbox';
+import LeadManagement from './pages/LeadManagement';
 
 const App = () => {
 	const router = createBrowserRouter(
@@ -33,6 +34,7 @@ const App = () => {
 				<Route path="/" element={<LoggedInRoute />}>
 					<Route path="admin" element={<AdminLayout />}>
 						<Route path="dashboard" element={<Dashboard />} />
+						<Route path="lead-management" element={<LeadManagement />} />
 						<Route path="lead-center" element={<LeadCenter />}>
 							<Route path=":leadId" element={<Inbox />} />
 						</Route>

@@ -116,7 +116,7 @@ const AddressModal: React.FC<AddressModalProps> = ({
 			setSnackbarOpen(true);
 			handleClose(); // Close modal after successful submit
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			// If an error occurs, show error message
 			setSnackbarSeverity('error');
 			setSnackbarMessage('Failed to update address. Please try again.');

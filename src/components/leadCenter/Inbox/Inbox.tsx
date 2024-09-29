@@ -110,7 +110,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 			</Box>
 
 			{/* Input Box */}
-			<Box className="mb-20 pt-2 bg-white border-t flex items-center">
+			<Box className="mb-2 pt-2 bg-white border-t flex items-center">
 				<IconButton>
 					<CameraIcon className="text-gray-800" />
 				</IconButton>
@@ -130,7 +130,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 					className="!mr-4"
 					value={newMessage}
 					onChange={e => setNewMessage(e.target.value)}
-					sx={{ mb: 1, backgroundColor: '#fff', borderRadius: '5px' }}
+					sx={{ backgroundColor: '#fff', borderRadius: '5px' }}
 					InputProps={{
 						endAdornment: (
 							<InputAdornment position="end">

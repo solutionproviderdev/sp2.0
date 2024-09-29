@@ -5,9 +5,9 @@ import { useEffect, useRef } from 'react';
 const Chats = ({ messages }) => {
 	const endOfMessagesRef = useRef(null);
 
-	// useEffect(() => {
-	// 	endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
-	// }, [messages]);
+	useEffect(() => {
+		endOfMessagesRef.current?.scrollIntoView({ behavior: 'smooth' });
+	}, [messages]);
 
 	const renderMessageContent = msg => {
 		const renderMultipleImages = fileUrl => (
@@ -51,11 +51,10 @@ const Chats = ({ messages }) => {
 		return (
 			<div
 				key={msg?.date}
-				className={`rounded-md px-2 py-1 max-w-[80%] text-base overflow-hidden ${
-					msg?.sentByMe
+				className={`rounded-md px-2 py-1 max-w-[80%] text-base overflow-hidden ${msg?.sentByMe
 						? 'bg-blue-500 text-white'
 						: 'bg-dark-tremor-brand-faint/20 dark:bg-white text-dark'
-				}`}
+					}`}
 			>
 				{msg?.content || '...'}
 			</div>
@@ -68,9 +67,8 @@ const Chats = ({ messages }) => {
 				<div
 					key={message._id}
 					// ref={index === messages.length - 1 ? endOfMessagesRef : null}
-					className={`flex ${
-						message.sentByMe ? 'justify-end' : 'justify-start'
-					} mb-2`}
+					className={`flex ${message.sentByMe ? 'justify-end' : 'justify-start'
+						} mb-2`}
 				>
 					<Tooltip
 						title={new Date(message.date).toLocaleString()}
@@ -79,11 +77,20 @@ const Chats = ({ messages }) => {
 					>
 						{renderMessageContent(message)}
 					</Tooltip>
+					<div ref={endOfMessagesRef} /> 
+  
 				</div>
 			))}
-			<div className="" ref={endOfMessagesRef}></div>
 		</div>
 	);
 };
 
 export default Chats;
+
+
+
+
+
+
+
+

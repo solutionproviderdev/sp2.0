@@ -159,7 +159,7 @@ const conversationApi = apiSlice.injectEndpoints({
 					await cacheDataLoaded;
 
 					const handleMessageUpdate = (message: Message) => {
-						console.log('Received message update:', message);
+						// console.log('Received message update:', message);
 
 						updateCachedData(draft => {
 							// Check if message already exists
