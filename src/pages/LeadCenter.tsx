@@ -15,7 +15,7 @@ interface Conversation {
 
 const LeadCenter = () => {
 	return (
-		<div className="flex h-screen ">
+		<div className="flex h-[92vh] ">
 			{/* Fixed width for conversation list */}
 			<div className="w-3/12 h-full border-r border-gray-300">
 				<ConversationList />

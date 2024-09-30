@@ -90,6 +90,7 @@ const LeadManagement = () => {
         setSales(event.target.value);
         console.log('sales log', event.target.value);
     };
+    console.log('phone number--',data?.leads)
 
     return (
         <div>
@@ -164,11 +165,8 @@ const LeadManagement = () => {
                     </FormControl>
 
 
-
-                </Box>
-
-                <div className='flex justify-between items-center'>
-                    <div>
+                
+                    
                         <Box my={2}>
                             {/* Date Button */}
                             <Button className='flex gap-1 h-8' variant="contained" color="primary" onClick={() => setDatePickerOpen(true)}>
@@ -201,7 +199,7 @@ const LeadManagement = () => {
                             </Modal>
                         </Box>
 
-                    </div>
+                 
 
                     <div className='flex gap-4 h-10'>
 
@@ -231,26 +229,52 @@ const LeadManagement = () => {
                             <SettingsIcon />
                         </Button>
                     </div>
-                </div>
+                 
+                </Box>
+
 
                 {/* Lead Count Heading */}
                 <Typography variant="h6" gutterBottom>
                     Showing {data?.leads.length} leads
                 </Typography>
 
-                {/* Leads Display */}
+                {/* Leads Display card and table*/}
+
                 {viewAsCard ? (
                     <Grid container spacing={2}>
                         {data?.leads.map((lead) => (
                             <Grid item xs={12} sm={6} md={4} key={lead._id}>
-                                <Card>
+                                <Card className='h-full'>
                                     <CardContent>
+                                    <Box mt={2} display="flex" justifyContent="space-around">
+                                            <Button
+                                                variant="contained"
+                                                color="primary"
+                                                startIcon={<PhoneIcon />}
+                                            >
+                                                Status
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                startIcon={<ChatIcon />}
+                                            >
+                                                Tags
+                                            </Button>
+                                            <Button
+                                                variant="contained"
+                                                color="secondary"
+                                                startIcon={<ChatIcon />}
+                                            >
+                                                btn
+                                            </Button>
+                                        </Box>
                                         {/* Last Message and Date */}
-                                        <Typography variant="h6">{lead.name}</Typography>
-                                        <Typography variant="body2" color="textSecondary">
+                                        <Typography variant="h5" className='p-2'>{lead.name}</Typography>
+                                        <Typography variant="body2" className='p-2' color="textSecondary">
                                             Last Message: {lead.lastMsg}
                                         </Typography>
-                                        <Typography variant="caption" color="textSecondary">
+                                        <Typography className='p-2' variant="caption" color="textSecondary">
                                             {new Date(lead.date).toLocaleString()}
                                         </Typography>
 
@@ -285,6 +309,7 @@ const LeadManagement = () => {
                                     <TableCell>Name</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell>Last Message</TableCell>
+                                    <TableCell>number</TableCell>
                                     <TableCell>Date</TableCell>
                                     <TableCell>Actions</TableCell>
                                 </TableRow>
@@ -295,6 +320,7 @@ const LeadManagement = () => {
                                         <TableCell>{lead.name}</TableCell>
                                         <TableCell>{lead.status}</TableCell>
                                         <TableCell>{lead.lastMsg}</TableCell>
+                                        <TableCell>{lead.phone}</TableCell>
                                         <TableCell>
                                             {new Date(lead.date).toLocaleString()}
                                         </TableCell>
