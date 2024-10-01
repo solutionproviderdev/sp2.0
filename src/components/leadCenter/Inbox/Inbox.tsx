@@ -23,6 +23,7 @@ import {
 } from '../../../features/conversation/conversationApi';
 import { useParams } from 'react-router-dom';
 import Chats from './chats';
+import CreStatus from '../creStatus/CreStatus';
 
 interface InboxProps {
 	conversation?: {
@@ -73,13 +74,8 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 				<Typography variant="h6">{lead?.name}</Typography>
 
 				<Box className="flex items-center gap-1">
-					<select className="border p-1 rounded focus:ring-2 focus:ring-blue-500">
-						<option value="unread">Unread</option>
-						<option value="in-progress">In Progress</option>
-						<option value="completed">Completed</option>
-						<option value="active">Active</option>
-						<option value="canceled">Canceled</option>
-					</select>
+
+					<CreStatus/>
 
 					<Button onClick={toggleSidebar} sx={{ ml: 1 }}>
 						<FaCircleInfo className="h-6 w-6" />

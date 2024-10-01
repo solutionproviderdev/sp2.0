@@ -18,6 +18,7 @@ import Dashboard from './pages/Dashboard';
 import LeadCenter from './pages/LeadCenter';
 import Inbox from './components/leadCenter/Inbox/Inbox';
 import LeadManagement from './pages/LeadManagement';
+import FollowUp from './pages/FollowUp';
 
 const App = () => {
 	const router = createBrowserRouter(
@@ -35,6 +36,7 @@ const App = () => {
 					<Route path="admin" element={<AdminLayout />}>
 						<Route path="dashboard" element={<Dashboard />} />
 						<Route path="lead-management" element={<LeadManagement />} />
+						<Route path="lead-followUp" element={<FollowUp />} />
 						<Route path="lead-center" element={<LeadCenter />}>
 							<Route path=":leadId" element={<Inbox />} />
 						</Route>

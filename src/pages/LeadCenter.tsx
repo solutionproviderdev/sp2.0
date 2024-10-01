@@ -21,7 +21,7 @@ const LeadCenter = () => {
 				<ConversationList />
 			</div>
 			{/* Flexible width for inbox and make it scrollable */}
-			<div className="w-9/12  ">
+			<div className="w-9/12 ">
 				{/* Inbox component */}
 				<Outlet />
 				{/* {selectedConversation && <Inbox conversation={selectedConversation} />} */}

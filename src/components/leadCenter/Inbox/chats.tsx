@@ -62,7 +62,7 @@ const Chats = ({ messages }) => {
 	};
 
 	return (
-		<div className="px-2 py-1 space-y-2 h-full overflow-y-scroll scrollbar-thin bg-bright dark:bg-dark scrollbar-thumb-gray-200 dark:scrollbar-thumb-dark scrollbar-track-gray-100 dark:scrollbar-track-bdark">
+		<div className="px-2 py-1 space-y-2 h-full scrollbar-thin bg-bright dark:bg-dark scrollbar-thumb-gray-200 dark:scrollbar-thumb-dark scrollbar-track-gray-100 dark:scrollbar-track-bdark">
 			{messages.map((message, index) => (
 				<div
 					key={message._id}
