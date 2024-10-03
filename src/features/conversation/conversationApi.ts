@@ -50,7 +50,21 @@ const socket = getSocket();
 // Extend the apiSlice with specific endpoints for conversations
 const conversationApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
+
+		createLeadWithNumber: builder.mutation({
+			query: ({ data }) => ({
+				url: `/lead`,
+				method: 'post',
+				body: data ,
+			}),
+		}),
+		
+		
+		
 		// get all leads
+		getAllLead: builder.query<GetConversationByIdResponse, string>({
+			query: ({ page,limit }) => `/lead?page=${page}&limit=${limit}`,     
+		}),
 		getSingleLead: builder.query<GetConversationByIdResponse, string>({
 			query: (id: string) => `/lead/${id}`,
 			providesTags: (result, error, id) => [{ type: 'Lead', id }],
@@ -293,6 +307,8 @@ export const {
 	useAddPhoneMutation,
 	useAddCallLogsMutation,
 	useMarkAsSeenMutation,
+	useGetAllLeadQuery,
+	useCreateLeadWithNumberMutation
 } = conversationApi;
 
 export default conversationApi;

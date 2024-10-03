@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     Box,
     Typography,
@@ -24,62 +24,70 @@ import {
     TableBody
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import SettingsIcon from '@mui/icons-material/Settings';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
-import { useGetAllConversationsQuery } from '../features/conversation/conversationApi';
 
 import PhoneIcon from '@mui/icons-material/Phone';
 import ChatIcon from '@mui/icons-material/Chat';
+import { useGetAllLeadQuery } from '../features/conversation/conversationApi';
+import { useNavigate } from 'react-router-dom';
+import RangeDatePick from '../components/shared/RangeDatePick';
 
 
-// Sample data for leads
-const leadData = [
-    { status: 'Read', count: 150 },
-    { status: 'Unread', count: 300 },
-    { status: 'Phone Number', count: 400 },
-    { status: 'No Phone', count: 150 },
-    { status: 'Active', count: 350 },
-    { status: 'Inactive', count: 200 },
-];
 
 const LeadManagement = () => {
+    const navigate = useNavigate();
 
     // Set the page to 1 and the limit to 500
     const page = 1;
     const limit = 150;
-    const { data, error, isLoading } = useGetAllConversationsQuery({
+    const { data, error, isLoading } = useGetAllLeadQuery({
         page,
         limit,
     });
+
+    // Function to normalize and count statuses
+    const leadData = useMemo(() => {
+        console.log('leads is hare ',data)
+        if (!data) return [];
+
+        // Normalize statuses (trim whitespace, convert to lowercase)
+        const normalizedStatuses = data?.leads?.map(lead => lead.status.trim().toLowerCase());
+
+        // Count occurrences of each status
+        const statusCountMap = normalizedStatuses.reduce((acc, status) => {
+            acc[status] = (acc[status] || 0) + 1;
+            return acc;
+        }, {});
+
+        // Convert statusCountMap to the format expected by BarChart
+        return Object.entries(statusCountMap).map(([status, count]) => ({
+            status: status.charAt(0).toUpperCase() + status.slice(1), // Capitalize first letter for display
+            count,
+        }));
+    }, [data]);
+
     // const lead = data
+    console.log('status-- to lead management ', data?.leads.map(lead=>lead.status,))
 
-    console.log('lead management lead', data, error, isLoading)
-
+ 
     const [alignment, setAlignment] = React.useState('left');
 
     const handleAlignment = (event, newAlignment) => {
         setAlignment(newAlignment);
     };
 
-    const [selectedDate, setSelectedDate] = useState(null);
-    const [isDatePickerOpen, setDatePickerOpen] = useState(false);
-
-    const handleDateChange = (newValue) => {
-        setSelectedDate(newValue);
-        setDatePickerOpen(false); // Close the modal after selecting a date
-        console.log('cre date', first)
-    };
 
     const [cre, setCre] = useState('');
     const [sales, setSales] = useState('');
     const [viewAsCard, setViewAsCard] = useState(false); // For toggling between card and raw view
+    const [isDatePickerOpen, setDatePickerOpen] = useState(false); // State to control modal visibility
+    const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null }); // Store selected date range
 
     const handleCreChange = (event) => {
         setCre(event.target.value);
@@ -90,7 +98,12 @@ const LeadManagement = () => {
         setSales(event.target.value);
         console.log('sales log', event.target.value);
     };
-    console.log('phone number--',data?.leads)
+    console.log('phone number--', data?.leads)
+
+    const handleDateRangeChange = (range) => {
+        setSelectedDateRange(range); // Set the selected date range
+        setDatePickerOpen(false); // Close modal after date is selected
+    };
 
     return (
         <div>
@@ -126,27 +139,59 @@ const LeadManagement = () => {
 
                     {/* CRE Dropdown */}
                     <FormControl sx={{ minWidth: 200 }}>
-                        <InputLabel id="cre-select-label" className='p-4'>CRE</InputLabel>
+
+                        <InputLabel
+                            id="cre-select-label"
+                            sx={{
+                                fontSize: '0.8rem',
+                                lineHeight: '32px', // Match the height of the select box for vertical centering
+                                transform: 'translate(14px, -0px) ', // Center label vertically
+                                '&.MuiInputLabel-shrink': {
+                                    transform: 'translate(14px, -12px) scale(0.75)', // Shrink and move label up on focus/click
+                                },
+                            }}
+                        >
+                            CRE
+                        </InputLabel>
+
                         <Select
-                            className='h-8'
                             labelId="cre-select-label"
                             id="cre-select"
                             value={cre}
                             label="CRE"
                             onChange={handleCreChange}
+                            sx={{
+                                height: '32px', // Adjust the height of the select box
+                                fontSize: '0.8rem', // Reduce the font size
+                            }}
                         >
-                            <MenuItem value="" className='h-8'>
+                            <MenuItem value="" sx={{ fontSize: '0.8rem', height: '30px' }}>
                                 <em>None</em>
                             </MenuItem>
-                            <MenuItem value="CRE 1">CRE 1</MenuItem>
-                            <MenuItem value="CRE 2">CRE 2</MenuItem>
-                            <MenuItem value="CRE 3">CRE 3</MenuItem>
+                            <MenuItem value="CRE 1" sx={{ fontSize: '0.8rem', height: '30px' }}>CRE 1</MenuItem>
+                            <MenuItem value="CRE 2" sx={{ fontSize: '0.8rem', height: '30px' }}>CRE 2</MenuItem>
+                            <MenuItem value="CRE 3" sx={{ fontSize: '0.8rem', height: '30px' }}>CRE 3</MenuItem>
                         </Select>
                     </FormControl>
 
                     {/* Sales Dropdown */}
                     <FormControl sx={{ minWidth: 200 }}>
-                        <InputLabel id="sales-select-label">Sales</InputLabel>
+                        {/* <InputLabel id="sales-select-label">Sales</InputLabel> */}
+                        <InputLabel
+                            labelId="cre-select-label"
+                            id="sales-select-label"
+                            sx={{
+                                fontSize: '1rem',
+                                lineHeight: '32px', // Match the height of the select box for vertical centering
+                                transform: 'translate(14px, -0px) ', // Center label vertically
+                                '&.MuiInputLabel-shrink': {
+                                    transform: 'translate(14px, -12px) scale(0.75)', // Shrink and move label up on focus/click
+                                },
+                            }}
+                        >
+                            sales
+                        </InputLabel>
+
                         <Select
                             className='h-8'
                             labelId="sales-select-label"
@@ -165,41 +210,50 @@ const LeadManagement = () => {
                     </FormControl>
 
 
-                
-                    
-                        <Box my={2}>
-                            {/* Date Button */}
-                            <Button className='flex gap-1 h-8' variant="contained" color="primary" onClick={() => setDatePickerOpen(true)}>
-                                <h1>Date</h1><InsertInvitationIcon />
-                            </Button>
 
-                            {/* Modal for Date Picker */}
-                            <Modal open={isDatePickerOpen} onClose={() => setDatePickerOpen(false)}>
-                                <Box
-                                    sx={{
-                                        position: 'absolute',
-                                        top: '50%',
-                                        left: '50%',
-                                        transform: 'translate(-50%, -50%)',
-                                        bgcolor: 'background.paper',
-                                        boxShadow: 24,
-                                        p: 4,
-                                        borderRadius: 2,
-                                    }}
-                                >
-                                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                        <DatePicker
-                                            label="Select Date"
-                                            value={selectedDate}
-                                            onChange={handleDateChange}
-                                            renderInput={(params) => <TextField {...params} />}
-                                        />
-                                    </LocalizationProvider>
-                                </Box>
-                            </Modal>
-                        </Box>
 
-                 
+                    <Box my={2}>
+
+
+                        {/* Date Button */}
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => setDatePickerOpen(true)} // Open the modal
+                        >
+                            Date <InsertInvitationIcon />
+                        </Button>
+
+                        {/* Date Picker Modal */}
+                        <Modal open={isDatePickerOpen} onClose={() => setDatePickerOpen(false)}>
+                            <Box
+                                sx={{
+                                    position: 'absolute',
+                                    top: '50%',
+                                    left: '50%',
+                                    transform: 'translate(-50%, -50%)',
+                                    bgcolor: 'background.paper',
+                                    boxShadow: 24,
+                                    p: 4,
+                                    borderRadius: 2,
+                                }}
+                            >
+                                <RangeDatePick onChange={handleDateRangeChange} />
+                            </Box>
+                        </Modal>
+
+                        {/* Display Selected Date Range */}
+                        {selectedDateRange.startDate && selectedDateRange.endDate && (
+                            <Typography variant="body1">
+                                Selected Range: {new Date(selectedDateRange.startDate).toLocaleDateString()} to {new Date(selectedDateRange.endDate).toLocaleDateString()}
+                            </Typography>
+                        )}
+
+
+
+                    </Box>
+
+
 
                     <div className='flex gap-4 h-10'>
 
@@ -229,7 +283,7 @@ const LeadManagement = () => {
                             <SettingsIcon />
                         </Button>
                     </div>
-                 
+
                 </Box>
 
 
@@ -246,7 +300,7 @@ const LeadManagement = () => {
                             <Grid item xs={12} sm={6} md={4} key={lead._id}>
                                 <Card className='h-full'>
                                     <CardContent>
-                                    <Box mt={2} display="flex" justifyContent="space-around">
+                                        <Box mt={2} display="flex" justifyContent="space-around">
                                             <Button
                                                 variant="contained"
                                                 color="primary"
@@ -272,10 +326,10 @@ const LeadManagement = () => {
                                         {/* Last Message and Date */}
                                         <Typography variant="h5" className='p-2'>{lead.name}</Typography>
                                         <Typography variant="body2" className='p-2' color="textSecondary">
-                                            Last Message: {lead.lastMsg}
+                                            <p className='!line-clamp-2'>Last Message:{lead.lastMsg}</p>
                                         </Typography>
                                         <Typography className='p-2' variant="caption" color="textSecondary">
-                                            {new Date(lead.date).toLocaleString()}
+                                            {new Date(lead.createdAt).toLocaleString()}
                                         </Typography>
 
                                         {/* Call and Chat Buttons */}
@@ -291,6 +345,7 @@ const LeadManagement = () => {
                                                 variant="contained"
                                                 color="secondary"
                                                 startIcon={<ChatIcon />}
+                                                onClick={() => navigate(`/admin/lead-center/${lead._id}`)}
                                             >
                                                 Chat
                                             </Button>
@@ -319,28 +374,36 @@ const LeadManagement = () => {
                                     <TableRow key={lead._id}>
                                         <TableCell>{lead.name}</TableCell>
                                         <TableCell>{lead.status}</TableCell>
-                                        <TableCell>{lead.lastMsg}</TableCell>
-                                        <TableCell>{lead.phone}</TableCell>
+                                        <TableCell  > <p className='!line-clamp-1'> {lead.lastMsg}</p> </TableCell>
+                                        <TableCell>{lead.phone} </TableCell>
                                         <TableCell>
-                                            {new Date(lead.date).toLocaleString()}
+                                            {new Date(lead.createdAt).toLocaleString()}
                                         </TableCell>
                                         <TableCell>
-                                            <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
-                                                Call
-                                            </Button>
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                startIcon={<ChatIcon />}
-                                                sx={{ ml: 1 }}
-                                            >
-                                                Chat
-                                            </Button>
+                                            <div className='flex'>
+                                                <div>
+                                                    <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
+                                                        Call
+                                                    </Button>
+                                                </div>
+                                                <div>
+                                                    <Button
+                                                        variant="contained"
+                                                        color="secondary"
+                                                        startIcon={<ChatIcon />}
+                                                        sx={{ ml: 1 }}
+                                                        onClick={() => navigate(`/admin/lead-center/${lead._id}`)}
+                                                    >
+                                                        Chat
+                                                    </Button>
+                                                </div>
+                                            </div>
+
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
-                        </Table>
+                        </Table>x
                     </TableContainer>
 
                 )}
@@ -350,3 +413,4 @@ const LeadManagement = () => {
 };
 
 export default LeadManagement;
+
