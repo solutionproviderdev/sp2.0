@@ -52,10 +52,10 @@ const conversationApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
 
 		createLeadWithNumber: builder.mutation({
-			query: ({ data }) => ({
+			query: ({ leadData }) => ({
 				url: `/lead`,
 				method: 'post',
-				body: data ,
+				body: leadData ,
 			}),
 		}),
 		

@@ -37,6 +37,7 @@ import ChatIcon from '@mui/icons-material/Chat';
 import { useGetAllLeadQuery } from '../features/conversation/conversationApi';
 import { useNavigate } from 'react-router-dom';
 import RangeDatePick from '../components/shared/RangeDatePick';
+import CreateLead from '../components/LeadManagement/CreateLead';
 
 
 
@@ -53,7 +54,7 @@ const LeadManagement = () => {
 
     // Function to normalize and count statuses
     const leadData = useMemo(() => {
-        console.log('leads is hare ',data)
+        console.log('leads is hare ', data)
         if (!data) return [];
 
         // Normalize statuses (trim whitespace, convert to lowercase)
@@ -73,9 +74,9 @@ const LeadManagement = () => {
     }, [data]);
 
     // const lead = data
-    console.log('status-- to lead management ', data?.leads.map(lead=>lead.status,))
+    console.log('status-- to lead management ', data?.leads.map(lead => lead.status,))
 
- 
+
     const [alignment, setAlignment] = React.useState('left');
 
     const handleAlignment = (event, newAlignment) => {
@@ -130,9 +131,15 @@ const LeadManagement = () => {
 
                 {/* Buttons Section */}
                 <Box mb={3} className='flex justify-around items-center'>
-                    <Button variant="contained" color="primary" className='h-8'>
+                    {/* <Button variant="contained" color="primary" className='h-8'>
                         + Create
-                    </Button>
+                    </Button> */}
+                    {/* Create Lead Button */}
+                    <CreateLead /> {/* The modal button and logic */}
+
+
+
+
                     <Button variant="contained" color="primary" className='h-8'>
                         Status
                     </Button>
