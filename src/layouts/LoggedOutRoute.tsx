@@ -4,7 +4,7 @@ import useAuth from "../hooks/useAuth";
 
 const LoggedOutRoute: React.FC = () => {
   const auth = useAuth();
-  return !auth ? <Outlet /> : <Navigate to="/admin/dashboard" />;
+  return !auth.isLoggedIn ? <Outlet /> : <Navigate to="/admin/dashboard" />;
 };
 
 export default LoggedOutRoute;
