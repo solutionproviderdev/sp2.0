@@ -74,7 +74,8 @@ const LeadManagement = () => {
     }, [data]);
 
     // const lead = data
-    console.log('status-- to lead management ', data?.leads.map(lead => lead.status,))
+    const allStatus = data?.leads.map(lead => lead.status,)
+    console.log('status-- to lead management ', allStatus)
 
 
     const [alignment, setAlignment] = React.useState('left');
@@ -104,6 +105,18 @@ const LeadManagement = () => {
     const handleDateRangeChange = (range) => {
         setSelectedDateRange(range); // Set the selected date range
         setDatePickerOpen(false); // Close modal after date is selected
+    };
+
+    // Hardcoded status options
+    const statusOptions = ['New','No Response','Need Support','Message Reschedule','Number Collected','Call Reschedule','On Going','Close','Meeting Fixed','Meeting Pospond'];
+    const creOptions = ['CRE1', 'CRE2', 'CRE3'];
+    const salesOptions = ['Sales 1', 'Sales 2', 'Sales 3'];
+
+    const [selectedStatus, setSelectedStatus] = useState(''); // State to track selected status
+
+    const handleStatusChange = (event) => {
+        setSelectedStatus(event.target.value);
+        console.log('Selected Status:', event.target.value);
     };
 
     return (
@@ -137,12 +150,46 @@ const LeadManagement = () => {
                     {/* Create Lead Button */}
                     <CreateLead /> {/* The modal button and logic */}
 
-
-
-
-                    <Button variant="contained" color="primary" className='h-8'>
+                    {/* <Button variant="contained" color="primary" className='h-8'>
                         Status
-                    </Button>
+                    </Button> */}
+
+                    {/* Status Dropdown */}
+                    
+                   <FormControl sx={{ minWidth: 200 }}>
+                        {/* <InputLabel></InputLabel> */}
+                        <InputLabel
+                            id="cre-select-label"
+                            sx={{
+                                fontSize: '0.8rem',
+                                lineHeight: '32px', // Match the height of the select box for vertical centering
+                                transform: 'translate(14px, -0px) ', // Center label vertically
+                                '&.MuiInputLabel-shrink': {
+                                    transform: 'translate(14px, -12px) scale(0.75)', // Shrink and move label up on focus/click
+                                },
+                            }}
+                        >
+                            Status
+                        </InputLabel>
+                        <Select
+                            value={selectedStatus}
+                            onChange={handleStatusChange}
+                            label="Status"
+                            sx={{
+                                height: '32px', // Adjust the height of the select box
+                                fontSize: '0.8rem', // Reduce the font size
+                            }}
+                            >
+                            {statusOptions.map((status, index) => (
+                                <MenuItem key={index} value={status}>
+                                    {status}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+ 
+
+
 
                     {/* CRE Dropdown */}
                     <FormControl sx={{ minWidth: 200 }}>
@@ -175,9 +222,11 @@ const LeadManagement = () => {
                             <MenuItem value="" sx={{ fontSize: '0.8rem', height: '30px' }}>
                                 <em>None</em>
                             </MenuItem>
-                            <MenuItem value="CRE 1" sx={{ fontSize: '0.8rem', height: '30px' }}>CRE 1</MenuItem>
-                            <MenuItem value="CRE 2" sx={{ fontSize: '0.8rem', height: '30px' }}>CRE 2</MenuItem>
-                            <MenuItem value="CRE 3" sx={{ fontSize: '0.8rem', height: '30px' }}>CRE 3</MenuItem>
+                            {creOptions.map((status, index) => (
+                                <MenuItem key={index} value={status}>
+                                    {status}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
 
@@ -210,9 +259,12 @@ const LeadManagement = () => {
                             <MenuItem value="">
                                 <em>None</em>
                             </MenuItem>
-                            <MenuItem value="Sales 1">Sales 1</MenuItem>
-                            <MenuItem value="Sales 2">Sales 2</MenuItem>
-                            <MenuItem value="Sales 3">Sales 3</MenuItem>
+                            
+                            {salesOptions.map((status, index) => (
+                                <MenuItem key={index} value={status}>
+                                    {status}
+                                </MenuItem>
+                            ))}
                         </Select>
                     </FormControl>
 
@@ -220,8 +272,6 @@ const LeadManagement = () => {
 
 
                     <Box my={2}>
-
-
                         {/* Date Button */}
                         <Button
                             variant="contained"

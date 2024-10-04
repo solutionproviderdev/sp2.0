@@ -52,14 +52,16 @@ const conversationApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
 
 		createLeadWithNumber: builder.mutation({
-			query: ({ leadData }) => ({
+			query: ({ leadData }) => {
+				console.log('rtk rtk phone lead create------',leadData)
+				return {
 				url: `/lead`,
 				method: 'post',
 				body: leadData ,
-			}),
+				}
+			}
 		}),
-		
-		
+
 		
 		// get all leads
 		getAllLead: builder.query<GetConversationByIdResponse, string>({
@@ -309,6 +311,6 @@ export const {
 	useMarkAsSeenMutation,
 	useGetAllLeadQuery,
 	useCreateLeadWithNumberMutation
-} = conversationApi;
+ } = conversationApi;
 
 export default conversationApi;
