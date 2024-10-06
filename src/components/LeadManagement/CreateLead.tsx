@@ -117,9 +117,10 @@ export default function CreateLead() {
                                         label="Source"
                                         onChange={(e) => setSource(e.target.value)}
                                     >
-                                        <MenuItem value="reference">Reference</MenuItem>
+                                        <MenuItem value="Facebook">Facebook</MenuItem>
+                                        <MenuItem value="WhatsApp">WhatsApp</MenuItem>
+                                        <MenuItem value="Web">Web</MenuItem>
                                         <MenuItem value="Phone">Phone</MenuItem>
-                                        <MenuItem value="website">website</MenuItem>
                                     </Select>
                                 </FormControl>
                             </Grid>
