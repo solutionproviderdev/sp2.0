@@ -5,24 +5,44 @@ import {
 	Modal,
 	IconButton,
 	Typography,
-	Card,
-	CardContent,
-	Grid,
+	Alert,
 } from '@mui/material';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import dayjs, { Dayjs } from 'dayjs';
+import moment from 'moment';
+import AddIcon from '@mui/icons-material/Add';
 import { useUpdateReminderMutation } from '../../../features/conversation/conversationApi';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import PendingActionsIcon from '@mui/icons-material/PendingActions';
+import CancelIcon from '@mui/icons-material/Cancel';
+import ErrorIcon from '@mui/icons-material/Error';
+import { Dayjs } from 'dayjs';
 
 interface RemindersProps {
-	leadId: string;
-	leadReminders: { time: string; status: string; _id: string }[]; // Adjusting leadReminders type
+	leadId: string | undefined;
+	leadReminders: { time: string; status: string; _id: string }[];
+}
+
+interface ReminderResponse {
+	status: 'success' | 'error';
+	reminders: { time: string; status: string; _id: string }[];
+}
+
+interface ErrorResponse {
+	status: number;
+	data: {
+		msg: string;
+	};
 }
 
 const Reminders: React.FC<RemindersProps> = ({ leadId, leadReminders }) => {
 	const [selectedDateTime, setSelectedDateTime] = useState<Dayjs | null>(null);
 	const [open, setOpen] = useState(false);
+	const [alert, setAlert] = useState<{
+		message: string;
+		severity: 'error' | 'success';
+	} | null>(null);
 
 	// RTK mutation hook for updating reminders
 	const [updateReminder] = useUpdateReminderMutation();
@@ -37,67 +57,124 @@ const Reminders: React.FC<RemindersProps> = ({ leadId, leadReminders }) => {
 
 	const handleClose = () => {
 		setOpen(false);
+		setAlert(null); // Clear the alert when closing the modal
 	};
 
 	const handleSave = async () => {
 		if (selectedDateTime) {
-			// const formattedReminder = {
-			// 	time: selectedDateTime.toISOString(), // Correct ISO format for REST API
-			// };
+			// Check if leadId and selectedDateTime are defined
+			if (!leadId || !selectedDateTime) {
+				return;
+			}
 
-			// Call the mutation with the leadId and formatted reminder
 			try {
-				const response = await updateReminder({
+				const response: ReminderResponse = await updateReminder({
 					id: leadId,
-					reminders: selectedDateTime,
-				});
-				// console.log('Reminder component response', response);
+					time: selectedDateTime.toISOString(),
+				}).unwrap();
+
+				if (response.status === 'success') {
+					setAlert({
+						message: 'Reminder added successfully',
+						severity: 'success',
+					});
+					handleClose();
+				}
 			} catch (error) {
-				console.error('Error updating reminder:', error);
+				const err = error as ErrorResponse;
+
+				setAlert({
+					message: err.data.msg,
+					severity: 'error',
+				});
 			}
 		}
-		handleClose();
+	};
+
+	const getStatusIcon = (status: string) => {
+		switch (status) {
+			case 'Complete':
+				return <CheckCircleIcon sx={{ color: 'green' }} />;
+			case 'Pending':
+				return <PendingActionsIcon sx={{ color: 'orange' }} />;
+			case 'Missed':
+				return <CancelIcon sx={{ color: 'red' }} />;
+			case 'Late Complete':
+				return <ErrorIcon sx={{ color: 'blue' }} />;
+			default:
+				return null;
+		}
+	};
+
+	const getColor = (status: string) => {
+		switch (status) {
+			case 'Complete':
+				return 'green';
+			case 'Pending':
+				return 'orange';
+			case 'Missed':
+				return 'red';
+			case 'Late Complete':
+				return 'blue';
+			default:
+				return 'black';
+		}
 	};
 
 	return (
 		<LocalizationProvider dateAdapter={AdapterDayjs}>
-			<Box sx={{ my: 1 }}>
-				<Box sx={{ textAlign: 'center' }}>
-					{leadReminders?.map(reminder => {
-						const reminderTime = dayjs(reminder.time); // Convert time to Dayjs object
+			<Box className="flex flex-col my-2 p-2">
+				<div className="flex items-center justify-between">
+					<Typography variant="body1">⏰ Reminders</Typography>
+					<IconButton onClick={handleOpen}>
+						<AddIcon />
+					</IconButton>
+				</div>
 
+				<Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+					{leadReminders?.map(reminder => {
+						const reminderTime = moment(reminder.time);
 						return (
-							<div
+							<Box
 								key={reminder._id}
-								className="font-bold flex justify-between mb-2 p-2 px-4 rounded bg-orange-200 hover:bg-orange-300"
+								sx={{
+									display: 'flex',
+									alignItems: 'center',
+									justifyContent: 'space-between',
+								}}
 							>
-								<div>⏰</div>
-								<div>{reminderTime.format('YYYY-MM-DD hh:mm A')}</div>
-								<div className="text-blue-600">{reminder.status}</div>
-							</div>
+								<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+									{getStatusIcon(reminder.status)}
+									<Typography
+										variant="body2"
+										sx={{
+											fontWeight: 'bold',
+											color: getColor(reminder.status),
+										}}
+									>
+										{reminder.status}
+									</Typography>
+								</Box>
+								<Box sx={{ textAlign: 'right' }}>
+									<Typography variant="body2">
+										{reminderTime.format('DD-MMM, YYYY')}
+									</Typography>
+									<Typography variant="body2">
+										{reminderTime.format('hh:mm A')}
+									</Typography>
+								</Box>
+							</Box>
 						);
 					})}
 				</Box>
-				<Button
-					variant="contained"
-					onClick={handleOpen}
-					sx={{
-						mt: 1,
-						width: '100%',
-						backgroundColor: 'primary.main',
-						'&:hover': { backgroundColor: 'primary.dark' },
-					}}
-				>
-					Add New Reminder
-				</Button>
 
 				<Modal open={open} onClose={handleClose}>
 					<Box
 						sx={{
 							position: 'absolute',
-							top: '10%',
+							top: '50%',
 							left: '50%',
-							transform: 'translate(-50%, 0)',
+							transform: 'translate(-50%, -50%)',
 							bgcolor: 'background.paper',
 							boxShadow: 24,
 							p: 4,
@@ -113,13 +190,23 @@ const Reminders: React.FC<RemindersProps> = ({ leadId, leadReminders }) => {
 						>
 							Select Date & Time
 						</Typography>
+
+						{alert && (
+							<Alert
+								severity={alert.severity}
+								onClose={() => setAlert(null)}
+								sx={{ mb: 2 }}
+							>
+								{alert.message}
+							</Alert>
+						)}
+
 						<DateTimePicker
-							ampm={true}
 							label="Pick a Date & Time"
 							value={selectedDateTime}
 							onChange={handleDateTimeChange}
-							renderInput={params => <input {...params.inputProps} />}
 						/>
+
 						<Box sx={{ mt: 3, textAlign: 'center' }}>
 							<Button
 								variant="contained"
@@ -138,5 +225,4 @@ const Reminders: React.FC<RemindersProps> = ({ leadId, leadReminders }) => {
 		</LocalizationProvider>
 	);
 };
-
 export default Reminders;

@@ -1,139 +1,172 @@
-
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import {
+	Grid,
+	Typography,
+	Box,
+	IconButton,
+	InputAdornment,
+	TextField,
+} from '@mui/material';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useState } from 'react';
-import { PieChart } from '@mui/x-charts/PieChart';
+import CongratulationsModal from '../components/follow-up/CongratulationsModal';
+import {
+	useGetConversationMessagesQuery,
+	useGetSingleLeadQuery,
+	useSentMessageMutation,
+} from '../features/conversation/conversationApi';
+import Chats from '../components/leadCenter/Inbox/chats';
+import {
+	AttachFileRounded as AttachFileIcon,
+	EmojiEmotionsRounded as EmojiIcon,
+	CameraAlt as CameraIcon,
+	Send as SendIcon,
+} from '@mui/icons-material';
+import LeadDetails from '../components/leadCenter/LeadDetails';
+import FollowUpButtons from '../components/follow-up/FollowUpButtons';
+import AllComments from '../components/leadCenter/Sidebar/AllComments';
 
+interface FollowUpProps {
+	leadIdList?: string[];
+}
 
-const FollowUp = () => {
-    const [age1, setAge1] = useState('');
-    const [status, setStatus] = useState('');
-    const [leadType, setLeadType] = useState('');
-    const [source, setSource] = useState('');
-    const [priority, setPriority] = useState('');
-    const [assignedTo, setAssignedTo] = useState('');
+export default function FollowUp({ leadIdList }: FollowUpProps) {
+	const { leadId: currentLeadId } = useParams();
+	const navigate = useNavigate();
+	const [showCongratsModal, setShowCongratsModal] = useState(false);
+	const [newMessage, setNewMessage] = useState('');
+	const { data: lead } = useGetSingleLeadQuery(currentLeadId ?? '');
+	const { data } = useGetConversationMessagesQuery(currentLeadId ?? '', {
+		skip: !currentLeadId,
+	});
+	const [sendMessage] = useSentMessageMutation();
 
+	const messages = data?.messages || [];
 
-    return (
-        <div className="grid grid-cols-2 max-h-full overflow-y-auto h-[92]">
-            <div className="border-2 border-gray-300 rounded-lg p-6 w-full h-auto shadow-lg">
-                <h1 className='text-3xl font-bold mb-6 text-center text-blue-700'>Filter Options</h1>
-                <div className='grid grid-cols-2 gap-6'>
-                    {/* Left Column Inputs */}
-                    <div className='flex flex-col gap-6'>
-                        <FormControl className='w-full'>
-                            <InputLabel id="age-select-1-label">Age Range</InputLabel>
-                            <Select
-                                labelId="age-select-1-label"
-                                id="age-select-1"
-                                value={age1}
-                                label="Age"
-                                onChange={(e) => setAge1(e.target.value)}
-                            >
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl className='w-full'>
-                            <InputLabel id="status-select-label">Status</InputLabel>
-                            <Select
-                                labelId="status-select-label"
-                                id="status-select"
-                                value={status}
-                                label="Status"
-                                onChange={(e) => setStatus(e.target.value)}
-                            >
-                                <MenuItem value="new">New</MenuItem>
-                                <MenuItem value="follow-up">Follow Up</MenuItem>
-                                <MenuItem value="closed">Closed</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl className='w-full'>
-                            <InputLabel id="lead-type-label">Lead Type</InputLabel>
-                            <Select
-                                labelId="lead-type-label"
-                                id="lead-type"
-                                value={leadType}
-                                label="Lead Type"
-                                onChange={(e) => setLeadType(e.target.value)}
-                            >
-                                <MenuItem value="hot">Hot</MenuItem>
-                                <MenuItem value="cold">Cold</MenuItem>
-                                <MenuItem value="warm">Warm</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </div>
+	console.log(lead?.comment);
 
-                    {/* Right Column Inputs */}
-                    <div className='flex flex-col gap-6'>
-                        <FormControl className='w-full'>
-                            <InputLabel id="source-select-label">Source</InputLabel>
-                            <Select
-                                labelId="source-select-label"
-                                id="source-select"
-                                value={source}
-                                label="Source"
-                                onChange={(e) => setSource(e.target.value)}
-                            >
-                                <MenuItem value="facebook">Facebook</MenuItem>
-                                <MenuItem value="linkedin">LinkedIn</MenuItem>
-                                <MenuItem value="email">Email</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl className='w-full'>
-                            <InputLabel id="priority-select-label">Priority</InputLabel>
-                            <Select
-                                labelId="priority-select-label"
-                                id="priority-select"
-                                value={priority}
-                                label="Priority"
-                                onChange={(e) => setPriority(e.target.value)}
-                            >
-                                <MenuItem value="high">High</MenuItem>
-                                <MenuItem value="medium">Medium</MenuItem>
-                                <MenuItem value="low">Low</MenuItem>
-                            </Select>
-                        </FormControl>
-                        <FormControl className='w-full'>
-                            <InputLabel id="assigned-to-select-label">Assigned To</InputLabel>
-                            <Select
-                                labelId="assigned-to-select-label"
-                                id="assigned-to-select"
-                                value={assignedTo}
-                                label="Assigned To"
-                                onChange={(e) => setAssignedTo(e.target.value)}
-                            >
-                                <MenuItem value="john">John Doe</MenuItem>
-                                <MenuItem value="jane">Jane Smith</MenuItem>
-                                <MenuItem value="mark">Mark Taylor</MenuItem>
-                            </Select>
-                        </FormControl>
-                    </div>
-                </div>
-            </div>
+	// Function to handle sending a message
+	const handleSendMessage = async () => {
+		if (newMessage.trim() && currentLeadId) {
+			try {
+				await sendMessage({
+					id: currentLeadId,
+					message: {
+						messageType: 'text',
+						content: { text: newMessage },
+					},
+				}).unwrap();
+				setNewMessage('');
+			} catch (err) {
+				console.error('Failed to send message:', err);
+			}
+		}
+	};
 
+	// Function to navigate to the next lead
+	const handleNextLead = () => {
+		if (!leadIdList || !currentLeadId) {
+			return;
+		}
 
+		const currentLeadIndex = leadIdList.findIndex(id => id === currentLeadId);
 
-            <div className="border-2 border-red-600 w-full h-96">
-            <PieChart
-      series={[
-        {
-          data: [
-            { id: 0, value: 10, label: 'series A' },
-            { id: 1, value: 15, label: 'series B' },
-            { id: 2, value: 20, label: 'series C' },
-          ],
-        },
-      ]}
-      width={400}
-      height={200}
-    />
-            </div>
+		// If the current lead is the last one, show the congratulations modal
+		if (currentLeadIndex === leadIdList.length - 1) {
+			setShowCongratsModal(true);
 
-            <div className="border-2 border-red-600 w-full h-96">part 3</div>
-            <div className="border-2 border-red-600 w-full h-96">part 4</div>
-        </div>
-    );
-};
+			// Automatically close modal and navigate back after 2 seconds
+			setTimeout(() => {
+				setShowCongratsModal(false);
+				navigate('/admin/lead-followUp');
+			}, 2000);
 
-export default FollowUp;
+			return;
+		}
+
+		// Navigate to the next lead
+		const nextLeadId = leadIdList[currentLeadIndex + 1];
+		navigate(`/admin/lead-followUp/${nextLeadId}`);
+	};
+
+	// function to stop and move to the followup page
+	const handleStop = () => {
+		navigate('/admin/lead-followUp');
+	};
+
+	return (
+		<Grid container spacing={2} sx={{ height: '100%' }}>
+			{/* Right Section (Inbox) */}
+			<Grid item xs={6} sx={{ borderRight: '1px solid #ddd', padding: 2 }}>
+				{/* Header */}
+				<div className="flex flex-col h-full">
+					<Box className="p-4 border-b flex justify-between">
+						<Typography variant="h6">{lead?.name ?? 'No Name'}</Typography>
+
+						<Box className="flex items-center gap-1">Status</Box>
+					</Box>
+
+					{/* Messages Section */}
+					<Box className="flex-1 h-full overflow-y-auto max-h-[78vh] scrollbar-none">
+						{messages && messages.length > 0 && <Chats messages={messages} />}
+					</Box>
+
+					{/* Input Box */}
+					<Box className="mb-2 pt-2 bg-white border-t flex items-center">
+						<IconButton>
+							<CameraIcon className="text-gray-800" />
+						</IconButton>
+
+						<IconButton>
+							<EmojiIcon className="text-orange-400" />
+						</IconButton>
+
+						<IconButton>
+							<AttachFileIcon className="text-gray-700" />
+						</IconButton>
+
+						<TextField
+							label="Send message"
+							size="small"
+							fullWidth
+							className="!mr-4"
+							value={newMessage}
+							onChange={e => setNewMessage(e.target.value)}
+							sx={{ backgroundColor: '#fff', borderRadius: '5px' }}
+							InputProps={{
+								endAdornment: (
+									<InputAdornment position="end">
+										<IconButton
+											color="primary"
+											aria-label="send message"
+											onClick={handleSendMessage}
+										>
+											<SendIcon />
+										</IconButton>
+									</InputAdornment>
+								),
+							}}
+						/>
+					</Box>
+				</div>
+			</Grid>
+
+			{/* middle Section for lead Details */}
+			<Grid item xs={3} sx={{ borderRight: '1px solid #ddd', padding: 2 }}>
+				<LeadDetails leadId={currentLeadId} lead={lead} />
+			</Grid>
+
+			{/* last section for comments and done and stop buttons */}
+			<Grid item xs={3}>
+				{/* Stop and done buttons */}
+				<FollowUpButtons onStop={handleStop} onDone={handleNextLead} />
+				{/* Comments Section */}
+				{lead?.comment && (
+					<AllComments leadId={currentLeadId} comments={lead?.comment} />
+				)}
+			</Grid>
+
+			{/* Congratulations Modal */}
+			<CongratulationsModal open={showCongratsModal} />
+		</Grid>
+	);
+}

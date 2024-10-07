@@ -1,186 +1,181 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, IconButton } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import DoneIcon from '@mui/icons-material/Done';
+import React, { useState } from 'react';
 import {
-	useGetSingleLeadQuery,
-	useUpdateRequirementMutation,
-} from '../../../features/conversation/conversationApi';
+	Box,
+	Typography,
+	TextField,
+	Button,
+	IconButton,
+	Chip,
+	Alert,
+} from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import DoneIcon from '@mui/icons-material/Done';
+import CloseIcon from '@mui/icons-material/Close';
+import { useUpdateRequirementMutation } from '../../../features/conversation/conversationApi';
 
-interface Conversation {
-	id: string;
+interface RequirementsProps {
+	leadId: string | undefined;
+	requirements: string[];
 }
 
-interface InboxProps {
-	conversation: Conversation | null;
-}
+const Requirements: React.FC<RequirementsProps> = ({
+	leadId,
+	requirements: initialRequirements,
+}) => {
+	const [updateRequirement] = useUpdateRequirementMutation();
 
-const Requirements: React.FC<InboxProps> = ({ leadId }) => {
-	// Fetch lead data (requirements) based on the conversation (lead) ID
-	// console.log('pitoitary gland ', conversation)
-	const { data, error, isLoading, refetch } = useGetSingleLeadQuery(
-		leadId ?? ''
-	);
-
-	const [updateRequirement, { isLoading: isUpdating, isSuccess, isError }] =
-		useUpdateRequirementMutation();
-
-	// Local state to manage the requirements list
-	const [requirements, setRequirements] = useState<string[]>([]);
+	const [requirements, setRequirements] =
+		useState<string[]>(initialRequirements);
 	const [newRequirement, setNewRequirement] = useState<string>('');
-	const [editRequirementIndex, setEditRequirementIndex] = useState<
-		number | null
-	>(null);
-	const [showAllRequirements, setShowAllRequirements] =
-		useState<boolean>(false);
+	const [editIndex, setEditIndex] = useState<number | null>(null);
+	const [showTextField, setShowTextField] = useState<boolean>(false);
+	const [alert, setAlert] = useState<{
+		message: string;
+		severity: 'error' | 'success';
+	} | null>(null);
 
-	// Update local state when data is fetched
-	useEffect(() => {
-		if (data && data && data?.requirements) {
-			setRequirements(data?.requirements); // Load requirements from the lead data
-		}
-	}, [data]);
-
-	// Add new requirement (without overwriting)
+	// Add new requirement
 	const addRequirement = async () => {
 		if (newRequirement.trim() !== '') {
-			const updatedRequirements = [...requirements, newRequirement]; // Append new requirement to the list
+			const updatedRequirements = [...requirements, newRequirement];
 			setRequirements(updatedRequirements);
 			setNewRequirement('');
+			setShowTextField(false);
 
-			// Update requirements in the backend
+			try {
+				await updateRequirement({
+					id: leadId,
+					requirements: updatedRequirements,
+				});
+				setAlert({
+					message: 'Requirement added successfully',
+					severity: 'success',
+				});
+			} catch {
+				setAlert({
+					message: 'Failed to add requirement',
+					severity: 'error',
+				});
+			}
+		}
+	};
+
+	// Handle requirement edit
+	const handleSaveRequirement = async () => {
+		if (editIndex !== null) {
+			if (requirements[editIndex].trim() === '') {
+				const updatedRequirements = requirements.filter(
+					(_, i) => i !== editIndex
+				);
+				setRequirements(updatedRequirements);
+			}
+			setEditIndex(null);
+
+			try {
+				await updateRequirement({ id: leadId, requirements });
+				setAlert({
+					message: 'Requirement updated successfully',
+					severity: 'success',
+				});
+			} catch {
+				setAlert({
+					message: 'Failed to update requirement',
+					severity: 'error',
+				});
+			}
+		}
+	};
+
+	// Remove requirement
+	const handleDeleteRequirement = async (index: number) => {
+		const updatedRequirements = requirements.filter((_, i) => i !== index);
+		setRequirements(updatedRequirements);
+
+		try {
 			await updateRequirement({
-				id: conversation,
+				id: leadId,
 				requirements: updatedRequirements,
 			});
-			refetch(); // Refetch to get the latest data
+			setAlert({
+				message: 'Requirement removed successfully',
+				severity: 'success',
+			});
+		} catch {
+			setAlert({
+				message: 'Failed to remove requirement',
+				severity: 'error',
+			});
 		}
-	};
-
-	// Edit requirement
-	const handleRequirementChange = (index: number, value: string) => {
-		const updatedRequirements = requirements.map((req, i) =>
-			i === index ? value : req
-		);
-		setRequirements(updatedRequirements);
-	};
-
-	// Handle saving updated requirement
-	const handleSaveRequirement = async () => {
-		if (editRequirementIndex !== null) {
-			if (requirements[editRequirementIndex].trim() === '') {
-				setRequirements(
-					requirements.filter((_, i) => i !== editRequirementIndex)
-				); // Remove empty requirement
-			}
-			setEditRequirementIndex(null);
-
-			// Update requirements in the backend
-			await updateRequirement({ id: conversation, requirements });
-			refetch(); // Refetch to get the latest data
-		}
-	};
-
-	// Remove empty requirements
-	const handleRemoveRequirement = async (index: number) => {
-		const updatedRequirements = requirements.filter((_, i) => i !== index); // Remove requirement by index
-		setRequirements(updatedRequirements);
-
-		// Update the backend with the updated list
-		await updateRequirement({
-			id: conversation,
-			requirements: updatedRequirements,
-		});
-		refetch();
 	};
 
 	return (
-		<Box sx={{ marginTop: 1 }}>
-			<Typography variant="body2">📋 Requirements:</Typography>
-
-			{(showAllRequirements ? requirements : requirements.slice(0, 1)).map(
-				(requirement, index) => (
-					<div key={index} className="flex items-center mb-2">
-						{editRequirementIndex === index ? (
-							<>
-								<TextField
-									value={requirement}
-									onChange={e => handleRequirementChange(index, e.target.value)}
-									size="small"
-									sx={{ flexGrow: 1, marginRight: 1 }}
-								/>
-								<IconButton size="small" onClick={handleSaveRequirement}>
-									<DoneIcon />
-								</IconButton>
-								<Button
-									onClick={() => handleRemoveRequirement(index)}
-									size="small"
-									color="error"
-								>
-									Remove
-								</Button>
-							</>
-						) : (
-							<>
-								<Typography
-									variant="body2"
-									sx={{
-										flexGrow: 1,
-										padding: '8px',
-										backgroundColor: '#e0f7fa',
-										borderRadius: '5px',
-										transition: 'background-color 0.3s ease',
-									}}
-								>
-									{requirement}
-								</Typography>
-
-								<IconButton
-									size="small"
-									sx={{
-										color: '#0288d1',
-										'&:hover': { color: '#01579b' },
-									}}
-									onClick={() => setEditRequirementIndex(index)}
-								>
-									<EditIcon />
-								</IconButton>
-							</>
-						)}
-					</div>
-				)
-			)}
-
-			{!showAllRequirements && requirements.length > 1 && (
-				<Button onClick={() => setShowAllRequirements(true)} size="small">
-					Show All
-				</Button>
-			)}
-			{showAllRequirements && (
-				<Button onClick={() => setShowAllRequirements(false)} size="small">
-					Show Less
-				</Button>
-			)}
-
-			{/* Add Requirement Input */}
-			<div className="flex items-center mb-2">
-				<TextField
-					label="Add Requirement"
-					value={newRequirement}
-					onChange={e => setNewRequirement(e.target.value)}
-					size="small"
-					sx={{ flexGrow: 1, marginRight: 1 }}
-				/>
-				<Button
-					variant="outlined"
-					size="medium"
-					startIcon={<AddIcon />}
-					onClick={addRequirement}
-				>
-					Add
-				</Button>
+		<Box className="flex flex-col my-2 p-2">
+			<div className="flex items-center justify-between">
+				<Typography variant="body1">📋 Requirements</Typography>
+				<IconButton onClick={() => setShowTextField(!showTextField)}>
+					<AddIcon />
+				</IconButton>
 			</div>
+
+			{alert && (
+				<Alert
+					severity={alert.severity}
+					onClose={() => setAlert(null)}
+					sx={{ marginBottom: 2 }}
+				>
+					{alert.message}
+				</Alert>
+			)}
+
+			<Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+				{requirements.map((requirement, index) => (
+					<Chip
+						key={index}
+						label={
+							editIndex === index ? (
+								<>
+									<TextField
+										value={requirement}
+										onChange={e =>
+											setRequirements(
+												requirements.map((req, i) =>
+													i === index ? e.target.value : req
+												)
+											)
+										}
+										size="small"
+										sx={{ flexGrow: 1, marginRight: 1 }}
+									/>
+									<IconButton onClick={handleSaveRequirement}>
+										<DoneIcon />
+									</IconButton>
+								</>
+							) : (
+								requirement
+							)
+						}
+						onDelete={() => handleDeleteRequirement(index)}
+						onClick={() => setEditIndex(index)}
+						deleteIcon={<CloseIcon />}
+						sx={{ backgroundColor: '#f0f4f7', padding: '5px' }}
+					/>
+				))}
+			</Box>
+
+			{showTextField && (
+				<div className="flex items-center mt-2">
+					<TextField
+						label="Add Requirement"
+						size="small"
+						sx={{ flexGrow: 1, marginRight: 1 }}
+						value={newRequirement}
+						onChange={e => setNewRequirement(e.target.value)}
+					/>
+					<Button variant="outlined" size="medium" onClick={addRequirement}>
+						Add
+					</Button>
+				</div>
+			)}
 		</Box>
 	);
 };
