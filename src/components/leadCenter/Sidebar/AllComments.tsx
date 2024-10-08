@@ -22,7 +22,7 @@ const AllComments: React.FC<CommentsProps> = ({ comments, leadId }) => {
 			</Typography>
 
 			{/* Display comments */}
-			<div className="flex-1 overflow-y-scroll scrollbar-none max-h-[72vh]">
+			<div className="flex-1 overflow-y-scroll scrollbar-none min-h-[72vh] max-h-[72vh]">
 				<List>
 					{comments?.map((comment, index) => (
 						<CommentItem key={comment?._id} comment={comment} />

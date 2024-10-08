@@ -34,9 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ leadId, lead, isOpen, onClose }) => {
 				{lead?.phone && (
 					<PhoneNumbers leadId={leadId} phoneNumbers={lead.phone} />
 				)}
-				{lead?.address && (
-					<AddressCard leadId={leadId} address={lead.address} />
-				)}
+				<AddressCard leadId={leadId} address={lead.address} />
 				{lead?.requirements && (
 					<Requirements leadId={leadId} requirements={lead.requirements} />
 				)}

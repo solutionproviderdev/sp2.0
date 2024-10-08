@@ -106,7 +106,7 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 					</Box>
 
 					{/* Messages Section */}
-					<Box className="flex-1 h-full overflow-y-auto max-h-[78vh] scrollbar-none">
+					<Box className="flex-1 h-full overflow-y-auto min-h-[78vh] max-h-[78vh] scrollbar-none">
 						{messages && messages.length > 0 && <Chats messages={messages} />}
 					</Box>
 

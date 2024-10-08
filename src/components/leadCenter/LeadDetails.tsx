@@ -18,7 +18,7 @@ export default function LeadDetails({ lead, leadId }) {
 			)}
 
 			{/* Address */}
-			{lead?.address && <AddressCard leadId={leadId} address={lead?.address} />}
+			<AddressCard leadId={leadId} address={lead?.address} />
 
 			{/* Requirements */}
 			{lead?.requirements && (

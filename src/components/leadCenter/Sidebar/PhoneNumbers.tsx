@@ -44,9 +44,10 @@ const PhoneNumbers: React.FC<PhoneNumbersProps> = ({
 	const handleAddNumber = async () => {
 		if (newNumber) {
 			try {
+				console.log(typeof newNumber, newNumber);
 				const response = await addPhone({
 					id: leadId,
-					phoneNumber: { phoneNumber: newNumber },
+					phoneNumber: newNumber,
 				});
 				if (response?.error) {
 					setAlert({

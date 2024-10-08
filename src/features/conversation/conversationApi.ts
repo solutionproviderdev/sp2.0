@@ -232,11 +232,14 @@ const conversationApi = apiSlice.injectEndpoints({
 
 		// Add a phone number to a lead
 		addPhone: builder.mutation<Lead, { id: string; phoneNumber: string }>({
-			query: ({ id, phoneNumber }) => ({
-				url: `/lead/${id}/add-phone-number`,
-				method: 'PUT',
-				body: { phoneNumber },
-			}),
+			query: ({ id, phoneNumber }) => {
+				console.log(phoneNumber, typeof phoneNumber);
+				return {
+					url: `/lead/${id}/add-phone-number`,
+					method: 'PUT',
+					body: { phoneNumber },
+				};
+			},
 		}),
 
 		// Update reminders
@@ -328,7 +331,6 @@ const conversationApi = apiSlice.injectEndpoints({
 
 								lead.comment.push(comment);
 							}
-
 						})
 					);
 				};
