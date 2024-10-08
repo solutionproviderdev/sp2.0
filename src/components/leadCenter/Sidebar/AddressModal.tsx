@@ -20,7 +20,7 @@ import { useUpdateLeadsMutation } from '../../../features/conversation/conversat
 interface AddressModalProps {
 	open: boolean;
 	handleClose: () => void;
-	leadId: string;
+	leadId: string | undefined;
 }
 
 const AddressModal: React.FC<AddressModalProps> = ({

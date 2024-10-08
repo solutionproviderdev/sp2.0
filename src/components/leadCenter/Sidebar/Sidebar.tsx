@@ -1,28 +1,21 @@
 import React from 'react';
-import { Box, Drawer, Typography, Divider } from '@mui/material';
-import { useGetSingleLeadQuery } from '../../../features/conversation/conversationApi';
+import { Box, Drawer, Typography } from '@mui/material';
 import Requirements from './Requirements';
 import Reminders from './Reminders';
 import PhoneNumbers from './PhoneNumbers';
-import Locations from './Locations';
 import CallLogs from './CallLogs';
 import Comments from './Comments';
 import AddressCard from './Locations';
+import ProjectStatus from './ProjectStatus';
 
 interface SidebarProps {
-	leadId: string | null;
+	leadId: string | undefined;
 	isOpen: boolean;
 	lead: any;
 	onClose: () => void;
 }
 
-interface FormValues {
-	newNumber: string;
-}
-
 const Sidebar: React.FC<SidebarProps> = ({ leadId, lead, isOpen, onClose }) => {
-	// const { lead } = useGetSingleLeadQuery(leadId ?? '');
-
 	const handleSidebarClick = (event: React.MouseEvent) => {
 		event.stopPropagation();
 	};
@@ -38,27 +31,22 @@ const Sidebar: React.FC<SidebarProps> = ({ leadId, lead, isOpen, onClose }) => {
 					{lead?.name}
 				</Typography>
 
-				{/* Phone Numbers Section */}
-				<PhoneNumbers leadId={leadId} phoneNumbers={lead?.phone} />
-				<Divider />
-
-				{/* Location Section */}
+				{lead?.phone && (
+					<PhoneNumbers leadId={leadId} phoneNumbers={lead.phone} />
+				)}
 				<AddressCard leadId={leadId} address={lead?.address} />
-				<Divider />
-
-				{/* Requirements Section */}
-				<Requirements leadId={leadId} />
-				<Divider />
-
-				{/* Reminders Section */}
-				<Reminders leadId={leadId} leadReminders={lead?.reminder} />
-				<Divider />
-
-				{/* Call Logs Section */}
-				<CallLogs leadId={leadId} />
-				<Divider />
-
-				{/* Comments Section */}
+				{lead?.requirements && (
+					<Requirements leadId={leadId} requirements={lead.requirements} />
+				)}
+				{lead?.projectStatus && (
+					<ProjectStatus leadId={leadId} projectStatus={lead.projectStatus} />
+				)}
+				{lead?.reminder && (
+					<Reminders leadId={leadId} leadReminders={lead.reminder} />
+				)}
+				{lead?.callLogs && (
+					<CallLogs leadId={leadId} leadCallLogs={lead.callLogs} />
+				)}
 				<Comments leadId={leadId} />
 			</Box>
 		</Drawer>

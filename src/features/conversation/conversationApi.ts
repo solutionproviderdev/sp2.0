@@ -1,6 +1,7 @@
-import { patch } from '@mui/material';
 import { getSocket } from '../../hooks/getSocket';
 import apiSlice from '../api/apiSlice';
+
+// Define Types for Message, Conversation, Lead, and other entities
 
 interface Message {
 	_id: string;
@@ -24,14 +25,44 @@ interface Conversation {
 	lastMessageTime: string;
 	sentByMe: boolean;
 }
-
-interface GetAllConversationsResponse {
-	conversations: Conversation[];
+export interface Comment {
+	comment: string;
+	commentBy: string; // Assuming commentBy is a user ID (ObjectId as string)
+	images: string[];
+	timestamp: string;
+	_id: string;
+}
+interface CallLog {
+	recipientNumber: string;
+	callDuration: number | string; // Allow string format as "MM:SS"
+	timestamp: string;
+	callType: string;
+	status: string;
 }
 
-interface GetConversationMessagesResponse {
-	messages: Message[];
+interface Lead {
+	_id: string;
+	name: string;
+	phone: string[];
+	source: string;
+	status: string;
 	messagesSeen: boolean;
+	createdAt: string;
+	lastMessage: string;
+	pageInfo: {
+		pageId: string;
+		pageName: string;
+		pageProfilePicture: string;
+		fbSenderID?: string;
+	};
+	comment: Comment[];
+	callLogs: CallLog[];
+}
+
+interface Reminder {
+	time: string;
+	status: string;
+	_id: string;
 }
 
 interface GetAllConversationsResponse {
@@ -41,13 +72,57 @@ interface GetAllConversationsResponse {
 	leads: Conversation[];
 }
 
-interface GetConversationByIdResponse {
-	conversation: Conversation;
+interface GetConversationMessagesResponse {
+	messages: Message[];
+	messagesSeen: boolean;
+}
+
+interface GetLeadByIdResponse {
+	lead: Lead;
+}
+
+interface CreateLeadPayload {
+	name: string;
+	phone: string[];
+	source: string;
+	status?: string;
+	comment?: string;
+	images?: string[];
+}
+
+interface UpdateLeadPayload {
+	name?: string;
+	phone?: string[];
+	source?: string;
+	status?: string;
+	messagesSeen?: boolean;
+	requirements?: string[];
+}
+
+interface AddPhonePayload {
+	phoneNumber: string;
+}
+
+interface UpdateReminderPayload {
+	id: string;
+	time: string;
+	commentId?: string;
+}
+
+interface ReminderResponse {
+	status: 'success' | 'error';
+	reminders: Reminder[];
+}
+
+interface ErrorResponse {
+	status: number;
+	data: {
+		msg: string;
+	};
 }
 
 const socket = getSocket();
 
-// Extend the apiSlice with specific endpoints for conversations
 const conversationApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
 
@@ -67,236 +142,221 @@ const conversationApi = apiSlice.injectEndpoints({
 		getAllLead: builder.query<GetConversationByIdResponse, string>({
 			query: ({ page,limit }) => `/lead?page=${page}&limit=${limit}`,     
 		}),
-		getSingleLead: builder.query<GetConversationByIdResponse, string>({
+
+		// Get a single lead by its ID
+		getSingleLead: builder.query<Lead, string>({
 			query: (id: string) => `/lead/${id}`,
 			providesTags: (result, error, id) => [{ type: 'Lead', id }],
 		}),
 
+		// Get all conversations (leads) with pagination
 		getAllConversations: builder.query<
 			GetAllConversationsResponse,
 			{ page: number; limit: number }
 		>({
 			query: ({ page, limit }) =>
 				`/lead/conversation?page=${page}&limit=${limit}`,
-
-			// // Use the merge function to combine the new data with the current cache
-			// merge: (currentCache, newItems) => {
-			// 	console.log('runing merge function');
-			// 	// Make sure newItems contains leads to be merged
-			// 	if (newItems && newItems.leads) {
-			// 		// Append new items to the existing cache
-			// 		newItems.leads.forEach(newConversation => {
-			// 			const existingIndex = currentCache.leads.findIndex(
-			// 				conv => conv._id === newConversation._id
-			// 			);
-
-			// 			if (existingIndex !== -1) {
-			// 				// Update the existing conversation if it already exists
-			// 				currentCache.leads[existingIndex] = newConversation;
-			// 			} else {
-			// 				// Otherwise, add the new conversation to the list
-			// 				currentCache.leads.push(newConversation);
-			// 			}
-			// 		});
-
-			// 		// Sort conversations by lastMessageTime
-			// 		currentCache.leads.sort(
-			// 			(a, b) =>
-			// 				new Date(b.lastMessageTime).getTime() -
-			// 				new Date(a.lastMessageTime).getTime()
-			// 		);
-			// 	}
-			// },
-
-			// Use a constant cache key for all pages
-			// serializeQueryArgs: ({ endpointName }) => endpointName,
-
-			// // Refetch when the page number changes
-			// forceRefetch({ currentArg, previousArg }) {
-			// 	return currentArg.page !== previousArg.page;
-			// },
-
-			// Handle real-time socket updates
-			async onCacheEntryAdded(
+			onCacheEntryAdded: async (
 				arg,
 				{ updateCachedData, cacheDataLoaded, cacheEntryRemoved }
-			) {
-				try {
-					await cacheDataLoaded;
+			) => {
+				await cacheDataLoaded;
 
-					// Define the socket listener for conversation updates
-					const handleConversationUpdate = (conversation: Conversation) => {
-						updateCachedData(draft => {
-							const index = draft.leads.findIndex(
-								({ _id }) => _id === conversation._id
-							);
-							if (index !== -1) {
-								// Update the existing conversation
-								draft.leads[index] = conversation;
-							} else {
-								// Add the new conversation if it doesn't exist
-								draft.leads.unshift(conversation);
-							}
+				const handleConversationUpdate = (conversation: Conversation) => {
+					updateCachedData(draft => {
+						const index = draft.leads.findIndex(
+							({ _id }) => _id === conversation._id
+						);
+						if (index !== -1) {
+							draft.leads[index] = conversation;
+						} else {
+							draft.leads.unshift(conversation);
+						}
+						draft.leads.sort(
+							(a, b) =>
+								new Date(b.lastMessageTime).getTime() -
+								new Date(a.lastMessageTime).getTime()
+						);
+					});
+				};
 
-							// Sort conversations by lastMessageTime
-							draft.leads.sort(
-								(a, b) =>
-									new Date(b.lastMessageTime).getTime() -
-									new Date(a.lastMessageTime).getTime()
-							);
-						});
-					};
-
-					// Listen to socket events for conversation updates
-					socket.on('conversation', handleConversationUpdate);
-
-					// Clean up the socket listener when cache entry is removed
-					await cacheEntryRemoved;
-					socket.off('conversation', handleConversationUpdate);
-				} catch (error) {
-					console.error('Error handling socket updates:', error);
-				}
+				socket.on('conversation', handleConversationUpdate);
+				await cacheEntryRemoved;
+				socket.off('conversation', handleConversationUpdate);
 			},
 		}),
 
-		// Fetch a specific conversation by ID
+		// Get conversation messages for a specific lead
 		getConversationMessages: builder.query<
 			GetConversationMessagesResponse,
 			string
 		>({
 			query: (id: string) => `/lead/conversation/${id}/messages/`,
-
-			// Adding socket listener to update conversation messages
-			async onCacheEntryAdded(
+			onCacheEntryAdded: async (
 				id,
 				{ updateCachedData, cacheDataLoaded, cacheEntryRemoved }
-			) {
-				try {
-					await cacheDataLoaded;
+			) => {
+				await cacheDataLoaded;
 
-					const handleMessageUpdate = (message: Message) => {
-						// console.log('Received message update:', message);
-
-						updateCachedData(draft => {
-							// Check if message already exists
-							const index = draft.messages.findIndex(
+				const handleMessageUpdate = (message: Message) => {
+					updateCachedData(draft => {
+						if (
+							!draft.messages.find(
 								({ messageId }) => messageId === message.messageId
-							);
+							)
+						) {
+							draft.messages.push(message);
+						}
+					});
+				};
 
-							if (index === -1) {
-								// Add the new message to the conversation
-								draft.messages.push(message);
-							}
-						});
-					};
-
-					// Listen to socket events for message updates
-					socket.on(`fbMessage${id}`, handleMessageUpdate);
-
-					// Clean up the socket listener when cache entry is removed
-					await cacheEntryRemoved;
-					socket.off(`fbMessage${id}`, handleMessageUpdate);
-				} catch {
-					// Handle errors if necessary
-				}
+				socket.on(`fbMessage${id}`, handleMessageUpdate);
+				await cacheEntryRemoved;
+				socket.off(`fbMessage${id}`, handleMessageUpdate);
 			},
 		}),
 
-		// Requirements
-		updateRequirement: builder.mutation({
+		// Update lead requirements
+		updateRequirement: builder.mutation<
+			Lead,
+			{ id: string; requirements: string[] }
+		>({
 			query: ({ id, requirements }) => ({
 				url: `/lead/${id}/requirements`,
 				method: 'PUT',
 				body: { requirements },
 			}),
 		}),
-		//Update reminder or follow-up
-		updateReminder: builder.mutation({
-			query: ({ id, reminders }) => ({
-				url: `/lead/${id}/reminders`,
-				method: 'post',
-				body: { time: reminders },
-			}),
-			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
+
+		// Add a phone number to a lead
+		addPhone: builder.mutation<Lead, { id: string; phoneNumber: string }>({
+			query: ({ id, phoneNumber }) => {
+				console.log(phoneNumber, typeof phoneNumber);
+				return {
+					url: `/lead/${id}/add-phone-number`,
+					method: 'PUT',
+					body: { phoneNumber },
+				};
+			},
 		}),
-		// Update leads
-		updateLeads: builder.mutation({
-			query: ({ id, data }) => ({
-				url: `/lead/${id}`,
-				method: 'put',
-				body: data,
+
+		// Update reminders
+		updateReminder: builder.mutation<
+			ReminderResponse, // Response type (reminders array)
+			UpdateReminderPayload // Request type (with optional commentId)
+		>({
+			query: ({ id, time, commentId }) => ({
+				url: `/lead/${id}/reminders`,
+				method: 'POST',
+				body: { time, commentId }, // Send both time and optional commentId
 			}),
 			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
 		}),
 
-		// sent message to leads
-		sentMessage: builder.mutation({
+		// Mark messages as seen
+		markAsSeen: builder.mutation<void, { id: string }>({
+			query: ({ id }) => ({
+				url: `/lead/conversation/${id}/mark-messages-seen`,
+				method: 'PUT',
+			}),
+		}),
+
+		// Add a call log to a lead
+		addCallLogs: builder.mutation<
+			{ msg: string; lead: Lead }, // Response type
+			{
+				id: string;
+				newCallLog: {
+					recipientNumber: string;
+					callType: 'Incoming' | 'Outgoing';
+					status: 'Missed' | 'Received';
+					callDuration?: number | string;
+					timestamp: string;
+				};
+			} // Request type
+		>({
+			query: ({ id, newCallLog }) => ({
+				url: `/lead/${id}/call-logs`,
+				method: 'POST',
+				body: newCallLog,
+			}),
+			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
+		}),
+
+		// Send a message to a lead
+		sentMessage: builder.mutation<
+			void,
+			{
+				id: string;
+				message: { messageType: string; content: { text: string } };
+			}
+		>({
 			query: ({ id, message }) => ({
 				url: `/lead/conversation/${id}/messages`,
 				method: 'POST',
-				body: message,
+				body: { message },
 			}),
 		}),
 
-		addComment: builder.mutation({
+		// Add a comment to a lead
+		addComment: builder.mutation<
+			void,
+			{ id: string; comment: { comment: string; images: string[] } }
+		>({
 			query: ({ id, comment }) => ({
 				url: `/lead/${id}/comments`,
 				method: 'POST',
 				body: comment,
 			}),
-		}),
-		// add phone number
-		addPhone: builder.mutation({
-			query: ({ id, phoneNumber }) => ({
-				url: `/lead/${id}/add-phone-number`,
-				method: 'PUT',
-				body: phoneNumber,
-			}),
-		}),
+			async onQueryStarted({ id, comment }, { dispatch, queryFulfilled }) {
+				// Reference to handle incoming socket events
+				const handleCommentAdded = ({
+					leadId,
+					comment,
+				}: {
+					leadId: string;
+					comment: Comment;
+				}) => {
+					dispatch(
+						conversationApi.util.updateQueryData('getSingleLead', id, lead => {
+							// check if the comment already exists in the lead's comment array
+							const existingComment = lead.comment.find(
+								c => c._id === comment._id
+							);
 
-		markAsSeen: builder.mutation({
-			query: ({ id }) => ({
-				url: `/lead/conversation/${id}/mark-messages-seen`,
-				method: 'PUT',
-			}),
-			async onQueryStarted({ id }, { dispatch, queryFulfilled }) {
-				// Optimistically update the cache with the seen status
-				const patchResult = dispatch(
-					apiSlice.util.updateQueryData(
-						'getAllConversations',
-						{ page: 1, limit: 500 },
-						draft => {
-							const index = draft.leads.findIndex(lead => lead._id === id);
-							if (index !== -1) {
-								draft.leads[index].messagesSeen = true;
+							if (!existingComment) {
+								// If the comment not exists, push it
+
+								lead.comment.push(comment);
 							}
-						}
-					)
-				);
+						})
+					);
+				};
+				socket.on(`newComment_${id}`, handleCommentAdded);
 
-				try {
-					await queryFulfilled; // Wait for the mutation to succeed
-				} catch {
-					patchResult.undo(); // Revert the optimistic update if the mutation fails
-				}
+				// Ensure socket listener is removed when the cache entry is removed
+				// await queryFulfilled;
+				// socket.off(`newComment_${id}`, handleCommentAdded);
 			},
 		}),
-		// add call logs
-		addCallLogs: builder.mutation({
-			query: ({ id, newCallLog }) => {
-				console.log('calllogs---rtk --rtk--rtk', id, newCallLog);
-				return {
-					url: `/lead/${id}/call-logs`,
-					method: 'POST',
-					body: newCallLog,
-				};
-			},
+
+		// Update a lead
+		updateLeads: builder.mutation<
+			Lead,
+			{ id: string; data: UpdateLeadPayload }
+		>({
+			query: ({ id, data }) => ({
+				url: `/lead/${id}`,
+				method: 'PUT',
+				body: data,
+			}),
+			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
 		}),
 	}),
-	overrideExisting: false, // Optional: Prevents overriding existing endpoints
+	overrideExisting: false,
 });
 
-// Export the auto-generated hooks for usage in functional components
+// Export hooks for use in components
 export const {
 	useGetAllConversationsQuery,
 	useGetConversationMessagesQuery,
