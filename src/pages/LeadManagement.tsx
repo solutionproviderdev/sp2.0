@@ -1,10 +1,9 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     Box,
     Typography,
     Paper,
-    Container,
     Button,
     Select,
     MenuItem,
@@ -13,9 +12,7 @@ import {
     Grid,
     Card,
     CardContent,
-    Switch,
     Modal,
-    TextField,
     TableContainer,
     Table,
     TableHead,
@@ -39,9 +36,16 @@ import { useNavigate } from 'react-router-dom';
 import RangeDatePick from '../components/shared/RangeDatePick';
 import CreateLead from '../components/LeadManagement/CreateLead';
 
-
-
 const LeadManagement = () => {
+    const [alignment, setAlignment] = React.useState('left');
+    const [cre, setCre] = useState('');
+    const [sales, setSales] = useState('');
+    const [viewAsCard, setViewAsCard] = useState(false); // For toggling between card and raw view
+    const [isDatePickerOpen, setDatePickerOpen] = useState(false); // State to control modal visibility
+    const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null }); // Store selected date range
+    const [filteredData, setFilteredData] = useState([]); // Store filtered leads data
+    const [selectedStatus, setSelectedStatus] = useState(''); // Store selected status
+
     const navigate = useNavigate();
 
     // Set the page to 1 and the limit to 500
@@ -52,71 +56,69 @@ const LeadManagement = () => {
         limit,
     });
 
-    // Function to normalize and count statuses
+    // Set filteredData to all leads initially
+    useEffect(() => {
+        if (data) {
+            setFilteredData(data.leads);
+        }
+    }, [data]);
+
+    // Function to normalize and count statuses for the bar chart
     const leadData = useMemo(() => {
-        console.log('leads is hare ', data)
         if (!data) return [];
 
-        // Normalize statuses (trim whitespace, convert to lowercase)
         const normalizedStatuses = data?.leads?.map(lead => lead.status.trim().toLowerCase());
-
-        // Count occurrences of each status
         const statusCountMap = normalizedStatuses.reduce((acc, status) => {
             acc[status] = (acc[status] || 0) + 1;
             return acc;
         }, {});
 
-        // Convert statusCountMap to the format expected by BarChart
         return Object.entries(statusCountMap).map(([status, count]) => ({
-            status: status.charAt(0).toUpperCase() + status.slice(1), // Capitalize first letter for display
+            status: status.charAt(0).toUpperCase() + status.slice(1), // Capitalize first letter
             count,
         }));
     }, [data]);
-
-    // const lead = data
-    const allStatus = data?.leads.map(lead => lead.status,)
-    console.log('status-- to lead management ', allStatus)
-
-
-    const [alignment, setAlignment] = React.useState('left');
 
     const handleAlignment = (event, newAlignment) => {
         setAlignment(newAlignment);
     };
 
-
-    const [cre, setCre] = useState('');
-    const [sales, setSales] = useState('');
-    const [viewAsCard, setViewAsCard] = useState(false); // For toggling between card and raw view
-    const [isDatePickerOpen, setDatePickerOpen] = useState(false); // State to control modal visibility
-    const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null }); // Store selected date range
-
     const handleCreChange = (event) => {
         setCre(event.target.value);
-        console.log('cre log', event.target.value);
     };
 
     const handleSalesChange = (event) => {
         setSales(event.target.value);
-        console.log('sales log', event.target.value);
-    };
-    console.log('phone number--', data?.leads)
-
-    const handleDateRangeChange = (range) => {
-        setSelectedDateRange(range); // Set the selected date range
-        setDatePickerOpen(false); // Close modal after date is selected
     };
 
-    // Hardcoded status options
-    const statusOptions = ['New','No Response','Need Support','Message Reschedule','Number Collected','Call Reschedule','On Going','Close','Meeting Fixed','Meeting Pospond'];
-    const creOptions = ['CRE1', 'CRE2', 'CRE3'];
-    const salesOptions = ['Sales 1', 'Sales 2', 'Sales 3'];
-
-    const [selectedStatus, setSelectedStatus] = useState(''); // State to track selected status
-
+    // Handle Status Filter Change
     const handleStatusChange = (event) => {
-        setSelectedStatus(event.target.value);
-        console.log('Selected Status:', event.target.value);
+        const selectedStatus = event.target.value;
+        setSelectedStatus(selectedStatus);
+
+        if (selectedStatus) {
+            const leadByStatus = data.leads.filter(lead => lead.status === selectedStatus);
+            setFilteredData(leadByStatus);
+        } else {
+            setFilteredData(data.leads); // Reset to all leads if no status is selected
+        }
+    };
+
+    // Handle Date Range Change for filtering leads
+    const handleDateRangeChange = (range) => {
+        setSelectedDateRange(range);
+        setDatePickerOpen(false);
+
+        if (range.startDate && range.endDate) {
+            const filteredLeadsByDate = data.leads.filter(lead => {
+                const createdAtDate = new Date(lead.createdAt).getTime();
+                return createdAtDate >= new Date(range.startDate).getTime() &&
+                    createdAtDate <= new Date(range.endDate).getTime();
+            });
+            setFilteredData(filteredLeadsByDate);
+        } else {
+            setFilteredData(data.leads); // Reset to all leads if no date range is selected
+        }
     };
 
     return (
@@ -142,30 +144,19 @@ const LeadManagement = () => {
                     </Box>
                 </Paper>
 
-                {/* Buttons Section */}
                 <Box mb={3} className='flex justify-around items-center'>
-                    {/* <Button variant="contained" color="primary" className='h-8'>
-                        + Create
-                    </Button> */}
-                    {/* Create Lead Button */}
-                    <CreateLead /> {/* The modal button and logic */}
-
-                    {/* <Button variant="contained" color="primary" className='h-8'>
-                        Status
-                    </Button> */}
+                    <CreateLead />
 
                     {/* Status Dropdown */}
-                    
-                   <FormControl sx={{ minWidth: 200 }}>
-                        {/* <InputLabel></InputLabel> */}
+                    <FormControl sx={{ minWidth: 200 }}>
                         <InputLabel
                             id="cre-select-label"
                             sx={{
                                 fontSize: '0.8rem',
-                                lineHeight: '32px', // Match the height of the select box for vertical centering
-                                transform: 'translate(14px, -0px) ', // Center label vertically
+                                lineHeight: '32px',
+                                transform: 'translate(14px, -0px)',
                                 '&.MuiInputLabel-shrink': {
-                                    transform: 'translate(14px, -12px) scale(0.75)', // Shrink and move label up on focus/click
+                                    transform: 'translate(14px, -12px) scale(0.75)',
                                 },
                             }}
                         >
@@ -175,39 +166,46 @@ const LeadManagement = () => {
                             value={selectedStatus}
                             onChange={handleStatusChange}
                             label="Status"
-                            sx={{
-                                height: '32px', // Adjust the height of the select box
-                                fontSize: '0.8rem', // Reduce the font size
-                            }}
-                            >
-                            {statusOptions.map((status, index) => (
+                            sx={{ height: '32px', fontSize: '0.8rem' }}
+                        >
+                            {['unread', 'No Response', 'Need Support', 'Message Reschedule', 'Number Collected', 'Call Reschedule', 'On Going', 'Close', 'Meeting Fixed', 'Meeting Pospond', 'Follow Up'].map((status, index) => (
                                 <MenuItem key={index} value={status}>
                                     {status}
                                 </MenuItem>
                             ))}
                         </Select>
                     </FormControl>
- 
 
+                    {/* Date Range Picker */}
+                    <Box my={2}>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={() => setDatePickerOpen(true)}
+                        >
+                            Date <InsertInvitationIcon />
+                        </Button>
+                        <Modal open={isDatePickerOpen} onClose={() => setDatePickerOpen(false)}>
+                            <RangeDatePick onChange={handleDateRangeChange} />
+                        </Modal>
 
+                    </Box>
 
                     {/* CRE Dropdown */}
                     <FormControl sx={{ minWidth: 200 }}>
-
                         <InputLabel
                             id="cre-select-label"
                             sx={{
                                 fontSize: '0.8rem',
-                                lineHeight: '32px', // Match the height of the select box for vertical centering
-                                transform: 'translate(14px, -0px) ', // Center label vertically
+                                lineHeight: '32px',
+                                transform: 'translate(14px, -0px)',
                                 '&.MuiInputLabel-shrink': {
-                                    transform: 'translate(14px, -12px) scale(0.75)', // Shrink and move label up on focus/click
+                                    transform: 'translate(14px, -12px) scale(0.75)',
                                 },
                             }}
                         >
                             CRE
                         </InputLabel>
-
                         <Select
                             labelId="cre-select-label"
                             id="cre-select"
@@ -215,14 +213,14 @@ const LeadManagement = () => {
                             label="CRE"
                             onChange={handleCreChange}
                             sx={{
-                                height: '32px', // Adjust the height of the select box
-                                fontSize: '0.8rem', // Reduce the font size
+                                height: '32px',
+                                fontSize: '0.8rem',
                             }}
                         >
                             <MenuItem value="" sx={{ fontSize: '0.8rem', height: '30px' }}>
                                 <em>None</em>
                             </MenuItem>
-                            {creOptions.map((status, index) => (
+                            {['CRE1', 'CRE2', 'CRE3'].map((status, index) => (
                                 <MenuItem key={index} value={status}>
                                     {status}
                                 </MenuItem>
@@ -232,22 +230,20 @@ const LeadManagement = () => {
 
                     {/* Sales Dropdown */}
                     <FormControl sx={{ minWidth: 200 }}>
-                        {/* <InputLabel id="sales-select-label">Sales</InputLabel> */}
                         <InputLabel
                             labelId="cre-select-label"
                             id="sales-select-label"
                             sx={{
                                 fontSize: '1rem',
-                                lineHeight: '32px', // Match the height of the select box for vertical centering
-                                transform: 'translate(14px, -0px) ', // Center label vertically
+                                lineHeight: '32px',
+                                transform: 'translate(14px, -0px)',
                                 '&.MuiInputLabel-shrink': {
-                                    transform: 'translate(14px, -12px) scale(0.75)', // Shrink and move label up on focus/click
+                                    transform: 'translate(14px, -12px) scale(0.75)',
                                 },
                             }}
                         >
-                            sales
+                            Sales
                         </InputLabel>
-
                         <Select
                             className='h-8'
                             labelId="sales-select-label"
@@ -259,8 +255,7 @@ const LeadManagement = () => {
                             <MenuItem value="">
                                 <em>None</em>
                             </MenuItem>
-                            
-                            {salesOptions.map((status, index) => (
+                            {['Sales 1', 'Sales 2', 'Sales 3'].map((status, index) => (
                                 <MenuItem key={index} value={status}>
                                     {status}
                                 </MenuItem>
@@ -268,134 +263,56 @@ const LeadManagement = () => {
                         </Select>
                     </FormControl>
 
-
-
-
-                    <Box my={2}>
-                        {/* Date Button */}
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => setDatePickerOpen(true)} // Open the modal
-                        >
-                            Date <InsertInvitationIcon />
-                        </Button>
-
-                        {/* Date Picker Modal */}
-                        <Modal open={isDatePickerOpen} onClose={() => setDatePickerOpen(false)}>
-                            <Box
-                                sx={{
-                                    position: 'absolute',
-                                    top: '50%',
-                                    left: '50%',
-                                    transform: 'translate(-50%, -50%)',
-                                    bgcolor: 'background.paper',
-                                    boxShadow: 24,
-                                    p: 4,
-                                    borderRadius: 2,
-                                }}
-                            >
-                                <RangeDatePick onChange={handleDateRangeChange} />
-                            </Box>
-                        </Modal>
-
-                        {/* Display Selected Date Range */}
-                        {selectedDateRange.startDate && selectedDateRange.endDate && (
-                            <Typography variant="body1">
-                                Selected Range: {new Date(selectedDateRange.startDate).toLocaleDateString()} to {new Date(selectedDateRange.endDate).toLocaleDateString()}
-                            </Typography>
-                        )}
-
-
-
-                    </Box>
-
-
-
                     <div className='flex gap-4 h-10'>
-
-                        {/* Toggle View Button */}
-
                         <ToggleButtonGroup
                             value={alignment}
                             exclusive
                             onChange={handleAlignment}
                             aria-label="text alignment"
                         >
-                            <ToggleButton value="left" aria-label="left aligned"
-                                onClick={() => setViewAsCard(false)}
-                            >
+                            <ToggleButton value="left" aria-label="left aligned" onClick={() => setViewAsCard(false)}>
                                 <FormatAlignLeftIcon />
                             </ToggleButton>
-                            <ToggleButton value="center" aria-label="centered"
-                                onClick={() => setViewAsCard(true)}
-                            >
+                            <ToggleButton value="center" aria-label="centered" onClick={() => setViewAsCard(true)}>
                                 <FormatAlignCenterIcon />
                             </ToggleButton>
-
                         </ToggleButtonGroup>
-
-                        {/* Add another Button */}
                         <Button variant="contained" color="secondary">
                             <SettingsIcon />
                         </Button>
                     </div>
-
                 </Box>
 
-
-                {/* Lead Count Heading */}
                 <Typography variant="h6" gutterBottom>
-                    Showing {data?.leads.length} leads
+                    Showing {filteredData.length} leads
                 </Typography>
-
-                {/* Leads Display card and table*/}
 
                 {viewAsCard ? (
                     <Grid container spacing={2}>
-                        {data?.leads.map((lead) => (
+                        {filteredData.map((lead) => (
                             <Grid item xs={12} sm={6} md={4} key={lead._id}>
                                 <Card className='h-full'>
                                     <CardContent>
                                         <Box mt={2} display="flex" justifyContent="space-around">
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                startIcon={<PhoneIcon />}
-                                            >
+                                            <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
                                                 Status
                                             </Button>
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                startIcon={<ChatIcon />}
-                                            >
+                                            <Button variant="contained" color="secondary" startIcon={<ChatIcon />}>
                                                 Tags
                                             </Button>
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                startIcon={<ChatIcon />}
-                                            >
+                                            <Button variant="contained" color="secondary" startIcon={<ChatIcon />}>
                                                 btn
                                             </Button>
                                         </Box>
-                                        {/* Last Message and Date */}
                                         <Typography variant="h5" className='p-2'>{lead.name}</Typography>
                                         <Typography variant="body2" className='p-2' color="textSecondary">
-                                            <p className='!line-clamp-2'>Last Message:{lead.lastMsg}</p>
+                                            <p className='!line-clamp-2'>Last Message: {lead.lastMsg}</p>
                                         </Typography>
                                         <Typography className='p-2' variant="caption" color="textSecondary">
                                             {new Date(lead.createdAt).toLocaleString()}
                                         </Typography>
-
-                                        {/* Call and Chat Buttons */}
                                         <Box mt={2} display="flex" justifyContent="space-around">
-                                            <Button
-                                                variant="contained"
-                                                color="primary"
-                                                startIcon={<PhoneIcon />}
-                                            >
+                                            <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
                                                 Call
                                             </Button>
                                             <Button
@@ -412,7 +329,6 @@ const LeadManagement = () => {
                             </Grid>
                         ))}
                     </Grid>
-
                 ) : (
                     <TableContainer component={Paper}>
                         <Table>
@@ -421,48 +337,40 @@ const LeadManagement = () => {
                                     <TableCell>Name</TableCell>
                                     <TableCell>Status</TableCell>
                                     <TableCell>Last Message</TableCell>
-                                    <TableCell>number</TableCell>
+                                    <TableCell>Number</TableCell>
                                     <TableCell>Date</TableCell>
                                     <TableCell>Actions</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {data?.leads.map((lead) => (
+                                {filteredData.map((lead) => (
                                     <TableRow key={lead._id}>
                                         <TableCell>{lead.name}</TableCell>
                                         <TableCell>{lead.status}</TableCell>
-                                        <TableCell  > <p className='!line-clamp-1'> {lead.lastMsg}</p> </TableCell>
-                                        <TableCell>{lead.phone} </TableCell>
-                                        <TableCell>
-                                            {new Date(lead.createdAt).toLocaleString()}
-                                        </TableCell>
+                                        <TableCell><p className='!line-clamp-1'>{lead.lastMsg}</p></TableCell>
+                                        <TableCell>{lead.phone}</TableCell>
+                                        <TableCell>{new Date(lead.createdAt).toLocaleString()}</TableCell>
                                         <TableCell>
                                             <div className='flex'>
-                                                <div>
-                                                    <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
-                                                        Call
-                                                    </Button>
-                                                </div>
-                                                <div>
-                                                    <Button
-                                                        variant="contained"
-                                                        color="secondary"
-                                                        startIcon={<ChatIcon />}
-                                                        sx={{ ml: 1 }}
-                                                        onClick={() => navigate(`/admin/lead-center/${lead._id}`)}
-                                                    >
-                                                        Chat
-                                                    </Button>
-                                                </div>
+                                                <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
+                                                    Call
+                                                </Button>
+                                                <Button
+                                                    variant="contained"
+                                                    color="secondary"
+                                                    startIcon={<ChatIcon />}
+                                                    sx={{ ml: 1 }}
+                                                    onClick={() => navigate(`/admin/lead-center/${lead._id}`)}
+                                                >
+                                                    Chat
+                                                </Button>
                                             </div>
-
                                         </TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>
-                        </Table>x
+                        </Table>
                     </TableContainer>
-
                 )}
             </Box>
         </div>
@@ -470,4 +378,3 @@ const LeadManagement = () => {
 };
 
 export default LeadManagement;
-
