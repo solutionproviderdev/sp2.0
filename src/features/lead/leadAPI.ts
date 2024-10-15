@@ -73,8 +73,6 @@ const leadApi = apiSlice.injectEndpoints({
 		getAllLeadsWithReminders: builder.query<
 			GetAllLeadsWithRemindersResponse,
 			{
-				page: number;
-				limit: number;
 				status?: string;
 				source?: string;
 				startDate?: string;
@@ -84,8 +82,6 @@ const leadApi = apiSlice.injectEndpoints({
 			}
 		>({
 			query: ({
-				page,
-				limit,
 				status,
 				source,
 				startDate,
@@ -94,13 +90,16 @@ const leadApi = apiSlice.injectEndpoints({
 				salesExecutive,
 			}) => {
 				// Construct query params
-				let params = `?page=${page}&limit=${limit}`;
+				let params = '';
 				if (status) params += `&status=${status}`;
 				if (source) params += `&source=${source}`;
 				if (startDate) params += `&startDate=${startDate}`;
 				if (endDate) params += `&endDate=${endDate}`;
 				if (assignedCre) params += `&assignedCre=${assignedCre}`;
 				if (salesExecutive) params += `&salesExecutive=${salesExecutive}`;
+
+				// Remove the leading '&' and add '?' if params exist
+				if (params) params = `?${params.slice(1)}`;
 
 				return {
 					url: `/lead/reminders${params}`, // Assuming `/lead/reminders` is the endpoint

@@ -12,6 +12,7 @@ import {
 import NavItem from './NavItem';
 import ProgressBar from './ProhressBar';
 import { useLocation } from 'react-router-dom';
+import { FaUsersLine } from 'react-icons/fa6';
 
 interface NavbarProps {
 	className?: string;
@@ -30,6 +31,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					to="dashboard"
 					active={location.pathname.includes('dashboard')}
 					icon={<FaHome />}
+				/>
+				<NavItem
+					to="users"
+					active={location.pathname.includes('users')}
+					icon={<FaUsersLine />}
 				/>
 				<NavItem
 					to="lead-center"

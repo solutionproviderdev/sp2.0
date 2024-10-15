@@ -20,6 +20,10 @@ import Inbox from './components/leadCenter/Inbox/Inbox';
 import LeadManagement from './pages/LeadManagement';
 import FollowUpList from './pages/FollowUpList';
 import FollowUp from './pages/FollowUp';
+import UsersLayout from './layouts/UsersLayout';
+import UserManagement from './pages/UserManagement';
+import UserProfile from './pages/UserProfile';
+import CreateUserForm from './pages/CreateUserForm';
 
 const App = () => {
 	const router = createBrowserRouter(
@@ -36,6 +40,13 @@ const App = () => {
 				<Route path="/" element={<LoggedInRoute />}>
 					<Route path="admin" element={<AdminLayout />}>
 						<Route path="dashboard" element={<Dashboard />} />
+
+						<Route path="users" element={<UsersLayout />}>
+							<Route path="all-users" element={<UserManagement />} />
+							<Route path=":userId" element={<UserProfile />} />
+							<Route path="create-user" element={<CreateUserForm />} />
+						</Route>
+						
 						<Route path="lead-management" element={<LeadManagement />} />
 						<Route path="lead-followUp" element={<FollowUpList />}>
 							<Route path=":leadId" element={<FollowUp />} />

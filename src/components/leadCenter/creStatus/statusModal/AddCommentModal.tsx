@@ -1,23 +1,23 @@
 import React, { useState } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 
-interface NumberModalProps {
+interface AddCommentModalProps {
 	isOpen: boolean;
 	onClose: () => void;
-	onSubmit: (data: { phoneNumber: string; comment: string }) => void;
+	onSubmit: (data: { comment: string }) => void;
+	status: string;
 }
 
-const NumberModal: React.FC<NumberModalProps> = ({
+const AddCommentModal: React.FC<AddCommentModalProps> = ({
 	isOpen,
 	onClose,
 	onSubmit,
+	status,
 }) => {
-	const [phoneNumber, setPhoneNumber] = useState('');
 	const [comment, setComment] = useState('');
 
 	const handleSubmit = () => {
-		onSubmit({ phoneNumber, comment });
-		setPhoneNumber('');
+		onSubmit({ comment });
 		setComment('');
 		onClose();
 	};
@@ -25,24 +25,13 @@ const NumberModal: React.FC<NumberModalProps> = ({
 	return (
 		<Modal
 			open={isOpen}
-			className="flex flex-col items-center justify-center"
 			onClose={onClose}
+			className="flex flex-col items-center justify-center"
 		>
 			<Box
-				sx={{
-					padding: 4,
-					backgroundColor: 'white',
-					margin: 'auto',
-				}}
+				className="bg-white p-4 rounded-lg shadow-md w-auto max-w-md"
 			>
-				<Typography variant="h6">Collect Phone Number</Typography>
-				<TextField
-					label="Phone Number"
-					fullWidth
-					value={phoneNumber}
-					onChange={e => setPhoneNumber(e.target.value)}
-					sx={{ mt: 2 }}
-				/>
+				<Typography variant="h6">Update Status to {status}</Typography>
 				<TextField
 					label="Comment"
 					fullWidth
@@ -60,4 +49,4 @@ const NumberModal: React.FC<NumberModalProps> = ({
 	);
 };
 
-export default NumberModal;
+export default AddCommentModal;

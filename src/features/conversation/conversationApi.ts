@@ -92,11 +92,43 @@ interface CreateLeadPayload {
 
 interface UpdateLeadPayload {
 	name?: string;
-	phone?: string[];
-	source?: string;
-	status?: string;
-	messagesSeen?: boolean;
-	requirements?: string[];
+	phone?: string[]; // Array of phone numbers
+	source?: 'Facebook' | 'WhatsApp' | 'Web' | 'Phone'; // Enum values for the source
+	status?:
+		| 'New'
+		| 'No Response'
+		| 'Message Rescheduled'
+		| 'Need Support'
+		| 'Number Collected'
+		| 'Ongoing'
+		| 'Call Rescheduled'
+		| 'Follow Up'
+		| 'Meeting Fixed'
+		| 'Meeting Reschedule'
+		| 'Cancel Meeting'; // Enum for status
+	address?: {
+		division?: string;
+		district?: string;
+		area?: string;
+		address?: string;
+	}; // Address fields
+	projectStatus?: {
+		status?: 'Ongoing' | 'Ready' | 'Renovation'; // Project status
+		subStatus?:
+			| 'Roof Casting'
+			| 'Brick Wall'
+			| 'Plaster'
+			| 'Pudding'
+			| 'Two Coat Paint'
+			| 'Tiles Complete'
+			| 'Final Paint Done'
+			| 'Handed Over'
+			| 'Staying in the Apartment'
+			| 'Interior Work Complete'; // Project sub-status
+	};
+	projectLocation?: 'Inside' | 'Outside'; // Enum for project location
+	messagesSeen?: boolean; // Boolean for messagesSeen
+	requirements?: string[]; // Array of requirements
 }
 
 interface AddPhonePayload {

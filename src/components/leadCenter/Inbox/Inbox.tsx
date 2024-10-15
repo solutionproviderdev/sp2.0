@@ -74,8 +74,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 				<Typography variant="h6">{lead?.name}</Typography>
 
 				<Box className="flex items-center gap-1">
-
-					<CreStatus/>
+					{lead?.status && <CreStatus currentStatus={lead?.status} />}
 
 					<Button onClick={toggleSidebar} sx={{ ml: 1 }}>
 						<FaCircleInfo className="h-6 w-6" />
