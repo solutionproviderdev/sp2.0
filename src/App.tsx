@@ -20,7 +20,8 @@ import Inbox from './components/leadCenter/Inbox/Inbox';
 import LeadManagement from './pages/LeadManagement';
 import FollowUpList from './pages/FollowUpList';
 import FollowUp from './pages/FollowUp';
-
+import Meetings from './pages/Meeting';
+ 
 const App = () => {
 	const router = createBrowserRouter(
 		createRoutesFromElements(
@@ -43,6 +44,8 @@ const App = () => {
 						<Route path="lead-center" element={<LeadCenter />}>
 							<Route path=":leadId" element={<Inbox />} />
 						</Route>
+						{/* meeting page */}
+						<Route path="meetings" element={<Meetings />}></Route>
 					</Route>
 
 					{/* Operator Routes */}

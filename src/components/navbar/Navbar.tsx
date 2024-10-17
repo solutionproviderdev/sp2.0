@@ -12,6 +12,8 @@ import {
 import NavItem from './NavItem';
 import ProgressBar from './ProhressBar';
 import { useLocation } from 'react-router-dom';
+import { MdMeetingRoom } from "react-icons/md";
+
 
 interface NavbarProps {
 	className?: string;
@@ -45,6 +47,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					to="lead-followUp"
 					active={location.pathname.includes('lead-followUp')}
 					icon={<FaRegClock />}
+				/>
+				<NavItem
+					to="meetings"
+					active={location.pathname.includes('meetings')}
+					icon={<MdMeetingRoom />}
 				/>
 			</div>
 			<div className="flex items-center space-x-4">
