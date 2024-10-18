@@ -12,8 +12,8 @@ const NavItem: React.FC<{
 	return (
 		<Link
 			to={to}
-			className={`flex items-center p-3 text-sm rounded-md transition-colors duration-200 ${
-				active ? 'bg-blue-100 text-blue-700' : 'hover:bg-blue-50 text-gray-700'
+			className={`flex items-center p-3 text-sm rounded-md transition-colors duration-200 hover:bg-blue-200 ${
+				active ? 'bg-blue-100 text-blue-700' : 'text-gray-700'
 			}`}
 		>
 			{icon}
@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
 	const location = useLocation();
 
 	return (
-		<div className="flex overflow-hidden">
+		<div className="flex overflow-hidden max-h-[calc(100vh-64px)]">
 			{/* Sidebar */}
 			<div
 				className="bg-white shadow-lg text-gray-700 p-4 h-[calc(100vh-64px)]"
@@ -72,11 +72,9 @@ const Navbar: React.FC = () => {
 			</div>
 
 			{/* Main Content */}
-			<div className='flex-1'>
+			<div className="flex-1 overflow-y-scroll scrollbar-none">
 				<Outlet />
 			</div>
-
-			
 		</div>
 	);
 };

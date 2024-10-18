@@ -8,6 +8,8 @@ import {
 	InputLabel,
 	Button,
 } from '@mui/material';
+import { Add } from '@mui/icons-material';
+import { useNavigate } from 'react-router-dom';
 
 interface UserFilterProps {
 	nameFilter: string;
@@ -42,6 +44,12 @@ const UserFilter: React.FC<UserFilterProps> = ({
 }) => {
 	// Define the common width for dropdowns
 	const dropdownWidth = { minWidth: 200 };
+
+	const navigate = useNavigate();
+
+	const handleCreateUser = () => {
+		navigate('../create-user', { replace: true });
+	};
 
 	return (
 		<Box display="flex" mb={3} gap={2} alignItems="center" flexWrap="wrap">
@@ -118,6 +126,12 @@ const UserFilter: React.FC<UserFilterProps> = ({
 
 			<Button variant="contained" onClick={handleResetFilters}>
 				Reset Filters
+			</Button>
+
+			{/* Create New User Button */}
+			<Button variant="contained" onClick={handleCreateUser}>
+				<Add className="mr-1" />
+				Create
 			</Button>
 		</Box>
 	);

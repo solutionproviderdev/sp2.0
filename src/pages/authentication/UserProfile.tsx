@@ -12,11 +12,11 @@ import {
 	Tab,
 } from '@mui/material';
 import { FaFacebook, FaWhatsapp, FaInstagram } from 'react-icons/fa'; // Icons for social media
-import { useGetUserByIdQuery } from '../features/auth/authAPI'; // Import your query hook
-import DocumentsTab from '../components/user/DocumentsTab';
-import AccessRoleTab from '../components/user/AccessRoleTab';
-import EmploymentDetailsTab from '../components/user/EmploymentDetailsTabEmploymentDetailsTab';
-import ContactTab from '../components/user/ContactTab';
+import { useGetUserByIdQuery } from '../../features/auth/authAPI'; // Import your query hook
+import DocumentsTab from '../../components/user/DocumentsTab';
+import AccessRoleTab from '../../components/user/AccessRoleTab';
+import EmploymentDetailsTab from '../../components/user/EmploymentDetailsTabEmploymentDetailsTab';
+import ContactTab from '../../components/user/ContactTab';
 
 const UserProfile: React.FC = () => {
 	const { userId } = useParams<{ userId: string }>(); // Get the user ID from URL

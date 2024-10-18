@@ -21,9 +21,9 @@ import LeadManagement from './pages/LeadManagement';
 import FollowUpList from './pages/FollowUpList';
 import FollowUp from './pages/FollowUp';
 import UsersLayout from './layouts/UsersLayout';
-import UserManagement from './pages/UserManagement';
-import UserProfile from './pages/UserProfile';
 import CreateUserForm from './pages/CreateUserForm';
+import UserManagement from './pages/authentication/UserManagement';
+import UserProfile from './pages/authentication/UserProfile';
 
 const App = () => {
 	const router = createBrowserRouter(
@@ -46,7 +46,7 @@ const App = () => {
 							<Route path=":userId" element={<UserProfile />} />
 							<Route path="create-user" element={<CreateUserForm />} />
 						</Route>
-						
+
 						<Route path="lead-management" element={<LeadManagement />} />
 						<Route path="lead-followUp" element={<FollowUpList />}>
 							<Route path=":leadId" element={<FollowUp />} />

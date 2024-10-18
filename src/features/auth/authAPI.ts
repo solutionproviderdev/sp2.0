@@ -35,32 +35,34 @@ interface CreateUserPayload {
 	email: string;
 	personalPhone: string;
 	officePhone: string;
-	gender: string;
+	gender: 'Male' | 'Female' | 'Other'; // Gender as a union type
 	address: string;
 	password: string;
-	roleId: string;
-	departmentId: string;
-	accessLevel: string[];
-	currentSalary: number;
-	workingProcedure: string;
+	roleId: string; // Role ID string
+	departmentId: string; // Department ID string
+	accessLevel: string[]; // Array of access levels (e.g., ['Admin'])
+	currentSalary: number; // Salary as a number
+	workingProcedure: string; // Working procedure as a string
+	profilePicture?: string; // Profile picture URL (optional)
+	coverPhoto?: string; // Cover photo URL (optional)
 	documents: {
-		resume?: string;
-		nidCopy?: string;
-		academicDocument?: string;
-		bankAccountNumber?: string;
-		agreement?: string;
+		resume?: string; // Resume file URL (optional)
+		nidCopy?: string; // NID copy file URL (optional)
+		academicDocument?: string; // Academic document file URL (optional)
+		bankAccountNumber?: string; // Bank account number as string (optional)
+		agreement?: string; // Agreement document file URL (optional)
 	};
 	socialLinks: {
-		facebook?: string;
-		instagram?: string;
-		whatsapp?: string;
+		facebook?: string; // Facebook link (optional)
+		instagram?: string; // Instagram link (optional)
+		whatsapp?: string; // WhatsApp link (optional)
 	};
 	guardian: {
-		name: string;
-		phone: string;
-		relation: string;
+		name: string; // Guardian name
+		phone: string; // Guardian phone number
+		relation: string; // Relation with the guardian
 	};
-	type: 'Admin' | 'Operator';
+	type: 'Admin' | 'Operator'; // Type must be either 'Admin' or 'Operator'
 }
 
 // Interface for user creation response

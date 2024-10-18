@@ -14,9 +14,9 @@ import {
 	Chip,
 } from '@mui/material';
 import { FaGenderless, FaMale, FaFemale } from 'react-icons/fa';
-import { useGetAllUsersQuery } from '../features/auth/authAPI';
-import UserFilter from '../components/user/UserFilter';
 import { Link } from 'react-router-dom';
+import { useGetAllUsersQuery } from '../../features/auth/authAPI';
+import UserFilter from '../../components/user/UserFilter';
 
 interface User {
 	_id: string;
