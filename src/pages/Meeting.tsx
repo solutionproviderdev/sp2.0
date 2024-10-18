@@ -1,204 +1,254 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import data from './../components/meeting/data.json';
-import { Card, CardContent, CardActions, Typography, Button as MuiButton, Chip, Grid, Box } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { 
-  CalendarToday, 
-  LocationOn, 
-  AttachMoney, 
-  Star, 
-  CheckCircle, 
-  Message, 
-  Group, 
-  Work 
-} from '@mui/icons-material';
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardActions, Typography, Chip, Grid, Box, Button, Dialog, TextField, IconButton, Select, MenuItem, Modal } from '@mui/material';
+import { CalendarToday, LocationOn, AttachMoney, Star, CheckCircle, Message, Group, Work } from '@mui/icons-material';
+import ViewAgendaSharpIcon from '@mui/icons-material/ViewAgendaSharp';
+import FormatListBulletedSharpIcon from '@mui/icons-material/FormatListBulletedSharp';
+import Datepicker from 'react-tailwindcss-datepicker';
 
-const StyledCard = styled(Card)(({ theme }) => ({
-  maxWidth: 400,
-  margin: 'auto',
-  marginBottom: theme.spacing(2),
-}));
-
-const IconWrapper = styled('span')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  marginBottom: theme.spacing(1),
-  '& > svg': {
-    marginRight: theme.spacing(1),
-    fontSize: '1rem',
-  },
-}));
-
-const StatCard = styled(Box)(({ theme }) => ({
-  backgroundColor: theme.palette.primary.main,
-  color: theme.palette.primary.contrastText,
-  borderRadius: theme.shape.borderRadius,
-  padding: theme.spacing(2),
-  textAlign: 'center',
-}));
-
+// Meeting Card Component
 const MeetingCard = ({ meeting }) => (
-  <StyledCard>
-    <CardContent>
-      <Grid container justifyContent="space-between" alignItems="center" marginBottom={2}>
-        <Typography variant="h6" component="div">
-          {meeting.name}
-        </Typography>
-        <Chip 
-          label={meeting.status} 
-          color={meeting.status === 'Completed' ? 'primary' : 'default'} 
-          size="small" 
-        />
-      </Grid>
+  <div className="bg-white shadow-lg rounded-lg flex flex-col justify-between h-[340px] p-4 mb-4">
+    <div>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-bold">{meeting.name}</h3>
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${meeting.status === 'Completed' ? 'bg-green-200 text-green-800' : 'bg-gray-200 text-gray-800'}`}>
+          {meeting.status}
+        </span>
+      </div>
 
-      <IconWrapper>
-        <CalendarToday color="action" />
-        <Typography variant="body2">{meeting.dateOfMeeting} at {meeting.time}</Typography>
-      </IconWrapper>
+      <div className="flex items-center space-x-2 mb-2">
+        <CalendarToday className="text-gray-500" />
+        <p className="text-sm text-gray-700">{meeting.dateOfMeeting} at {meeting.time}</p>
+      </div>
 
-      <IconWrapper>
-        <LocationOn color="action" />
-        <Typography variant="body2">
-          {meeting.address}
-          <br />
-          <Typography variant="caption" color="textSecondary">{meeting.location}</Typography>
-        </Typography>
-      </IconWrapper>
+      <div className="flex items-start space-x-2 mb-2">
+        <LocationOn className="text-gray-500" />
+        <div>
+          <p className="text-sm text-gray-700">{meeting.address}</p>
+          <p className="text-xs text-gray-500">{meeting.location}</p>
+        </div>
+      </div>
 
-      <Grid container spacing={2} marginY={2}>
-        <Grid item xs={6}>
-          <IconWrapper>
-            <Work color="action" />
-            <Typography variant="body2">{meeting.projectStatus}</Typography>
-          </IconWrapper>
-        </Grid>
-        <Grid item xs={6}>
-          <IconWrapper>
-            <CheckCircle color="action" />
-            <Typography variant="body2">{meeting.requirement}</Typography>
-          </IconWrapper>
-        </Grid>
-        <Grid item xs={6}>
-          <IconWrapper>
-            <Group color="action" />
-            <Typography variant="body2">{meeting.salesTeam}</Typography>
-          </IconWrapper>
-        </Grid>
-        <Grid item xs={6}>
-          <IconWrapper>
-            <AttachMoney color="action" />
-            <Typography variant="body2">৳{meeting.visitCharge}</Typography>
-          </IconWrapper>
-        </Grid>
-      </Grid>
+      <div className="grid grid-cols-2 gap-2 text-sm mb-4">
+        <div className="flex items-center space-x-2">
+          <Work className="text-gray-500" />
+          <p>{meeting.projectStatus}</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <CheckCircle className="text-gray-500" />
+          <p>{meeting.requirement}</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Group className="text-gray-500" />
+          <p>{meeting.salesTeam}</p>
+        </div>
+        <div className="flex items-center space-x-2">
+          <AttachMoney className="text-gray-500" />
+          <p>৳{meeting.visitCharge}</p>
+        </div>
+      </div>
 
-      <IconWrapper>
-        <Star style={{ color: '#FFD700' }} />
-        <Typography variant="body2">Rating: {meeting.rating}/5</Typography>
-      </IconWrapper>
+      <div className="flex items-center space-x-2 text-sm">
+        <Star className="text-yellow-400" />
+        <p>Rating: {meeting.rating}/5</p>
+      </div>
 
       {meeting.remark && (
-        <IconWrapper>
-          <Message color="action" />
-          <Typography variant="body2" color="textSecondary" style={{ fontStyle: 'italic' }}>
-            {meeting.remark}
-          </Typography>
-        </IconWrapper>
+        <div className="flex items-start space-x-2 text-sm mt-2">
+          <Message className="text-gray-500" />
+          <p className="italic text-gray-600">{meeting.remark}</p>
+        </div>
       )}
-    </CardContent>
-    <CardActions style={{ justifyContent: 'space-between', padding: '16px' }}>
-      <Typography variant="body2" fontWeight="medium">
-        Sales Final: {meeting.salesFinal}
-      </Typography>
-      <MuiButton size="small" variant="outlined">View Details</MuiButton>
-    </CardActions>
-  </StyledCard>
+    </div>
+
+    <div className="flex justify-between items-center mt-4">
+      <p className="text-sm font-medium">Sales Final: {meeting.salesFinal}</p>
+      <button className="px-4 py-1 border border-gray-300 rounded-md text-sm hover:bg-gray-100">
+        View Details
+      </button>
+    </div>
+  </div>
 );
 
 const Meetings = () => {
-  console.log('data', data);
+  const [cardView, setCardView] = useState(true); // Default is card view
+  const [openDatePicker, setOpenDatePicker] = useState(false); // State for date picker dialog
+  const [selectedRange, setSelectedRange] = useState({ startDate: '', endDate: '' }); // Date range selection
+  const [isDatePickerOpen, setDatePickerOpen] = useState(false); // State to control modal visibility
+  const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null }); // Store selected date range
+
+
+
+  const handleToggle = () => {
+    setCardView(!cardView); // Toggle between card and list view
+  };
+
+  const handleRangeSelect = (e) => {
+    const { name, value } = e.target;
+    setSelectedRange((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  const handleDateRangeChange = (range) => {
+    setSelectedDateRange(range);
+    setDatePickerOpen(false);
+
+    if (range.startDate && range.endDate) {
+      const filteredLeadsByDate = data.leads.filter(lead => {
+        const createdAtDate = new Date(lead.createdAt).getTime();
+        return createdAtDate >= new Date(range.startDate).getTime() &&
+          createdAtDate <= new Date(range.endDate).getTime();
+      });
+      setFilteredData(filteredLeadsByDate);
+    } else {
+      setFilteredData(data.leads); // Reset to all leads if no date range is selected
+    }
+  };
 
   return (
-    <Box sx={{ p: 5 }}>
-      <Grid container spacing={4} sx={{ mb: 4 }}>
-        <Grid item xs={3}>
-          <StatCard sx={{ bgcolor: 'primary.main' }}>
-            <Typography variant="h6">Follow up</Typography>
-            <Typography variant="h4">4</Typography>
-            <Typography variant="body1">৳1,366,390</Typography>
-          </StatCard>
-        </Grid>
-        <Grid item xs={3}>
-          <StatCard sx={{ bgcolor: 'info.main' }}>
-            <Typography variant="h6">Prospect</Typography>
-            <Typography variant="h4">1</Typography>
-            <Typography variant="body1">৳1,979,750</Typography>
-          </StatCard>
-        </Grid>
-        <Grid item xs={3}>
-          <StatCard sx={{ bgcolor: 'error.main' }}>
-            <Typography variant="h6">Lost</Typography>
-            <Typography variant="h4">10</Typography>
-            <Typography variant="body1">৳5,230,982</Typography>
-          </StatCard>
-        </Grid>
-        <Grid item xs={3}>
-          <StatCard sx={{ bgcolor: 'success.main' }}>
-            <Typography variant="h6">Sold</Typography>
-            <Typography variant="h4">3</Typography>
-            <Typography variant="body1">৳914,500</Typography>
-          </StatCard>
-        </Grid>
-      </Grid>
-      {/* hare is the dropdowns */}
-      <div className="flex items-center justify-between bg-white shadow-md rounded-lg p-4 mb-4">
-  <div className="w-1/4">
-    <label for="status" className="block text-sm font-medium text-gray-700">Status</label>
-    <select id="status" className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-      <option value="">All</option>
-      <option value="Pending">Pending</option>
-      <option value="Complete">Complete</option>
-      <option value="Rescheduled">Rescheduled</option>
-      <option value="Cancelled">Cancelled</option>
-    </select>
-  </div>
+    <div className="p-6">
+      {/* Stat Cards */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
+        <div className="bg-blue-500 text-white rounded-lg p-4 text-center">
+          <h3 className="text-lg font-semibold">Follow up</h3>
+          <p className="text-2xl">4</p>
+          <p className="text-lg">৳1,366,390</p>
+        </div>
+        <div className="bg-blue-300 text-white rounded-lg p-4 text-center">
+          <h3 className="text-lg font-semibold">Prospect</h3>
+          <p className="text-2xl">1</p>
+          <p className="text-lg">৳1,979,750</p>
+        </div>
+        <div className="bg-red-500 text-white rounded-lg p-4 text-center">
+          <h3 className="text-lg font-semibold">Lost</h3>
+          <p className="text-2xl">10</p>
+          <p className="text-lg">৳5,230,982</p>
+        </div>
+        <div className="bg-green-500 text-white rounded-lg p-4 text-center">
+          <h3 className="text-lg font-semibold">Sold</h3>
+          <p className="text-2xl">3</p>
+          <p className="text-lg">৳914,500</p>
+        </div>
+      </div>
 
-  <div className="w-1/4">
-    <label for="sales" className="block text-sm font-medium text-gray-700">Sales Team</label>
-    <select id="sales" className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-      <option value="">All</option>
-      <option value="Emon">Emon</option>
-      <option value="Khalid">Khalid</option>
-      <option value="Supto">Supto</option>
-      <option value="Oshim">Oshim</option>
-    </select>
-  </div>
+      {/* Dropdown Filters date */}
 
-  <div className="w-1/4">
-    <label for="date" className="block text-sm font-medium text-gray-700">Date</label>
-    <input type="date" id="date" className="block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" />
-  </div>
-
-  <div className="flex items-center justify-end w-1/4">
-    <button className="flex items-center p-2 bg-gray-200 hover:bg-gray-300 rounded-md">
-      <span className="mr-2">Toggle View</span>
-      <i className="fas fa-th-large mr-2"></i>
-      <i className="fas fa-list hidden"></i>
-    </button>
-  </div>
-</div>
+      <div className="">
+        {/* Dropdown Filters */}
+        <div className="flex justify-between items-center w-full shadow-lg rounded-lg p-4 mb-6">
+          {/* Toggle button on the left side */}
 
 
-      <Grid container spacing={2}>
+          {/* Dropdowns on the right side */}
+          <div>
+            <Select
+              defaultValue=""
+              displayEmpty
+              fullWidth
+            >
+              <MenuItem value="" disabled>Status</MenuItem>
+              <MenuItem value="Pending">Pending</MenuItem>
+              <MenuItem value="Complete">Complete</MenuItem>
+              <MenuItem value="Rescheduled">Rescheduled</MenuItem>
+              <MenuItem value="Cancelled">Cancelled</MenuItem>
+            </Select>
+          </div>
+
+          <div>
+            <Select
+              defaultValue=""
+              displayEmpty
+              fullWidth
+            >
+              <MenuItem value="" disabled>Sales Team</MenuItem>
+              <MenuItem value="Emon">Emon</MenuItem>
+              <MenuItem value="Khalid">Khalid</MenuItem>
+              <MenuItem value="Supto">Supto</MenuItem>
+              <MenuItem value="Oshim">Oshim</MenuItem>
+            </Select>
+          </div>
+
+          <div>
+            <Button
+              variant="contained"
+              onClick={() => setOpenDatePicker(true)}
+              sx={{ backgroundColor: 'gray', color: 'white' }}
+            >
+              Choose Date Range
+            </Button>
+          </div>
+
+          {/* Date Range Picker */}
+
+          <div className='border border-gray-400 rounded-lg'>
+
+            <Datepicker
+              value={selectedDateRange}
+              onChange={handleDateRangeChange}
+              showShortcuts={true}
+            />
+          </div>
+
+
+
+          <div className="flex items-center bg-gray-100 rounded-full">
+            <IconButton
+              onClick={handleToggle}
+              className="p-2 bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
+              size="large"
+            >
+              {cardView ? (
+                <FormatListBulletedSharpIcon className="!font-bold !text-3xl" />
+              ) : (
+                <ViewAgendaSharpIcon className="!font-bold !text-3xl" />
+              )}
+            </IconButton>
+          </div>
+
+        </div>
+
+        {/* Date Range Picker Dialog */}
+        <Dialog open={openDatePicker} onClose={() => setOpenDatePicker(false)}>
+          <Box p={3}>
+            <div className="flex space-x-6">
+              <TextField
+                type="date"
+                label="Start Date"
+                name="startDate"
+                value={selectedRange.startDate}
+                onChange={handleRangeSelect}
+                fullWidth
+              />
+              <TextField
+                type="date"
+                label="End Date"
+                name="endDate"
+                value={selectedRange.endDate}
+                onChange={handleRangeSelect}
+                fullWidth
+              />
+            </div>
+            <Box mt={2} textAlign="right">
+              <Button onClick={() => setOpenDatePicker(false)} variant="contained">
+                Close
+              </Button>
+            </Box>
+          </Box>
+        </Dialog>
+      </div>
+
+
+      {/* Meeting Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {data.map((meeting) => (
-          <Grid item xs={12} md={6} lg={4} key={meeting.no}>
-            <MeetingCard meeting={meeting} />
-          </Grid>
+          <MeetingCard key={meeting.no} meeting={meeting} />
         ))}
-      </Grid>
-    </Box>
+      </div>
+    </div>
   );
 };
 

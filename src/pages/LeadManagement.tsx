@@ -12,39 +12,40 @@ import {
     Grid,
     Card,
     CardContent,
-    Modal,
     TableContainer,
     Table,
     TableHead,
     TableRow,
     TableCell,
-    TableBody
+    TableBody,
+    IconButton
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
-
 import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
 import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import InsertInvitationIcon from '@mui/icons-material/InsertInvitation';
-
 import PhoneIcon from '@mui/icons-material/Phone';
 import ChatIcon from '@mui/icons-material/Chat';
 import { useGetAllLeadQuery } from '../features/conversation/conversationApi';
 import { useNavigate } from 'react-router-dom';
-import RangeDatePick from '../components/shared/RangeDatePick';
 import CreateLead from '../components/LeadManagement/CreateLead';
+import Datepicker from 'react-tailwindcss-datepicker';
+
+import ViewAgendaSharpIcon from '@mui/icons-material/ViewAgendaSharp';
+import FormatListBulletedSharpIcon from '@mui/icons-material/FormatListBulletedSharp';
 
 const LeadManagement = () => {
-    const [alignment, setAlignment] = React.useState('left');
+    const [alignment, setAlignment] = useState('left');
     const [cre, setCre] = useState('');
     const [sales, setSales] = useState('');
-    const [viewAsCard, setViewAsCard] = useState(false); // For toggling between card and raw view
-    const [isDatePickerOpen, setDatePickerOpen] = useState(false); // State to control modal visibility
     const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null }); // Store selected date range
     const [filteredData, setFilteredData] = useState([]); // Store filtered leads data
     const [selectedStatus, setSelectedStatus] = useState(''); // Store selected status
+    const [viewAsCard, setViewAsCard] = useState(false); // For toggling between card and raw view
+    const [cardView, setCardView] = useState(true); // Default is card view
+
 
     const navigate = useNavigate();
 
@@ -67,7 +68,7 @@ const LeadManagement = () => {
     const leadData = useMemo(() => {
         if (!data) return [];
 
-        const normalizedStatuses = data?.leads?.map(lead => lead.status.trim().toLowerCase());
+        const normalizedStatuses = data?.leads?.map((lead) => lead.status.trim().toLowerCase());
         const statusCountMap = normalizedStatuses.reduce((acc, status) => {
             acc[status] = (acc[status] || 0) + 1;
             return acc;
@@ -97,7 +98,7 @@ const LeadManagement = () => {
         setSelectedStatus(selectedStatus);
 
         if (selectedStatus) {
-            const leadByStatus = data.leads.filter(lead => lead.status === selectedStatus);
+            const leadByStatus = data.leads.filter((lead) => lead.status === selectedStatus);
             setFilteredData(leadByStatus);
         } else {
             setFilteredData(data.leads); // Reset to all leads if no status is selected
@@ -105,20 +106,26 @@ const LeadManagement = () => {
     };
 
     // Handle Date Range Change for filtering leads
-    const handleDateRangeChange = (range) => {
-        setSelectedDateRange(range);
-        setDatePickerOpen(false);
+    const handleDateRangeChange = (newValue) => {
+        setSelectedDateRange(newValue);
 
-        if (range.startDate && range.endDate) {
-            const filteredLeadsByDate = data.leads.filter(lead => {
+        if (newValue.startDate && newValue.endDate) {
+            const filteredLeadsByDate = data.leads.filter((lead) => {
                 const createdAtDate = new Date(lead.createdAt).getTime();
-                return createdAtDate >= new Date(range.startDate).getTime() &&
-                    createdAtDate <= new Date(range.endDate).getTime();
+                return (
+                    createdAtDate >= new Date(newValue.startDate).getTime() &&
+                    createdAtDate <= new Date(newValue.endDate).getTime()
+                );
             });
             setFilteredData(filteredLeadsByDate);
         } else {
             setFilteredData(data.leads); // Reset to all leads if no date range is selected
         }
+    };
+
+    const handleToggle = () => {
+        setCardView(!cardView); // Toggle between card and list view
+        setViewAsCard(!viewAsCard)
     };
 
     return (
@@ -144,7 +151,7 @@ const LeadManagement = () => {
                     </Box>
                 </Paper>
 
-                <Box mb={3} className='flex justify-around items-center'>
+                <Box mb={3} className="flex justify-around items-center">
                     <CreateLead />
 
                     {/* Status Dropdown */}
@@ -168,7 +175,19 @@ const LeadManagement = () => {
                             label="Status"
                             sx={{ height: '32px', fontSize: '0.8rem' }}
                         >
-                            {['unread', 'No Response', 'Need Support', 'Message Reschedule', 'Number Collected', 'Call Reschedule', 'On Going', 'Close', 'Meeting Fixed', 'Meeting Pospond', 'Follow Up'].map((status, index) => (
+                            {[
+                                'unread',
+                                'No Response',
+                                'Need Support',
+                                'Message Reschedule',
+                                'Number Collected',
+                                'Call Reschedule',
+                                'On Going',
+                                'Close',
+                                'Meeting Fixed',
+                                'Meeting Pospond',
+                                'Follow Up',
+                            ].map((status, index) => (
                                 <MenuItem key={index} value={status}>
                                     {status}
                                 </MenuItem>
@@ -177,19 +196,13 @@ const LeadManagement = () => {
                     </FormControl>
 
                     {/* Date Range Picker */}
-                    <Box my={2}>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={() => setDatePickerOpen(true)}
-                        >
-                            Date <InsertInvitationIcon />
-                        </Button>
-                        <Modal open={isDatePickerOpen} onClose={() => setDatePickerOpen(false)}>
-                            <RangeDatePick onChange={handleDateRangeChange} />
-                        </Modal>
-
-                    </Box>
+                    <div className='border border-gray-400 rounded-lg'>
+                        <Datepicker
+                            value={selectedDateRange}
+                            onChange={handleDateRangeChange}
+                            showShortcuts={true}
+                        />
+                    </div>
 
                     {/* CRE Dropdown */}
                     <FormControl sx={{ minWidth: 200 }}>
@@ -245,7 +258,7 @@ const LeadManagement = () => {
                             Sales
                         </InputLabel>
                         <Select
-                            className='h-8'
+                            className="h-8"
                             labelId="sales-select-label"
                             id="sales-select"
                             value={sales}
@@ -262,21 +275,23 @@ const LeadManagement = () => {
                             ))}
                         </Select>
                     </FormControl>
+                    <div className="flex gap-4 h-10">
 
-                    <div className='flex gap-4 h-10'>
-                        <ToggleButtonGroup
-                            value={alignment}
-                            exclusive
-                            onChange={handleAlignment}
-                            aria-label="text alignment"
+                        <Button
+                            onClick={handleToggle}
+                            className="!bg-gray-100 hover:!bg-gray-200 transition-colors duration-200"
                         >
-                            <ToggleButton value="left" aria-label="left aligned" onClick={() => setViewAsCard(false)}>
-                                <FormatAlignLeftIcon />
-                            </ToggleButton>
-                            <ToggleButton value="center" aria-label="centered" onClick={() => setViewAsCard(true)}>
-                                <FormatAlignCenterIcon />
-                            </ToggleButton>
-                        </ToggleButtonGroup>
+                            <div className=' p-2 rounded-md'>
+
+                                {cardView ? (
+                                    <FormatListBulletedSharpIcon className="!font-bold !text-3xl" />
+                                ) : (
+                                    <ViewAgendaSharpIcon className="!font-bold !text-3xl" />
+                                )}
+                            </div>
+                        </Button>
+
+
                         <Button variant="contained" color="secondary">
                             <SettingsIcon />
                         </Button>
@@ -287,11 +302,12 @@ const LeadManagement = () => {
                     Showing {filteredData.length} leads
                 </Typography>
 
+                {/* Render Lead Cards or Table based on View */}
                 {viewAsCard ? (
                     <Grid container spacing={2}>
                         {filteredData.map((lead) => (
                             <Grid item xs={12} sm={6} md={4} key={lead._id}>
-                                <Card className='h-full'>
+                                <Card className="h-full">
                                     <CardContent>
                                         <Box mt={2} display="flex" justifyContent="space-around">
                                             <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
@@ -304,11 +320,13 @@ const LeadManagement = () => {
                                                 btn
                                             </Button>
                                         </Box>
-                                        <Typography variant="h5" className='p-2'>{lead.name}</Typography>
-                                        <Typography variant="body2" className='p-2' color="textSecondary">
-                                            <p className='!line-clamp-2'>Last Message: {lead.lastMsg}</p>
+                                        <Typography variant="h5" className="p-2">
+                                            {lead.name}
                                         </Typography>
-                                        <Typography className='p-2' variant="caption" color="textSecondary">
+                                        <Typography variant="body2" className="p-2" color="textSecondary">
+                                            <p className="!line-clamp-2">Last Message: {lead.lastMsg}</p>
+                                        </Typography>
+                                        <Typography className="p-2" variant="caption" color="textSecondary">
                                             {new Date(lead.createdAt).toLocaleString()}
                                         </Typography>
                                         <Box mt={2} display="flex" justifyContent="space-around">
@@ -347,11 +365,13 @@ const LeadManagement = () => {
                                     <TableRow key={lead._id}>
                                         <TableCell>{lead.name}</TableCell>
                                         <TableCell>{lead.status}</TableCell>
-                                        <TableCell><p className='!line-clamp-1'>{lead.lastMsg}</p></TableCell>
+                                        <TableCell>
+                                            <p className="!line-clamp-1">{lead.lastMsg}</p>
+                                        </TableCell>
                                         <TableCell>{lead.phone}</TableCell>
                                         <TableCell>{new Date(lead.createdAt).toLocaleString()}</TableCell>
                                         <TableCell>
-                                            <div className='flex'>
+                                            <div className="flex">
                                                 <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
                                                     Call
                                                 </Button>

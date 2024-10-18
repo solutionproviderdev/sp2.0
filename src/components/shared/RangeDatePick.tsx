@@ -1,36 +1,20 @@
+// import { useState } from "react"; 
+// import Datepicker from "react-tailwindcss-datepicker"; 
 
+// const App = () => { 
+//     const [value, setValue] = useState({ 
+//         startDate: null, 
+//         endDate: null
+//     });
 
-import { useState } from "react";
-import { DateRangePicker } from "mui-daterange-picker";
-import { Box } from "@mui/material";
+//     return (
+//         <Datepicker 
+//             value={value} 
+//             onChange={newValue => setValue(newValue)}
+//             showShortcuts={true}
+        
+//     );
+// };
 
-const RangeDatePick = ({ arise, onChange }) => {
-  const [open, setOpen] = useState(true);
+// export default App;
 
-  const toggle = () => setOpen(!open);
-
-  return (
-
-    <Box
-      sx={{
-        position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: 'translate(-50%, -50%)',
-        p: 4,
-        borderRadius: 2,
-      }}
-    >
-      <DateRangePicker
-        open={open}
-        toggle={toggle}
-        onChange={(range) => {
-          onChange(range);
-        }}
-      />
-    </Box>
-
-  );
-};
-
-export default RangeDatePick;
