@@ -18,14 +18,14 @@ import {
     TableRow,
     TableCell,
     TableBody,
-    IconButton
+    IconButton,
+    Chip,
+    Avatar,
+    Tooltip
 } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import SettingsIcon from '@mui/icons-material/Settings';
-import FormatAlignLeftIcon from '@mui/icons-material/FormatAlignLeft';
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
+
 import PhoneIcon from '@mui/icons-material/Phone';
 import ChatIcon from '@mui/icons-material/Chat';
 import { useGetAllLeadQuery } from '../features/conversation/conversationApi';
@@ -35,21 +35,25 @@ import Datepicker from 'react-tailwindcss-datepicker';
 
 import ViewAgendaSharpIcon from '@mui/icons-material/ViewAgendaSharp';
 import FormatListBulletedSharpIcon from '@mui/icons-material/FormatListBulletedSharp';
+import { CalendarIcon } from '@mui/x-date-pickers/icons';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import CardListView from '../components/LeadManagement/CardListView';
+
 
 const LeadManagement = () => {
     const [alignment, setAlignment] = useState('left');
     const [cre, setCre] = useState('');
     const [sales, setSales] = useState('');
-    const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null }); // Store selected date range
-    const [filteredData, setFilteredData] = useState([]); // Store filtered leads data
-    const [selectedStatus, setSelectedStatus] = useState(''); // Store selected status
-    const [viewAsCard, setViewAsCard] = useState(false); // For toggling between card and raw view
-    const [cardView, setCardView] = useState(true); // Default is card view
+    const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null });
+    const [filteredData, setFilteredData] = useState([]);
+    const [selectedStatus, setSelectedStatus] = useState('');
+    const [viewAsCard, setViewAsCard] = useState(false);
+    const [cardView, setCardView] = useState(true);
 
-
+    console.log('leadmanagement---->', filteredData)
     const navigate = useNavigate();
 
-    // Set the page to 1 and the limit to 500
     const page = 1;
     const limit = 150;
     const { data, error, isLoading } = useGetAllLeadQuery({
@@ -57,14 +61,12 @@ const LeadManagement = () => {
         limit,
     });
 
-    // Set filteredData to all leads initially
     useEffect(() => {
         if (data) {
             setFilteredData(data.leads);
         }
     }, [data]);
 
-    // Function to normalize and count statuses for the bar chart
     const leadData = useMemo(() => {
         if (!data) return [];
 
@@ -75,7 +77,7 @@ const LeadManagement = () => {
         }, {});
 
         return Object.entries(statusCountMap).map(([status, count]) => ({
-            status: status.charAt(0).toUpperCase() + status.slice(1), // Capitalize first letter
+            status: status.charAt(0).toUpperCase() + status.slice(1),
             count,
         }));
     }, [data]);
@@ -101,11 +103,10 @@ const LeadManagement = () => {
             const leadByStatus = data.leads.filter((lead) => lead.status === selectedStatus);
             setFilteredData(leadByStatus);
         } else {
-            setFilteredData(data.leads); // Reset to all leads if no status is selected
+            setFilteredData(data.leads);
         }
     };
 
-    // Handle Date Range Change for filtering leads
     const handleDateRangeChange = (newValue) => {
         setSelectedDateRange(newValue);
 
@@ -119,12 +120,12 @@ const LeadManagement = () => {
             });
             setFilteredData(filteredLeadsByDate);
         } else {
-            setFilteredData(data.leads); // Reset to all leads if no date range is selected
+            setFilteredData(data.leads);
         }
     };
 
     const handleToggle = () => {
-        setCardView(!cardView); // Toggle between card and list view
+        setCardView(!cardView);
         setViewAsCard(!viewAsCard)
     };
 
@@ -132,8 +133,8 @@ const LeadManagement = () => {
         <div>
             <Box
                 sx={{
-                    height: '100vh', // Take the full height of the viewport
-                    overflowY: 'auto', // Enable vertical scrolling
+                    height: '100vh',
+                    overflowY: 'auto',
                     padding: 4,
                 }}
             >
@@ -240,7 +241,6 @@ const LeadManagement = () => {
                             ))}
                         </Select>
                     </FormControl>
-
                     {/* Sales Dropdown */}
                     <FormControl sx={{ minWidth: 200 }}>
                         <InputLabel
@@ -276,7 +276,6 @@ const LeadManagement = () => {
                         </Select>
                     </FormControl>
                     <div className="flex gap-4 h-10">
-
                         <Button
                             onClick={handleToggle}
                             className="!bg-gray-100 hover:!bg-gray-200 transition-colors duration-200"
@@ -290,108 +289,16 @@ const LeadManagement = () => {
                                 )}
                             </div>
                         </Button>
-
-
                         <Button variant="contained" color="secondary">
                             <SettingsIcon />
                         </Button>
                     </div>
                 </Box>
-
                 <Typography variant="h6" gutterBottom>
                     Showing {filteredData.length} leads
                 </Typography>
-
-                {/* Render Lead Cards or Table based on View */}
-                {viewAsCard ? (
-                    <Grid container spacing={2}>
-                        {filteredData.map((lead) => (
-                            <Grid item xs={12} sm={6} md={4} key={lead._id}>
-                                <Card className="h-full">
-                                    <CardContent>
-                                        <Box mt={2} display="flex" justifyContent="space-around">
-                                            <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
-                                                Status
-                                            </Button>
-                                            <Button variant="contained" color="secondary" startIcon={<ChatIcon />}>
-                                                Tags
-                                            </Button>
-                                            <Button variant="contained" color="secondary" startIcon={<ChatIcon />}>
-                                                btn
-                                            </Button>
-                                        </Box>
-                                        <Typography variant="h5" className="p-2">
-                                            {lead.name}
-                                        </Typography>
-                                        <Typography variant="body2" className="p-2" color="textSecondary">
-                                            <p className="!line-clamp-2">Last Message: {lead.lastMsg}</p>
-                                        </Typography>
-                                        <Typography className="p-2" variant="caption" color="textSecondary">
-                                            {new Date(lead.createdAt).toLocaleString()}
-                                        </Typography>
-                                        <Box mt={2} display="flex" justifyContent="space-around">
-                                            <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
-                                                Call
-                                            </Button>
-                                            <Button
-                                                variant="contained"
-                                                color="secondary"
-                                                startIcon={<ChatIcon />}
-                                                onClick={() => navigate(`/admin/lead-center/${lead._id}`)}
-                                            >
-                                                Chat
-                                            </Button>
-                                        </Box>
-                                    </CardContent>
-                                </Card>
-                            </Grid>
-                        ))}
-                    </Grid>
-                ) : (
-                    <TableContainer component={Paper}>
-                        <Table>
-                            <TableHead>
-                                <TableRow>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Status</TableCell>
-                                    <TableCell>Last Message</TableCell>
-                                    <TableCell>Number</TableCell>
-                                    <TableCell>Date</TableCell>
-                                    <TableCell>Actions</TableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {filteredData.map((lead) => (
-                                    <TableRow key={lead._id}>
-                                        <TableCell>{lead.name}</TableCell>
-                                        <TableCell>{lead.status}</TableCell>
-                                        <TableCell>
-                                            <p className="!line-clamp-1">{lead.lastMsg}</p>
-                                        </TableCell>
-                                        <TableCell>{lead.phone}</TableCell>
-                                        <TableCell>{new Date(lead.createdAt).toLocaleString()}</TableCell>
-                                        <TableCell>
-                                            <div className="flex">
-                                                <Button variant="contained" color="primary" startIcon={<PhoneIcon />}>
-                                                    Call
-                                                </Button>
-                                                <Button
-                                                    variant="contained"
-                                                    color="secondary"
-                                                    startIcon={<ChatIcon />}
-                                                    sx={{ ml: 1 }}
-                                                    onClick={() => navigate(`/admin/lead-center/${lead._id}`)}
-                                                >
-                                                    Chat
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </TableContainer>
-                )}
+                {/* CardListView comonent for card and list view */}
+                <CardListView viewAsCard={viewAsCard} data={filteredData} />
             </Box>
         </div>
     );
