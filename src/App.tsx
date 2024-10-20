@@ -24,6 +24,10 @@ import UsersLayout from './layouts/UsersLayout';
 import CreateUserForm from './pages/CreateUserForm';
 import UserManagement from './pages/authentication/UserManagement';
 import UserProfile from './pages/authentication/UserProfile';
+import DepartmentManagement from './pages/authentication/DepartmentManagement';
+import RoleManagement from './pages/authentication/RoleManagement';
+import { AddRoad } from '@mui/icons-material';
+import AddRole from './pages/authentication/AddRole';
 
 const App = () => {
 	const router = createBrowserRouter(
@@ -45,6 +49,9 @@ const App = () => {
 							<Route path="all-users" element={<UserManagement />} />
 							<Route path=":userId" element={<UserProfile />} />
 							<Route path="create-user" element={<CreateUserForm />} />
+							<Route path="departments" element={<DepartmentManagement />} />
+							<Route path="roles" element={<RoleManagement />} />
+							<Route path="create-role" element={<AddRole />} />
 						</Route>
 
 						<Route path="lead-management" element={<LeadManagement />} />

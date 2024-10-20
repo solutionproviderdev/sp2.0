@@ -1,29 +1,36 @@
 import apiSlice from '../../api/apiSlice';
 
-// Interfaces for Department and Role
-interface Permission {
-	resource: string;
-	action: string;
+// Updated Interfaces for Department, Role, and Permission
+interface PermissionAction {
+	name: string;
+	allowed: boolean;
 }
 
-interface Role {
+interface Permission {
+	resource: string;
+	actions: PermissionAction[];
+}
+
+export interface Role {
 	_id: string;
 	roleName: string;
 	description?: string;
 	permissions: Permission[];
 }
 
-interface Department {
+export interface Department {
 	_id: string;
 	departmentName: string;
 	description?: string;
 	roles: Role[];
+	staffCount: number;
 }
 
+// Response for fetching all permissions
+type GetAllPermissionsResponse = Permission[];
+
 // Responses
-interface GetAllDepartmentsResponse {
-	departments: Department[];
-}
+type GetAllDepartmentsResponse = Department[];
 
 interface GetDepartmentByIdResponse {
 	department: Department;
@@ -32,12 +39,10 @@ interface GetDepartmentByIdResponse {
 interface CreateDepartmentRequest {
 	departmentName: string;
 	description?: string;
-	roles: Role[];
+	roles?: Role[]; // Roles are now optional
 }
 
-interface CreateDepartmentResponse {
-	department: Department;
-}
+type CreateDepartmentResponse = Department;
 
 interface UpdateDepartmentRequest {
 	departmentName?: string;
@@ -74,7 +79,7 @@ const departmentApi = apiSlice.injectEndpoints({
 			query: id => `/users/departments/${id}`,
 		}),
 
-		// Create a new department
+		// Create a new department (with pessimistic update for all departments)
 		createDepartment: builder.mutation<
 			CreateDepartmentResponse,
 			CreateDepartmentRequest
@@ -84,6 +89,28 @@ const departmentApi = apiSlice.injectEndpoints({
 				method: 'POST',
 				body: department,
 			}),
+			onQueryStarted: async (newDepartment, { dispatch, queryFulfilled }) => {
+				try {
+					const { data } = await queryFulfilled; // Wait for mutation to succeed
+
+					console.log(data);
+
+					// Pessimistically update the cache for getAllDepartments
+					dispatch(
+						departmentApi.util.updateQueryData(
+							'getAllDepartments',
+							undefined,
+							draft => {
+								// Add the new department to the cached list of departments
+								draft.push(data);
+							}
+						)
+					);
+				} catch (error) {
+					// Handle errors if needed (optional logging, etc.)
+					console.error('Error creating department:', error);
+				}
+			},
 		}),
 
 		// Update a department by ID
@@ -106,7 +133,7 @@ const departmentApi = apiSlice.injectEndpoints({
 			}),
 		}),
 
-		// Add a role to a department
+		// Add a role to a department (Pessimistic Update for all departments)
 		addRoleToDepartment: builder.mutation<
 			Department,
 			{ departmentId: string; role: AddRoleRequest }
@@ -116,6 +143,31 @@ const departmentApi = apiSlice.injectEndpoints({
 				method: 'POST',
 				body: role,
 			}),
+			onQueryStarted: async (
+				{ departmentId, role },
+				{ dispatch, queryFulfilled }
+			) => {
+				try {
+					const { data } = await queryFulfilled; // Wait for mutation to succeed
+
+					// Pessimistically update the cache for getAllDepartments
+					dispatch(
+						departmentApi.util.updateQueryData(
+							'getAllDepartments',
+							undefined,
+							draft => {
+								const department = draft.find(dep => dep._id === departmentId);
+								if (department) {
+									department.roles.push(data.roles[data.roles.length - 1]);
+								}
+							}
+						)
+					);
+				} catch (error) {
+					// Handle errors if needed (optional logging, etc.)
+					console.error('Error adding role:', error);
+				}
+			},
 		}),
 
 		// Update a role in a department
@@ -140,6 +192,11 @@ const departmentApi = apiSlice.injectEndpoints({
 				method: 'DELETE',
 			}),
 		}),
+
+		// New Endpoint: Get all permissions
+		getAllPermissions: builder.query<GetAllPermissionsResponse, void>({
+			query: () => '/users/departments/permissions',
+		}),
 	}),
 });
 
@@ -153,6 +210,7 @@ export const {
 	useAddRoleToDepartmentMutation,
 	useUpdateRoleInDepartmentMutation,
 	useDeleteRoleFromDepartmentMutation,
+	useGetAllPermissionsQuery,
 } = departmentApi;
 
 export default departmentApi;

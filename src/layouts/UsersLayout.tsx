@@ -1,5 +1,6 @@
 import React from 'react';
-import { FaHome, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
+import { FaHome, FaSearch, FaBell, FaUserCircle, FaGraduationCap } from 'react-icons/fa';
+import { FaPeopleRoof } from 'react-icons/fa6';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 
 // NavItem component defined within this file
@@ -45,6 +46,18 @@ const Navbar: React.FC = () => {
 						active={location.pathname.includes('/dashboard')}
 						icon={<FaHome />}
 						label="All Users"
+					/>
+					<NavItem
+						to="departments"
+						active={location.pathname.includes('/dashboard')}
+						icon={<FaPeopleRoof />}
+						label="Departments"
+					/>
+					<NavItem
+						to="roles"
+						active={location.pathname.includes('/dashboard')}
+						icon={<FaGraduationCap/>}
+						label="Roles"
 					/>
 				</div>
 

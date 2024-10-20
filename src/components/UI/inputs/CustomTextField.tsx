@@ -14,6 +14,7 @@ interface CustomTextFieldProps {
 	error?: boolean;
 	helperText?: string;
 	InputProps?: Partial<MuiInputProps>; // Accepting InputProps for handling password visibility toggle
+	rows?: number;
 }
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({
@@ -29,6 +30,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 	error,
 	helperText,
 	InputProps, // Destructuring InputProps for use
+	rows,
 }) => {
 	return (
 		<Grid item xs={12} md={6}>
@@ -45,6 +47,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 				error={error}
 				helperText={helperText}
 				InputProps={InputProps} // Applying InputProps here
+				rows={rows}
 			/>
 		</Grid>
 	);
