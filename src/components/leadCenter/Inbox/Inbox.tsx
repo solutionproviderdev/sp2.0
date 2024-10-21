@@ -90,7 +90,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 			</Box>
 
 			{/* Messages Section */}
-			<Box className="flex-1 overflow-y-auto">
+			<Box className="flex-1 overflow-y-auto scrollbar-none">
 				{messages.length > 0 ? (
 					<Chats messages={messages} />
 				) : (

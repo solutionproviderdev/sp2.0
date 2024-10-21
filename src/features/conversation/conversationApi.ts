@@ -157,22 +157,20 @@ const socket = getSocket();
 
 const conversationApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
-
 		createLeadWithNumber: builder.mutation({
 			query: ({ leadData }) => {
-				console.log('rtk rtk phone lead create------',leadData)
+				console.log('rtk rtk phone lead create------', leadData);
 				return {
-				url: `/lead`,
-				method: 'post',
-				body: leadData ,
-				}
-			}
+					url: `/lead`,
+					method: 'post',
+					body: leadData,
+				};
+			},
 		}),
 
-		
 		// get all leads
 		getAllLead: builder.query<GetConversationByIdResponse, string>({
-			query: ({ page,limit }) => `/lead?page=${page}&limit=${limit}`,     
+			query: ({ page, limit }) => `/lead?page=${page}&limit=${limit}`,
 		}),
 
 		// Get a single lead by its ID
@@ -285,12 +283,38 @@ const conversationApi = apiSlice.injectEndpoints({
 			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
 		}),
 
-		// Mark messages as seen
+		// Mark messages as seen with optimistic update
 		markAsSeen: builder.mutation<void, { id: string }>({
 			query: ({ id }) => ({
 				url: `/lead/conversation/${id}/mark-messages-seen`,
 				method: 'PUT',
 			}),
+			// Optimistic update: we update the cached data before the mutation is fulfilled
+			onQueryStarted: async (arg, { dispatch, queryFulfilled }) => {
+				// Optimistically update the leads cache to mark messages as seen
+				const patchResult = dispatch(
+					conversationApi.util.updateQueryData(
+						'getAllConversations',
+						{ page: 1, limit: 500 }, // Assuming you're fetching paginated data
+						draft => {
+							const lead = draft.leads.find(lead => lead._id === arg.id);
+							if (lead) {
+								lead.messagesSeen = true; // Mark the messages as seen optimistically
+							}
+						}
+					)
+				);
+
+				try {
+					// Await the actual server response
+					await queryFulfilled;
+				} catch (err) {
+					// Rollback the optimistic update if the mutation fails
+					patchResult.undo();
+				}
+			},
+			// Invalidates the cache for specific lead once the mutation is successful
+			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
 		}),
 
 		// Add a call log to a lead
@@ -402,7 +426,7 @@ export const {
 	useAddCallLogsMutation,
 	useMarkAsSeenMutation,
 	useGetAllLeadQuery,
-	useCreateLeadWithNumberMutation
- } = conversationApi;
+	useCreateLeadWithNumberMutation,
+} = conversationApi;
 
 export default conversationApi;

@@ -93,7 +93,7 @@ const Chats: React.FC<ChatsProps> = ({ messages }) => {
 	};
 
 	return (
-		<div className="px-2 py-1 space-y-2 h-full scrollbar-thin bg-bright dark:bg-dark scrollbar-thumb-gray-200 dark:scrollbar-thumb-dark scrollbar-track-gray-100 dark:scrollbar-track-bdark">
+		<div className="px-2 py-1 space-y-2 h-full scrollbar-none bg-bright dark:bg-dark ">
 			{messages.map((message, index) => (
 				<div
 					key={message._id}
