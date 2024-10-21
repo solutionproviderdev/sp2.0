@@ -26,7 +26,6 @@ import UserManagement from './pages/authentication/UserManagement';
 import UserProfile from './pages/authentication/UserProfile';
 import DepartmentManagement from './pages/authentication/DepartmentManagement';
 import RoleManagement from './pages/authentication/RoleManagement';
-import { AddRoad } from '@mui/icons-material';
 import AddRole from './pages/authentication/AddRole';
 import Meetings from './pages/Meeting';
 import MeetingsSlot from './components/meeting/MeetingsSlot';
