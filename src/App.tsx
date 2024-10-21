@@ -28,7 +28,9 @@ import DepartmentManagement from './pages/authentication/DepartmentManagement';
 import RoleManagement from './pages/authentication/RoleManagement';
 import { AddRoad } from '@mui/icons-material';
 import AddRole from './pages/authentication/AddRole';
-
+import Meetings from './pages/Meeting';
+import MeetingsSlot from './components/meeting/MeetingsSlot';
+ 
 const App = () => {
 	const router = createBrowserRouter(
 		createRoutesFromElements(
@@ -61,6 +63,10 @@ const App = () => {
 						<Route path="lead-center" element={<LeadCenter />}>
 							<Route path=":leadId" element={<Inbox />} />
 						</Route>
+
+						{/* meeting page */}
+						<Route path="meetings" element={<Meetings />}></Route>
+						<Route path="meetings-slot" element={<MeetingsSlot />}></Route>
 					</Route>
 
 					{/* Operator Routes */}

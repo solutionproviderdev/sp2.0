@@ -157,24 +157,22 @@ const socket = getSocket();
 
 const conversationApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
-		// Create a new lead with optional comment
-		createLeadWithNumber: builder.mutation<
-			Lead, // Response type (the created lead)
-			{ leadData: CreateLeadPayload } // Request body type
-		>({
-			query: ({ leadData }) => ({
+
+		createLeadWithNumber: builder.mutation({
+			query: ({ leadData }) => {
+				console.log('rtk rtk phone lead create------',leadData)
+				return {
 				url: `/lead`,
 				method: 'post',
-				body: leadData,
-			}),
+				body: leadData ,
+				}
+			}
 		}),
 
-		// Get all leads with pagination
-		getAllLead: builder.query<
-			GetAllConversationsResponse, // Response type
-			{ page: number; limit: number } // Query parameters
-		>({
-			query: ({ page, limit }) => `/lead?page=${page}&limit=${limit}`,
+		
+		// get all leads
+		getAllLead: builder.query<GetConversationByIdResponse, string>({
+			query: ({ page,limit }) => `/lead?page=${page}&limit=${limit}`,     
 		}),
 
 		// Get a single lead by its ID
@@ -404,7 +402,7 @@ export const {
 	useAddCallLogsMutation,
 	useMarkAsSeenMutation,
 	useGetAllLeadQuery,
-	useCreateLeadWithNumberMutation,
-} = conversationApi;
+	useCreateLeadWithNumberMutation
+ } = conversationApi;
 
 export default conversationApi;
