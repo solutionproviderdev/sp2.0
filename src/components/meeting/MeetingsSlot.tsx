@@ -1,133 +1,3 @@
-// import React, { useState } from 'react';
-// import {
-//     DndContext,
-//     closestCenter,
-//     useDraggable,
-//     useDroppable
-// } from '@dnd-kit/core';
-// import { arrayMove, SortableContext } from '@dnd-kit/sortable';
-
-// const DraggableItem = ({ id, meeting }) => {
-//     const { attributes, listeners, setNodeRef, transform } = useDraggable({
-//         id
-//     });
-
-//     const style = {
-//         transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
-//     };
-
-//     return (
-//         <div
-//             ref={setNodeRef}
-//             {...attributes}
-//             {...listeners}
-//             style={style}
-//             className="absolute inset-2 bg-blue-500 text-white p-2 rounded shadow-lg"
-//         >
-//             <strong>{meeting.title}</strong><br />
-//             <small>{meeting.duration}</small>
-//         </div>
-//     );
-// };
-
-// const DroppableSlot = ({ id, children }) => {
-//     const { isOver, setNodeRef } = useDroppable({
-//         id
-//     });
-
-//     return (
-//         <div
-//             ref={setNodeRef}
-//             className={`border border-gray-200 h-24 relative ${isOver ? 'bg-green-100' : ''}`}
-//             style={{ width: '100%' }}
-//         >
-//             {children}
-//         </div>
-//     );
-// };
-
-// const MeetingsSlot = () => {
-//     // Time slots for the day
-//     const timeSlots = [
-//         '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM',
-//         '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'
-//     ];
-
-//     // Sales team members
-//     const salesTeam = ['Alice', 'Bob', 'Charlie','emon','supto'];
-
-//     // State to manage meetings
-//     const [meetings, setMeetings] = useState([
-//         { id: 1, time: '09:00 AM', teamMember: 'Alice', title: 'Meeting with Client A', duration: '1 hour' },
-//         { id: 2, time: '11:00 AM', teamMember: 'Bob', title: 'Follow-up with Client B', duration: '30 mins' },
-//         { id: 3, time: '01:00 PM', teamMember: 'Charlie', title: 'Internal Sales Discussion', duration: '1 hour' }
-//     ]);
-
-//     const onDragEnd = ({ active, over }) => {
-//         if (active.id !== over.id) {
-//             const oldIndex = meetings.findIndex(meeting => meeting.id === parseInt(active.id));
-//             const newIndex = meetings.findIndex(meeting => meeting.id === parseInt(over.id));
-//             const reorderedMeetings = arrayMove(meetings, oldIndex, newIndex);
-//             setMeetings(reorderedMeetings);
-//         }
-//     };
-
-//     return (
-//         <div className="w-full">
-//             {/* Header with time slots */}
-//             <div className="grid grid-cols-[150px_repeat(9,_1fr)] bg-gray-100 p-4">
-//                 <div className="font-bold">Sales Team</div>
-//                 {timeSlots.map((slot, index) => (
-//                     <div key={index} className="text-center font-bold">{slot}</div>
-//                 ))}
-//             </div>
-
-//             {/* Body with sales team and meetings */}
-//             <DndContext
-//                 collisionDetection={closestCenter}
-//                 onDragEnd={onDragEnd}
-//             >
-//                 <SortableContext items={meetings}>
-//                     <div className="grid grid-cols-[150px_repeat(9,_1fr)]">
-//                         {salesTeam.map((member) => (
-//                             <React.Fragment key={member}>
-//                                 {/* Sales Team Member Column */}
-//                                 <div className="p-4 font-bold bg-gray-50 border border-gray-200">
-//                                     {member}
-//                                 </div>
-//                                 {/* Time Slots for Each Member */}
-//                                 {timeSlots.map((slot, index) => {
-//                                     const meeting = meetings.find(
-//                                         (m) => m.teamMember === member && m.time === slot
-//                                     );
-//                                     return (
-//                                         <DroppableSlot key={slot} id={`${member}-${slot}`}>
-//                                             {meeting && (
-//                                                 <DraggableItem id={String(meeting.id)} meeting={meeting} />
-//                                             )}
-//                                         </DroppableSlot>
-//                                     );
-//                                 })}
-//                             </React.Fragment>
-//                         ))}
-//                     </div>
-//                 </SortableContext>
-//             </DndContext>
-//         </div>
-//     );
-// };
-
-// export default MeetingsSlot;
-
-
-
-
-
-
-
-
-
-
 
 
 import React, { useState } from 'react';
@@ -143,24 +13,27 @@ const DraggableItem = ({ id, meeting }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id
     });
-
     const style = {
         transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
     };
-
     return (
         <div
             ref={setNodeRef}
             {...attributes}
             {...listeners}
-            style={style}
-            className="absolute inset-2 bg-blue-500 text-white p-2 rounded shadow-lg"
+            style={{
+                ...style,
+                width: 'full',
+                height: 'full',
+            }}
+            className="bg-blue-300 text-black p-4 border-t-4 border-t-blue-400 rounded shadow-lg"
         >
-            <strong>{meeting.title}</strong><br />
+            <p className='text-sm'>{meeting.title}</p>
             <small>{meeting.duration}</small>
         </div>
     );
 };
+
 
 const DroppableSlot = ({ id, children }) => {
     const { isOver, setNodeRef } = useDroppable({
@@ -170,10 +43,19 @@ const DroppableSlot = ({ id, children }) => {
     return (
         <div
             ref={setNodeRef}
-            className={`border border-gray-200 h-24 relative ${isOver ? 'bg-green-100' : ''}`}
+            className="border border-gray-200 h-24 relative"
             style={{ width: '100%' }}
         >
-            {children}
+            {/* Background that will go behind the content */}
+            <div
+                className={`absolute inset-0 transition-colors duration-200 ${isOver ? 'bg-green-100' : ''
+                    } z-0`}  // z-0 ensures the background stays behind
+            ></div>
+
+            {/* Slot Content */}
+            <div className="relative z-10">
+                {children}
+            </div>
         </div>
     );
 };
@@ -181,19 +63,24 @@ const DroppableSlot = ({ id, children }) => {
 const MeetingsSlot = () => {
     // Time slots for the day
     const timeSlots = [
-        '08:00 AM', '09:00 AM', '10:00 AM', '11:00 AM',
-        '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'
+        '10:00 AM', '11:00 AM',
+        '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
     ];
 
     // Sales team members
-    const salesTeam = ['Alice', 'Bob', 'Charlie'];
+    const allSales = ['Alice', 'Bob', 'rahim', 'Charlie', 'salman', 'najmul'];
+    const [salesTeam, setSalesTeam] = useState(allSales);
 
-    // State to manage meetings
-    const [meetings, setMeetings] = useState([
-        { id: 1, time: '09:00 AM', teamMember: 'Alice', title: 'Meeting with Client A', duration: '1 hour' },
-        { id: 2, time: '11:00 AM', teamMember: 'Bob', title: 'Follow-up with Client B', duration: '30 mins' },
-        { id: 3, time: '01:00 PM', teamMember: 'Charlie', title: 'Internal Sales Discussion', duration: '1 hour' }
-    ]);
+    // State to manage meetings   meeting asigne by teamMember
+    const meet = [
+        { id: 1, time: '10:00 AM', teamMember: 'Alice', title: 'Meeting with Client A', duration: '1 hour' },
+        { id: 2, time: '10:00 AM', teamMember: 'Bob', title: 'Follow-up with Client B', duration: '30 mins' },
+        { id: 3, time: '01:00 PM', teamMember: 'Charlie', title: 'Internal Sales Discussion hare is mine', duration: '1 hour' },
+        { id: 4, time: '03:00 PM', teamMember: 'Alice', title: 'salman karam toka', duration: '30 hour' },
+        { id: 5, time: '04:00 PM', teamMember: 'Bob', title: 'tharin ninja', duration: '23 hour' },
+        { id: 6, time: '06:00 PM', teamMember: 'Alice', title: 'salman karam toka', duration: '30 hour' },
+    ]
+    const [meetings, setMeetings] = useState(meet);
 
     // Handle Drag End
     const onDragEnd = ({ active, over }) => {
@@ -213,6 +100,7 @@ const MeetingsSlot = () => {
             setMeetings(updatedMeetings);
         }
     };
+
 
     return (
         <div className="w-full">
@@ -234,7 +122,7 @@ const MeetingsSlot = () => {
                         {salesTeam.map((member) => (
                             <React.Fragment key={member}>
                                 {/* Sales Team Member Column */}
-                                <div className="p-4 font-bold bg-gray-50 border border-gray-200">
+                                <div className="p-8 font-bold bg-gray-50 border border-gray-200">
                                     {member}
                                 </div>
                                 {/* Time Slots for Each Member */}

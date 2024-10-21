@@ -47,8 +47,8 @@ const App = () => {
 						</Route>
 
 						{/* meeting page */}
-						<Route path="meetings" element={<Meetings />}></Route>
-						<Route path="meetings-slot" element={<MeetingsSlot />}></Route>
+						<Route path="meetings" element={<Meetings />} />
+						<Route path="meetings-slot" element={<MeetingsSlot />} />
 					</Route>
 
 					{/* Operator Routes */}

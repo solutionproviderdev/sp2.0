@@ -11,8 +11,10 @@ import {
 } from 'react-icons/fa';
 import NavItem from './NavItem';
 import ProgressBar from './ProhressBar';
-import { useLocation } from 'react-router-dom';
-import { MdMeetingRoom } from "react-icons/md";
+import { Link, useLocation } from 'react-router-dom';
+// import { MdMeetingRoom } from "react-icons/md";
+import { GrSchedule } from "react-icons/gr";
+
 
 
 interface NavbarProps {
@@ -51,7 +53,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 				<NavItem
 					to="meetings"
 					active={location.pathname.includes('meetings')}
-					icon={<MdMeetingRoom />}
+					icon={<GrSchedule />}
 				/>
 			</div>
 			<div className="flex items-center space-x-4">
