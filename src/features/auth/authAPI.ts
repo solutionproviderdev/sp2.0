@@ -50,12 +50,14 @@ const authApi = apiSlice.injectEndpoints({
 			LoginResponse,
 			{ email: string; password: string }
 		>({
-			query: ({ email, password }) => ({
+			query: ({ email, password }) => {
+				console.log('redux--->',email,password)
+				return{
 				url: '/users/login',
 				method: 'POST',
 				body: { email, password },
 				credentials: 'include',
-			}),
+			}},
 		}),
 
 		// User logout

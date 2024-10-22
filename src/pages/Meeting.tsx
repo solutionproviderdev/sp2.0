@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import data from './../components/meeting/data.json';
-import { Select, MenuItem, IconButton, Button } from '@mui/material';
+import { Select, MenuItem, IconButton } from '@mui/material';
 import ViewAgendaSharpIcon from '@mui/icons-material/ViewAgendaSharp';
 import FormatListBulletedSharpIcon from '@mui/icons-material/FormatListBulletedSharp';
 import Datepicker from 'react-tailwindcss-datepicker';
@@ -12,68 +12,54 @@ import { Link } from 'react-router-dom';
 const Meeting = () => {
   const [cardView, setCardView] = useState(true);  
   const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null });
-  const [selectedSalesTeam, setSelectedSalesTeam] = useState(''); // Store selected sales team
-  const [selectedStatus, setSelectedStatus] = useState(''); // Store selected status
+  const [selectedSalesTeam, setSelectedSalesTeam] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
   const [filteredData, setFilteredData] = useState(data); 
   
-  // Apply filters whenever a new filter is selected
   useEffect(() => {
-    applyFilters(); // Re-apply filters every time the user changes any filter
+    applyFilters(); 
   }, [selectedDateRange, selectedSalesTeam, selectedStatus]);
 
   const handleToggle = () => {
     setCardView(!cardView);
   };
 
-  // Handle date range change and apply filter
   const handleDateRangeChange = (range) => {
-    setSelectedSalesTeam('')
-    setSelectedStatus('')
-    setFilteredData(data)
-
-
-     setSelectedDateRange(range); // Set selected date range
+    setSelectedSalesTeam('');
+    setSelectedStatus('');
+    setFilteredData(data);
+    setSelectedDateRange(range);
   };
 
-  // Handle sales team change and apply filter
   const handleSalesTeamChange = (event) => {
-    setFilteredData(data)
-    setSelectedDateRange({ startDate: null, endDate: null })
-   setSelectedStatus('')
-   
-    const salesTeam = event.target.value;
-    setFilteredData(data)
-    setSelectedSalesTeam(salesTeam); // Set selected sales team
+    setFilteredData(data);
+    setSelectedDateRange({ startDate: null, endDate: null });
+    setSelectedStatus('');
+    setSelectedSalesTeam(event.target.value);
   };
 
-  // Handle status change and apply filter
   const handleStatusChange = (event) => {
-    setFilteredData(data)
-    setSelectedSalesTeam('')
-    setSelectedDateRange({ startDate: null, endDate: null })
-     // setFilteredData(data)
-    const status = event.target.value;
-    setSelectedStatus(status); // Set selected status
+    setFilteredData(data);
+    setSelectedSalesTeam('');
+    setSelectedDateRange({ startDate: null, endDate: null });
+    setSelectedStatus(event.target.value);
   };
 
   const applyFilters = () => {
-    let filteredMeetings = data; // Start filtering from the full dataset
+    let filteredMeetings = data;
 
-    // Apply status filter (independent)
     if (selectedStatus) {
       filteredMeetings = filteredMeetings.filter(
         (meeting) => meeting.status === selectedStatus
       );
     }
 
-    // Apply sales team filter (independent)
     if (selectedSalesTeam) {
       filteredMeetings = filteredMeetings.filter(
         (meeting) => meeting.salesTeam === selectedSalesTeam
       );
     }
 
-    // Apply date range filter (independent)
     if (selectedDateRange.startDate && selectedDateRange.endDate) {
       filteredMeetings = filteredMeetings.filter((meeting) => {
         const meetingDate = new Date(meeting.dateOfMeeting).getTime();
@@ -83,25 +69,29 @@ const Meeting = () => {
         );
       });
     }
-    // Set filtered data based on the final filtered meetings
+
     setFilteredData(filteredMeetings);
   };
  
-   return (
-    <div className="p-6">
+  return (
+    <div className="px-4 py-4 sm:p-6">
       <MeetingStates />
 
-      <div className="flex justify-between items-center w-full shadow-lg rounded-lg p-4 mb-6">
-         <div className='text-blue-300 border p-2 rounded-md border-blue-400'>
-          <Link to='/admin/meetings-slot'>Meeting Slot</Link>
-        </div>
-        {/* Status Filter */}
-        <div>
+      <div className="flex justify-between items-center w-full shadow-lg rounded-lg p-1 mb-4">
+        {/* Left Button Group */}
+        <div className="flex items-center space-x-3">
+          <div className='text-blue-300 border p-1 rounded-md border-blue-400 text-xs h-8 flex items-center'>
+            <Link to='/admin/meetings-slot'>Meeting Slot</Link>
+          </div>
+
+          {/* Status Filter */}
           <Select
             value={selectedStatus}
             onChange={handleStatusChange}
             displayEmpty
-            fullWidth
+            size="small"
+            className="min-w-[100px] h-8"
+            variant="outlined"
           >
             <MenuItem value="" disabled>Status</MenuItem>
             <MenuItem value="Pending">Pending</MenuItem>
@@ -109,15 +99,15 @@ const Meeting = () => {
             <MenuItem value="Rescheduled">Rescheduled</MenuItem>
             <MenuItem value="Cancelled">Cancelled</MenuItem>
           </Select>
-        </div>
 
-        {/* Sales Team Filter */}
-        <div>
+          {/* Sales Team Filter */}
           <Select
             value={selectedSalesTeam}
             onChange={handleSalesTeamChange}
             displayEmpty
-            fullWidth
+            size="small"
+            className="min-w-[100px] h-8"
+            variant="outlined"
           >
             <MenuItem value="" disabled>Sales Team</MenuItem>
             <MenuItem value="Emon">Emon</MenuItem>
@@ -125,33 +115,35 @@ const Meeting = () => {
             <MenuItem value="Supto">Supto</MenuItem>
             <MenuItem value="Oshim">Oshim</MenuItem>
           </Select>
+
+          {/* Date Range Picker */}
+          <div className="relative border border-gray-400 rounded-lg w-[150px] h-8 flex items-center z-20"> {/* Adjusted z-index */}
+            <Datepicker
+              value={selectedDateRange}
+              onChange={handleDateRangeChange}
+              showShortcuts={true}
+               classNames='border border-green-500'
+              containerClassName="z-30"
+            />
+          </div>
         </div>
 
-        {/* Date Range Picker */}
-        <div className="border border-gray-400 rounded-lg">
-          <Datepicker
-            value={selectedDateRange}
-            onChange={handleDateRangeChange}
-            showShortcuts={true}
-          />
-        </div>
-
-        <div className="flex items-center bg-gray-100 rounded-full">
+        {/* Toggle Button Group */}
+        <div className="flex items-center">
           <IconButton
             onClick={handleToggle}
-            className="p-2 bg-gray-100 hover:bg-gray-200 transition-colors duration-200"
-            size="large"
+            className="p-1 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 h-8"
+            size="small"
           >
             {cardView ? (
-              <FormatListBulletedSharpIcon className="!font-bold !text-3xl" />
+              <FormatListBulletedSharpIcon className="!font-bold !text-2xl" />
             ) : (
-              <ViewAgendaSharpIcon className="!font-bold !text-3xl" />
+              <ViewAgendaSharpIcon className="!font-bold !text-2xl" />
             )}
           </IconButton>
         </div>
       </div>
 
-      {/* Meeting Cards or List */}
       <MeetingToggleView toggle={cardView} meetings={filteredData} />
     </div>
   );

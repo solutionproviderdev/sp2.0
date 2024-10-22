@@ -1,32 +1,25 @@
-import React from 'react'
+
+import React from 'react';
+
+const states = [
+  { title: 'Follow up', count: 4, amount: '৳1,366,390', color: 'bg-blue-400' },
+  { title: 'Prospect', count: 1, amount: '৳1,979,750', color: 'bg-orange-300' },
+  { title: 'Lost', count: 10, amount: '৳5,230,982', color: 'bg-red-400' },
+  { title: 'Sold', count: 3, amount: '৳914,500', color: 'bg-green-400' },
+];
 
 function MeetingStates() {
   return (
-    <div>
-         <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-blue-400 text-white rounded-lg p-4 text-center">
-          <h3 className="text-lg font-semibold">Follow up</h3>
-          <p className="text-2xl">4</p>
-          <p className="text-lg">৳1,366,390</p>
+    <div className="grid grid-cols-4 gap-2 mb-4">
+      {states.map(({ title, count, amount, color }) => (
+        <div key={title} className={`${color} text-white rounded p-2 text-center`}>
+          <h3 className="text-sm font-semibold">{title}</h3>
+          <p className="text-lg">{count}</p>
+          <p className="text-sm">{amount}</p>
         </div>
-        <div className="bg-orange-300 text-white rounded-lg p-4 text-center">
-          <h3 className="text-lg font-semibold">Prospect</h3>
-          <p className="text-2xl">1</p>
-          <p className="text-lg">৳1,979,750</p>
-        </div>
-        <div className="bg-red-400 text-white rounded-lg p-4 text-center">
-          <h3 className="text-lg font-semibold">Lost</h3>
-          <p className="text-2xl">10</p>
-          <p className="text-lg">৳5,230,982</p>
-        </div>
-        <div className="bg-green-400 text-white rounded-lg p-4 text-center">
-          <h3 className="text-lg font-semibold">Sold</h3>
-          <p className="text-2xl">3</p>
-          <p className="text-lg">৳914,500</p>
-        </div>
-      </div>
+      ))}
     </div>
-  )
+  );
 }
 
-export default MeetingStates
+export default MeetingStates;
