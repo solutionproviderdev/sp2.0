@@ -26,10 +26,10 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
 	return (
 		<div
-			className={`${className} bg-blue-600 text-white h-16 flex items-center justify-between px-4`}
+			className={`${className} -z-50 bg-blue-600 text-white h-16 flex items-center justify-between px-4`}
 		>
-			<div className="flex items-center space-x-4">
-				<img src={logo} alt="Logo" className="w-40 h-auto object-cover" />
+			<div className="flex items-center space-x-4 -z-50">
+				<img src={logo} alt="Logo" className="w-40 h-auto object-cover -z-50" />
 				<NavItem
 					to="dashboard"
 					active={location.pathname.includes('dashboard')}

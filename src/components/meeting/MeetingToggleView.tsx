@@ -24,7 +24,7 @@ const MeetingToggleView = ({ toggle, meetings }) => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 overflow-auto">
           {meetings?.map((meeting) => (
             <div
-              key={meeting.id}
+              key={meeting.no}
               className="bg-white shadow rounded-lg flex flex-col justify-between h-auto p-2" // Reduced padding
               style={{ minHeight: '280px' }} // Reduced min-height
             >

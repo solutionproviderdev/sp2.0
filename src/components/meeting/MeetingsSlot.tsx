@@ -1,55 +1,104 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     DndContext,
     closestCenter,
     useDraggable,
     useDroppable
 } from '@dnd-kit/core';
-import { arrayMove, SortableContext } from '@dnd-kit/sortable';
+import { SortableContext } from '@dnd-kit/sortable';
+import { FaClock, FaUser, FaChevronLeft, FaChevronRight } from 'react-icons/fa';
 
-const DraggableItem = ({ id, meeting }) => {
+// Keep existing DraggableItem and DroppableSlot components exactly as they are
+const DraggableItem = ({ id, meeting, isDragging, canExpandToTwoSlots }) => {
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id
     });
+
     const style = {
         transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : undefined,
+        zIndex: isDragging ? 10 : 1,
+        width: canExpandToTwoSlots ? '200%' : '100%',
     };
+
     return (
         <div
             ref={setNodeRef}
             {...attributes}
             {...listeners}
-            style={{
-                ...style,
-                width: 'full',
-                height: 'full',
-            }}
-            className="bg-blue-300 text-black p-2 border-t-4 border-t-blue-400 rounded shadow-sm" // Reduced padding
+            style={style}
+            className={`absolute top-0 left-0 h-full bg-blue-300 p-2 rounded ${isDragging ? 'shadow-lg bg-blue-400' : ''} cursor-grab`}
         >
-            <p className='text-xs'>{meeting.title}</p> {/* Reduced text size */}
-            <small className="text-xs">{meeting.duration}</small> {/* Reduced text size */}
+            <div className="flex flex-col h-full justify-between">
+                <div>
+                    <p className="font-medium text-sm truncate">{meeting.title}</p>
+                    <div className="flex items-center gap-1 text-xs">
+                        <FaClock className="w-3 h-3" />
+                        <span>{meeting.time}</span>
+                    </div>
+                </div>
+                <div className="flex items-center gap-1 text-xs">
+                    <FaUser className="w-3 h-3" />
+                    <span>{meeting.teamMember}</span>
+                </div>
+            </div>
         </div>
     );
 };
 
-const DroppableSlot = ({ id, children }) => {
+const DroppableSlot = ({ id, children, isOccupied, isSecondSlot }) => {
     const { isOver, setNodeRef } = useDroppable({
-        id
+        id,
+        disabled: isSecondSlot
     });
 
-    return (
-        <div
-            ref={setNodeRef}
-            className="border border-gray-200 h-20 relative" // Adjust height for responsiveness
-            style={{ width: '100%' }}
-        >
-            <div
-                className={`absolute inset-0 transition-colors duration-200 ${isOver ? 'bg-green-100' : ''} z-0`}  // z-0 ensures the background stays behind
-            ></div>
+    const getBgColor = () => {
+        if (isOccupied) {
+            return isOver ? 'bg-red-100' : 'bg-gray-50';
+        }
+        return isOver ? 'bg-green-100' : 'bg-white';
+    };
 
-            <div className="relative z-10">
-                {children}
+    return (
+        <div ref={setNodeRef} className={`border border-gray-200 h-20 relative ${getBgColor()}`}>
+            {children}
+        </div>
+    );
+};
+
+// DateSelector component
+const DateSelector = ({ selectedDate, onDateChange }) => {
+    const formatDate = (date) => {
+        return date.toLocaleDateString('en-US', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+    };
+
+    const handlePrevDate = () => {
+        const newDate = new Date(selectedDate);
+        newDate.setDate(newDate.getDate() - 1);
+        onDateChange(newDate);
+    };
+
+    const handleNextDate = () => {
+        const newDate = new Date(selectedDate);
+        newDate.setDate(newDate.getDate() + 1);
+        onDateChange(newDate);
+    };
+
+    return (
+        <div className="flex items-center justify-between p-4 bg-white border-b">
+            <div className="flex items-center gap-4">
+                <button onClick={handlePrevDate} className="p-2 hover:bg-gray-100 rounded-full transition-colors" type="button">
+                    <FaChevronLeft className="w-5 h-5 z-50" />
+                </button>
+                <h2 className="text-xl font-bold">{formatDate(selectedDate)}</h2>
+                <button onClick={handleNextDate} className="p-2 hover:bg-gray-100 rounded-full transition-colors" type="button">
+                    <FaChevronRight className="w-5 h-5" />
+                </button>
             </div>
         </div>
     );
@@ -57,44 +106,111 @@ const DroppableSlot = ({ id, children }) => {
 
 const MeetingsSlot = () => {
     const timeSlots = [
-        '10:00 AM', '11:00 AM',
-        '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
+        '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM',
+        '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM', '06:00 PM'
     ];
 
     const allSales = ['Alice', 'Bob', 'Rahim', 'Charlie', 'Salman', 'Nazmul'];
-    const [salesTeam, setSalesTeam] = useState(allSales);
+    const [salesTeam] = useState(allSales);
+    const [selectedDate, setSelectedDate] = useState(new Date());
 
-    const meet = [
-        { id: 1, time: '10:00 AM', teamMember: 'Alice', title: 'Meeting with Client A', duration: '1 hour' },
-        { id: 2, time: '10:00 AM', teamMember: 'Bob', title: 'Follow-up with Client B', duration: '30 mins' },
-        { id: 3, time: '01:00 PM', teamMember: 'Charlie', title: 'Internal Sales Discussion', duration: '1 hour' },
-        { id: 4, time: '03:00 PM', teamMember: 'Alice', title: 'Project Check-in', duration: '30 mins' },
-        { id: 5, time: '04:00 PM', teamMember: 'Bob', title: 'Client Feedback Session', duration: '1 hour' },
-        { id: 6, time: '06:00 PM', teamMember: 'Alice', title: 'Wrap-up Meeting', duration: '30 mins' },
+    const initialMeetings = [
+        { id: 1, time: '10:00 AM', teamMember: 'Alice', title: 'Meeting A', date: '2024-10-24' },
+        { id: 2, time: '10:00 AM', teamMember: 'Bob', title: 'Meeting B', date: '2024-10-24' },
+        { id: 3, time: '01:00 PM', teamMember: 'Charlie', title: 'Meeting C', date: '2024-10-25' },
+        { id: 4, time: '03:00 PM', teamMember: 'Alice', title: 'Meeting D', date: '2024-10-25' },
+        { id: 5, time: '04:00 PM', teamMember: 'Bob', title: 'Meeting E', date: '2024-10-24' }
     ];
 
-    const [meetings, setMeetings] = useState(meet);
+    const [meetings, setMeetings] = useState(initialMeetings);
+    const [draggingId, setDraggingId] = useState(null);
+    const [visibleMeetings, setVisibleMeetings] = useState([]);
+
+    const getVisibleMeetings = () => {
+        const dateString = selectedDate.toISOString().split('T')[0];
+        return meetings.filter(meeting => meeting.date === dateString);
+    };
+
+    useEffect(() => {
+        setVisibleMeetings(getVisibleMeetings());
+    }, [selectedDate, meetings]);
+
+    const canExpandToTwoSlots = (member, time) => {
+        const timeIndex = timeSlots.indexOf(time);
+        if (timeIndex === timeSlots.length - 1) return false;
+        
+        const nextSlotTime = timeSlots[timeIndex + 1];
+        const nextSlotOccupied = visibleMeetings.some(m => 
+            m.teamMember === member && 
+            m.time === nextSlotTime
+        );
+        
+        return !nextSlotOccupied;
+    };
+
+    const onDragStart = (event) => {
+        setDraggingId(event.active.id);
+    };
 
     const onDragEnd = ({ active, over }) => {
+        setDraggingId(null);
         if (!over) return;
 
         const draggedMeetingId = parseInt(active.id);
         const draggedMeeting = meetings.find(meeting => meeting.id === draggedMeetingId);
         const [newTeamMember, newTime] = over.id.split('-');
 
-        if (draggedMeeting.teamMember !== newTeamMember || draggedMeeting.time !== newTime) {
-            const updatedMeetings = meetings.map((meeting) =>
-                meeting.id === draggedMeetingId
-                    ? { ...meeting, teamMember: newTeamMember, time: newTime }
-                    : meeting
-            );
-            setMeetings(updatedMeetings);
+        const targetMeeting = visibleMeetings.find(
+            m => m.teamMember === newTeamMember && 
+                m.time === newTime
+        );
+
+        let updatedMeetings;
+
+        if (targetMeeting) {
+            updatedMeetings = meetings.map(meeting => {
+                if (meeting.id === draggedMeetingId) {
+                    return {
+                        ...meeting,
+                        teamMember: newTeamMember,
+                        time: newTime,
+                        date: selectedDate.toISOString().split('T')[0]
+                    };
+                }
+                if (meeting.id === targetMeeting.id) {
+                    return {
+                        ...meeting,
+                        teamMember: draggedMeeting.teamMember,
+                        time: draggedMeeting.time
+                    };
+                }
+                return meeting;
+            });
+        } else {
+            updatedMeetings = meetings.map(meeting => {
+                if (meeting.id === draggedMeetingId) {
+                    return {
+                        ...meeting,
+                        teamMember: newTeamMember,
+                        time: newTime,
+                        date: selectedDate.toISOString().split('T')[0]
+                    };
+                }
+                return meeting;
+            });
         }
+
+        setMeetings(updatedMeetings);
     };
 
     return (
         <div className="w-full">
-            <div className="grid grid-cols-[150px_repeat(9,_1fr)] bg-gray-100 p-2"> {/* Adjusted padding */}
+            <DateSelector 
+                selectedDate={selectedDate}
+                onDateChange={setSelectedDate}
+            />
+            
+            <div className="grid grid-cols-[150px_repeat(9,_1fr)] bg-gray-100 p-2">
                 <div className="font-bold">Sales Team</div>
                 {timeSlots.map((slot, index) => (
                     <div key={index} className="text-center font-bold">{slot}</div>
@@ -104,22 +220,41 @@ const MeetingsSlot = () => {
             <DndContext
                 collisionDetection={closestCenter}
                 onDragEnd={onDragEnd}
+                onDragStart={onDragStart}
             >
-                <SortableContext items={meetings}>
+                <SortableContext items={visibleMeetings}>
                     <div className="grid grid-cols-[150px_repeat(9,_1fr)]">
                         {salesTeam.map((member) => (
                             <React.Fragment key={member}>
-                                <div className="p-2 font-bold bg-gray-50 border border-gray-200">
+                                <div className="p-4 font-bold bg-gray-50 border border-gray-200">
                                     {member}
                                 </div>
                                 {timeSlots.map((slot, index) => {
-                                    const meeting = meetings.find(
+                                    const meeting = visibleMeetings.find(
                                         (m) => m.teamMember === member && m.time === slot
                                     );
+                                    const isOccupied = !!meeting;
+                                    const canExpand = meeting && canExpandToTwoSlots(member, slot);
+                                    const prevSlotMeeting = visibleMeetings.find(
+                                        (m) => m.teamMember === member && 
+                                        m.time === timeSlots[index - 1] &&
+                                        canExpandToTwoSlots(member, timeSlots[index - 1])
+                                    );
+
                                     return (
-                                        <DroppableSlot key={slot} id={`${member}-${slot}`}>
+                                        <DroppableSlot 
+                                            key={`${member}-${slot}`} 
+                                            id={`${member}-${slot}`} 
+                                            isOccupied={isOccupied}
+                                            isSecondSlot={!!prevSlotMeeting}
+                                        >
                                             {meeting && (
-                                                <DraggableItem id={String(meeting.id)} meeting={meeting} />
+                                                <DraggableItem 
+                                                    id={String(meeting.id)} 
+                                                    meeting={meeting} 
+                                                    isDragging={draggingId === String(meeting.id)}
+                                                    canExpandToTwoSlots={canExpand}
+                                                />
                                             )}
                                         </DroppableSlot>
                                     );
