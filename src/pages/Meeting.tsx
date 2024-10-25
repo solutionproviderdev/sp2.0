@@ -1,23 +1,24 @@
 
 import React, { useState, useEffect } from 'react';
 import data from './../components/meeting/data.json';
-import { Select, MenuItem, IconButton } from '@mui/material';
+import { Select, MenuItem, IconButton, Button } from '@mui/material';
 import ViewAgendaSharpIcon from '@mui/icons-material/ViewAgendaSharp';
 import FormatListBulletedSharpIcon from '@mui/icons-material/FormatListBulletedSharp';
 import Datepicker from 'react-tailwindcss-datepicker';
 import MeetingStates from '../components/meeting/MeetingStates';
 import MeetingToggleView from '../components/meeting/MeetingToggleView';
 import { Link } from 'react-router-dom';
+import CreateMeetingModal from './CreateMeeting';
 
 const Meeting = () => {
-  const [cardView, setCardView] = useState(true);  
+  const [cardView, setCardView] = useState(true);
   const [selectedDateRange, setSelectedDateRange] = useState({ startDate: null, endDate: null });
   const [selectedSalesTeam, setSelectedSalesTeam] = useState('');
   const [selectedStatus, setSelectedStatus] = useState('');
-  const [filteredData, setFilteredData] = useState(data); 
-  
+  const [filteredData, setFilteredData] = useState(data);
+
   useEffect(() => {
-    applyFilters(); 
+    applyFilters();
   }, [selectedDateRange, selectedSalesTeam, selectedStatus]);
 
   const handleToggle = () => {
@@ -72,17 +73,24 @@ const Meeting = () => {
 
     setFilteredData(filteredMeetings);
   };
- 
-  return (
-    <div className="px-4 py-4 sm:p-6">
-      <MeetingStates />
 
-      <div className="flex justify-between items-center w-full shadow-lg rounded-lg p-1 mb-4">
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const handleOpenModal = () => {
+    setModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setModalOpen(false);
+  };
+
+  return (
+    <div className="p-4">
+      <MeetingStates />
+      <div className="flex justify-between items-center w-full shadow-lg rounded-lg p-2 pb- mb-4">
         {/* Left Button Group */}
         <div className="flex items-center space-x-3">
-          <div className='text-blue-300 border p-1 rounded-md border-blue-400 text-xs h-8 flex items-center'>
-            <Link to='/admin/meetings-slot'>Meeting Slot</Link>
-          </div>
+
 
           {/* Status Filter */}
           <Select
@@ -122,26 +130,44 @@ const Meeting = () => {
               value={selectedDateRange}
               onChange={handleDateRangeChange}
               showShortcuts={true}
-               classNames='border border-green-500'
+              classNames='border border-green-500'
               containerClassName="z-30"
             />
           </div>
         </div>
 
         {/* Toggle Button Group */}
-        <div className="flex items-center">
-          <IconButton
-            onClick={handleToggle}
-            className="p-1 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 h-8"
-            size="small"
-          >
-            {cardView ? (
-              <FormatListBulletedSharpIcon className="!font-bold !text-2xl" />
-            ) : (
-              <ViewAgendaSharpIcon className="!font-bold !text-2xl" />
-            )}
-          </IconButton>
+        <div className='flex gap-2'>
+
+          <div className='text-blue-300 border p-1 rounded-md border-blue-400 text-xs h-8 flex items-center'>
+            <Link to='/admin/meeting-create'>Create Meeting</Link>
+          </div>
+
+          <div>
+      <Button variant="outlined" color="primary" onClick={handleOpenModal}>
+        Create Meeting
+      </Button>
+      <CreateMeetingModal open={modalOpen} onClose={handleCloseModal} />
+      {/* Other meeting page content */}
+    </div>
+
+
+
+          <div className="flex items-center">
+            <IconButton
+              onClick={handleToggle}
+              className="p-1 bg-gray-100 hover:bg-gray-200 transition-colors duration-200 h-8"
+              size="small"
+            >
+              {cardView ? (
+                <FormatListBulletedSharpIcon className="!font-bold !text-2xl" />
+              ) : (
+                <ViewAgendaSharpIcon className="!font-bold !text-2xl" />
+              )}
+            </IconButton>
+          </div>
         </div>
+
       </div>
 
       <MeetingToggleView toggle={cardView} meetings={filteredData} />

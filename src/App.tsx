@@ -22,6 +22,7 @@ import FollowUpList from './pages/FollowUpList';
 import FollowUp from './pages/FollowUp';
 import Meetings from './pages/Meeting';
 import MeetingsSlot from './components/meeting/MeetingsSlot';
+import CreateMeeting from './pages/CreateMeeting';
  
 const App = () => {
 	const router = createBrowserRouter(
@@ -48,7 +49,8 @@ const App = () => {
 
 						{/* meeting page */}
 						<Route path="meetings" element={<Meetings />} />
-						<Route path="meetings-slot" element={<MeetingsSlot />} />
+						<Route path="meeting-slot" element={<MeetingsSlot />} />
+						<Route path="meeting-create" element={<CreateMeeting />} />
 					</Route>
 
 					{/* Operator Routes */}

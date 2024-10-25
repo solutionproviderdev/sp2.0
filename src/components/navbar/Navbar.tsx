@@ -14,6 +14,7 @@ import ProgressBar from './ProhressBar';
 import { Link, useLocation } from 'react-router-dom';
 // import { MdMeetingRoom } from "react-icons/md";
 import { GrSchedule } from "react-icons/gr";
+import { FaCheckToSlot } from 'react-icons/fa6';
 
 
 
@@ -26,10 +27,10 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
 	return (
 		<div
-			className={`${className} -z-50 bg-blue-600 text-white h-16 flex items-center justify-between px-4`}
+			className={`${className} bg-blue-600 text-white h-16 flex items-center justify-between px-4`}
 		>
-			<div className="flex items-center space-x-4 -z-50">
-				<img src={logo} alt="Logo" className="w-40 h-auto object-cover -z-50" />
+			<div className="flex items-center h-16 space-x-4 ">
+				<img src={logo} alt="Logo" className="w-40 h-full object-cover" />
 				<NavItem
 					to="dashboard"
 					active={location.pathname.includes('dashboard')}
@@ -55,9 +56,15 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					active={location.pathname.includes('meetings')}
 					icon={<GrSchedule />}
 				/>
+				<NavItem
+					to="meeting-slot"
+					active={location.pathname.includes('meeting-slot')}
+					icon={<FaCheckToSlot />
+					}
+				/>
 			</div>
 			<div className="flex items-center space-x-4">
-				<ProgressBar progress={72} />
+				<ProgressBar progress={33} />
 				<NavItem to="search" icon={<FaSearch />} />
 				<NavItem to="notifications" icon={<FaBell />} />
 				<NavItem to="profile" icon={<FaUserCircle />} />

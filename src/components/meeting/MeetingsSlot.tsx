@@ -93,11 +93,11 @@ const DateSelector = ({ selectedDate, onDateChange }) => {
         <div className="flex items-center justify-between p-4 bg-white border-b">
             <div className="flex items-center gap-4">
                 <button onClick={handlePrevDate} className="p-2 hover:bg-gray-100 rounded-full transition-colors" type="button">
-                    <FaChevronLeft className="w-5 h-5 z-50" />
+                    <FaChevronLeft className="w-5 h-5"/>
                 </button>
                 <h2 className="text-xl font-bold">{formatDate(selectedDate)}</h2>
                 <button onClick={handleNextDate} className="p-2 hover:bg-gray-100 rounded-full transition-colors" type="button">
-                    <FaChevronRight className="w-5 h-5" />
+                    <FaChevronRight className="w-5 h-5 "/>
                 </button>
             </div>
         </div>
