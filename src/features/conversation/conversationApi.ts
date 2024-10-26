@@ -131,9 +131,111 @@ interface UpdateLeadPayload {
 	requirements?: string[]; // Array of requirements
 }
 
-interface AddPhonePayload {
-	phoneNumber: string;
+interface PageInfo {
+	pageId: string;
+	pageName: string;
+	pageProfilePicture: string;
+	fbSenderID: string;
 }
+
+interface Comment {
+	comment: string;
+	commentBy?: string; // ObjectId as string (optional based on existence in the data)
+	images: string[];
+	date: string; // Assuming it's a string (ISO format)
+	_id: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+interface Reminder {
+	time: string; // ISO format date string
+	status: 'Pending' | 'Complete' | 'Missed' | 'Late Complete';
+	commentId?: string;
+	_id: string;
+}
+
+interface MeetingDetail {
+	date: string; // ISO format date string
+	slot: 'slot_1' | 'slot_2' | 'slot_3' | 'slot_4';
+	team: string; // Assuming team is an ObjectId represented as a string
+}
+
+interface Address {
+	division: string;
+	district: string;
+	area: string;
+	address: string;
+}
+
+interface ProjectStatus {
+	status: 'Ongoing' | 'Ready' | 'Renovation';
+	subStatus:
+		| 'Roof Casting'
+		| 'Brick Wall'
+		| 'Plaster'
+		| 'Pudding'
+		| 'Two Coat Paint'
+		| 'Tiles Complete'
+		| 'Final Paint Done'
+		| 'Handed Over'
+		| 'Staying in the Apartment'
+		| 'Interior Work Complete';
+}
+
+interface CREName {
+	_id: string;
+	nameAsPerNID: string;
+	nickname: string;
+	profilePicture: string;
+}
+
+interface ConversationLead {
+	pageInfo: PageInfo;
+	projectStatus: ProjectStatus;
+	_id: string;
+	CID: string;
+	name: string;
+	status: string;
+	lastMsg: string;
+	source: string;
+	phone: string[];
+	creName: CREName;
+	messagesSeen: boolean;
+	requirements: string[];
+	createdAt: string;
+	meetingDetails: MeetingDetail[];
+	comment: Comment[];
+	reminder: Reminder[];
+	updatedAt: string;
+	__v: number;
+	address: Address;
+}
+
+interface GetConversationByIdResponse {
+	total: number;
+	page: number;
+	limit: number;
+	totalPages: number;
+	filters: {
+		statuses: string[];
+		sources: string[];
+		creNames: {
+			_id: string;
+			name: string;
+			nickname: string;
+			profilePicture: string;
+		}[];
+		salesExecutives: {
+			_id: string;
+			name: string;
+			nickname: string;
+			profilePicture: string;
+		}[];
+	};
+	leads: ConversationLead[];
+}
+
 
 interface UpdateReminderPayload {
 	id: string;
@@ -168,9 +270,46 @@ const conversationApi = apiSlice.injectEndpoints({
 			},
 		}),
 
-		// get all leads
-		getAllLead: builder.query<GetConversationByIdResponse, string>({
-			query: ({ page, limit }) => `/lead?page=${page}&limit=${limit}`,
+		// Get all leads with filters
+		getAllLead: builder.query<
+			GetConversationByIdResponse,
+			{
+				page?: number;
+				limit?: number;
+				status?: string;
+				source?: string;
+				startDate?: string;
+				endDate?: string;
+				assignedCre?: string;
+				salesExecutive?: string;
+			}
+		>({
+			query: ({
+				page = 1,
+				limit = 100,
+				status,
+				source,
+				startDate,
+				endDate,
+				assignedCre,
+				salesExecutive,
+			}) => {
+				// Build query string dynamically based on provided filters
+				const queryParams = new URLSearchParams();
+
+				queryParams.append('page', page.toString());
+				queryParams.append('limit', limit.toString());
+
+				if (status) queryParams.append('status', status);
+				if (source) queryParams.append('source', source);
+				if (startDate) queryParams.append('startDate', startDate);
+				if (endDate) queryParams.append('endDate', endDate);
+				if (assignedCre) queryParams.append('assignedCre', assignedCre);
+				if (salesExecutive)
+					queryParams.append('salesExecutive', salesExecutive);
+
+				return `/lead?${queryParams.toString()}`;
+			},
 		}),
 
 		// Get a single lead by its ID
