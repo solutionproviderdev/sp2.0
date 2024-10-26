@@ -15,7 +15,7 @@ import { Link, useLocation } from 'react-router-dom';
 // import { FaUsersLine } from 'react-icons/fa6';
 import { MdMeetingRoom } from 'react-icons/md';
 import { GrSchedule } from 'react-icons/gr';
-import { FaCheckToSlot } from 'react-icons/fa6';
+import { FaCheckToSlot, FaUsersLine } from 'react-icons/fa6';
 
 interface NavbarProps {
 	className?: string;
