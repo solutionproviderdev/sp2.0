@@ -12,11 +12,10 @@ import {
 import NavItem from './NavItem';
 import ProgressBar from './ProhressBar';
 import { Link, useLocation } from 'react-router-dom';
-// import { MdMeetingRoom } from "react-icons/md";
-import { GrSchedule } from "react-icons/gr";
+// import { FaUsersLine } from 'react-icons/fa6';
+import { MdMeetingRoom } from 'react-icons/md';
+import { GrSchedule } from 'react-icons/gr';
 import { FaCheckToSlot } from 'react-icons/fa6';
-
-
 
 interface NavbarProps {
 	className?: string;
@@ -35,6 +34,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					to="dashboard"
 					active={location.pathname.includes('dashboard')}
 					icon={<FaHome />}
+				/>
+				<NavItem
+					to="users"
+					active={location.pathname.includes('users')}
+					icon={<FaUsersLine />}
 				/>
 				<NavItem
 					to="lead-center"
@@ -59,8 +63,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 				<NavItem
 					to="meeting-slot"
 					active={location.pathname.includes('meeting-slot')}
-					icon={<FaCheckToSlot />
-					}
+					icon={<FaCheckToSlot />}
 				/>
 			</div>
 			<div className="flex items-center space-x-4">

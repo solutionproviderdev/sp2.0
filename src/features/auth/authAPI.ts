@@ -1,5 +1,17 @@
 import apiSlice from '../api/apiSlice';
 
+// Define interfaces for Department and Role
+interface Department {
+	_id: string;
+	departmentName: string;
+}
+
+interface Role {
+	roleId: string;
+	roleName: string;
+}
+
+// Define the User interface
 interface User {
 	_id: string;
 	nameAsPerNID: string;
@@ -12,8 +24,51 @@ interface User {
 	profilePicture?: string;
 	coverPhoto?: string;
 	status: string;
-	roleId?: string;
-	departmentId?: string;
+	role?: Role; // Optional populated role information
+	department?: Department; // Optional populated department information
+}
+
+// Interface for creating a new user
+interface CreateUserPayload {
+	nameAsPerNID: string;
+	nickname: string;
+	email: string;
+	personalPhone: string;
+	officePhone: string;
+	gender: 'Male' | 'Female' | 'Other'; // Gender as a union type
+	address: string;
+	password: string;
+	roleId: string; // Role ID string
+	departmentId: string; // Department ID string
+	accessLevel: string[]; // Array of access levels (e.g., ['Admin'])
+	currentSalary: number; // Salary as a number
+	workingProcedure: string; // Working procedure as a string
+	profilePicture?: string; // Profile picture URL (optional)
+	coverPhoto?: string; // Cover photo URL (optional)
+	documents: {
+		resume?: string; // Resume file URL (optional)
+		nidCopy?: string; // NID copy file URL (optional)
+		academicDocument?: string; // Academic document file URL (optional)
+		bankAccountNumber?: string; // Bank account number as string (optional)
+		agreement?: string; // Agreement document file URL (optional)
+	};
+	socialLinks: {
+		facebook?: string; // Facebook link (optional)
+		instagram?: string; // Instagram link (optional)
+		whatsapp?: string; // WhatsApp link (optional)
+	};
+	guardian: {
+		name: string; // Guardian name
+		phone: string; // Guardian phone number
+		relation: string; // Relation with the guardian
+	};
+	type: 'Admin' | 'Operator'; // Type must be either 'Admin' or 'Operator'
+}
+
+// Interface for user creation response
+interface CreateUserResponse {
+	msg: string;
+	user: User;
 }
 
 interface LoginResponse {
@@ -43,6 +98,26 @@ interface UpdateStatusPayload {
 	status: string;
 }
 
+// Interface for getting user by ID response
+interface GetUserByIdResponse {
+	_id: string;
+	nameAsPerNID: string;
+	email: string;
+	personalPhone: string;
+	gender: string;
+	status: string;
+	department?: Department;
+	role?: Role;
+	profilePicture?: string;
+	coverPhoto?: string;
+}
+
+// Interface for fetching all users
+interface GetAllUsersResponse {
+	// An array of User objects with populated role and department
+	users: User[];
+}
+
 const authApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
 		// User login
@@ -69,13 +144,22 @@ const authApi = apiSlice.injectEndpoints({
 		}),
 
 		// Fetch all users
-		getAllUsers: builder.query<User[], void>({
+		getAllUsers: builder.query<GetAllUsersResponse, void>({
 			query: () => '/users',
 		}),
 
 		// Get single user by ID
-		getUserById: builder.query<User, string>({
+		getUserById: builder.query<GetUserByIdResponse, string>({
 			query: id => `/users/${id}`,
+		}),
+
+		// Create a new user
+		createUser: builder.mutation<CreateUserResponse, CreateUserPayload>({
+			query: userData => ({
+				url: '/users',
+				method: 'POST',
+				body: userData,
+			}),
 		}),
 
 		// Update user details
@@ -158,6 +242,7 @@ export const {
 	useLogoutUserMutation,
 	useGetAllUsersQuery,
 	useGetUserByIdQuery,
+	useCreateUserMutation,
 	useUpdateUserMutation,
 	useUpdateUserPasswordMutation,
 	useAdminUpdateUserPasswordMutation,

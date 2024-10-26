@@ -24,6 +24,7 @@ import {
 import LeadDetails from '../components/leadCenter/LeadDetails';
 import FollowUpButtons from '../components/follow-up/FollowUpButtons';
 import AllComments from '../components/leadCenter/Sidebar/AllComments';
+import CreStatus from '../components/leadCenter/creStatus/CreStatus';
 
 interface FollowUpProps {
 	leadIdList?: string[];
@@ -102,7 +103,8 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 					<Box className="p-4 border-b flex justify-between">
 						<Typography variant="h6">{lead?.name ?? 'No Name'}</Typography>
 
-						<Box className="flex items-center gap-1">Status</Box>
+						{lead?.status && <CreStatus currentStatus={lead?.status} />}
+
 					</Box>
 
 					{/* Messages Section */}

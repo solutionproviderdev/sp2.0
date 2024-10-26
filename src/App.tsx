@@ -20,6 +20,13 @@ import Inbox from './components/leadCenter/Inbox/Inbox';
 import LeadManagement from './pages/LeadManagement';
 import FollowUpList from './pages/FollowUpList';
 import FollowUp from './pages/FollowUp';
+import UsersLayout from './layouts/UsersLayout';
+import CreateUserForm from './pages/CreateUserForm';
+import UserManagement from './pages/authentication/UserManagement';
+import UserProfile from './pages/authentication/UserProfile';
+import DepartmentManagement from './pages/authentication/DepartmentManagement';
+import RoleManagement from './pages/authentication/RoleManagement';
+import AddRole from './pages/authentication/AddRole';
 import Meetings from './pages/Meeting';
 import MeetingsSlot from './components/meeting/MeetingsSlot';
 import CreateMeeting from './pages/CreateMeeting';
@@ -39,6 +46,16 @@ const App = () => {
 				<Route path="/" element={<LoggedInRoute />}>
 					<Route path="admin" element={<AdminLayout />}>
 						<Route path="dashboard" element={<Dashboard />} />
+
+						<Route path="users" element={<UsersLayout />}>
+							<Route path="all-users" element={<UserManagement />} />
+							<Route path=":userId" element={<UserProfile />} />
+							<Route path="create-user" element={<CreateUserForm />} />
+							<Route path="departments" element={<DepartmentManagement />} />
+							<Route path="roles" element={<RoleManagement />} />
+							<Route path="create-role" element={<AddRole />} />
+						</Route>
+
 						<Route path="lead-management" element={<LeadManagement />} />
 						<Route path="lead-followUp" element={<FollowUpList />}>
 							<Route path=":leadId" element={<FollowUp />} />
