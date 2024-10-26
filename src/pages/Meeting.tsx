@@ -139,17 +139,15 @@ const Meeting = () => {
         {/* Toggle Button Group */}
         <div className='flex gap-2'>
 
-          <div className='text-blue-300 border p-1 rounded-md border-blue-400 text-xs h-8 flex items-center'>
-            <Link to='/admin/meeting-create'>Create Meeting</Link>
-          </div>
+         
 
           <div>
-      <Button variant="outlined" color="primary" onClick={handleOpenModal}>
-        Create Meeting
-      </Button>
-      <CreateMeetingModal open={modalOpen} onClose={handleCloseModal} />
-      {/* Other meeting page content */}
-    </div>
+            <Button variant="outlined" color="primary" onClick={handleOpenModal}>
+              Create Meeting
+            </Button>
+            <CreateMeetingModal open={modalOpen} onClose={handleCloseModal} />
+            {/* Other meeting page content */}
+          </div>
 
 
 
