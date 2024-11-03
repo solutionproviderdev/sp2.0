@@ -1,5 +1,5 @@
 import React from 'react';
-import { Typography } from '@mui/material';
+import { Tooltip, Typography } from '@mui/material';
 import moment from 'moment';
 
 const ConversationItem = ({ conversation, onSelect }) => {
@@ -7,11 +7,12 @@ const ConversationItem = ({ conversation, onSelect }) => {
 
 	// Check if the message is seen or not
 	const isMessageSeen = conversation.messagesSeen;
+	console.log('conversation',conversation)
 
 	return (
 		<div
 			className="p-2 border-b cursor-pointer"
-			onClick={() => onSelect(conversation._id)}
+			onClick={() => onSelect(conversation?._id)}
 		>
 			<div className="flex items-center p-1">
 				{/* Page Profile Picture */}
@@ -31,10 +32,19 @@ const ConversationItem = ({ conversation, onSelect }) => {
 							fontWeight={isMessageSeen ? 'normal' : 'bold'}
 							className="whitespace-nowrap"
 						>
-							{conversation.name}
+							{conversation?.name}
 						</Typography>
-						<div className="capitalize text-xs text-white bg-blue-600 px-1.5 py-0.5 rounded-sm">
-							{conversation.status}
+						<div className="flex space-x-1">
+							<div className="capitalize text-xs text-white bg-blue-600 px-1.5 py-0.5 rounded-sm">
+								{conversation?.status}
+							</div>
+							<Tooltip title={conversation?.creName?.name}>
+								<img
+									src={conversation?.creName?.profilePicture}
+									alt={conversation?.creName?.name}
+									className="w-5 h-5 rounded-full border-2 border-blue-400"
+								/>
+							</Tooltip>
 						</div>
 					</div>
 
@@ -46,7 +56,7 @@ const ConversationItem = ({ conversation, onSelect }) => {
 								isMessageSeen ? 'text-gray-600' : 'font-bold'
 							}`}
 						>
-							{conversation.lastMessage}
+							{conversation?.lastMessage}
 						</Typography>
 						<Typography
 							variant="caption"
@@ -55,7 +65,7 @@ const ConversationItem = ({ conversation, onSelect }) => {
 								isMessageSeen ? '' : 'font-bold'
 							}`}
 						>
-							{moment(conversation.lastMessageTime).fromNow()}
+							{moment(conversation?.lastMessageTime).fromNow()}
 						</Typography>
 					</div>
 				</div>

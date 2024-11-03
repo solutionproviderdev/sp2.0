@@ -1,114 +1,203 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-    Box,
-    Button,
-    MenuItem,
-    FormControl,
-    Select,
-    InputLabel,
-    Modal,
-    Typography,
+	Box,
+	Button,
+	MenuItem,
+	FormControl,
+	Select,
+	InputLabel,
+	Modal,
+	Typography,
 } from '@mui/material';
-import NumberModal from './statusModal/NumberModal'; // Import the NumberModal component
+import AddCommentModal from './statusModal/AddCommentModal';
+import NumberModal from './statusModal/NumberModal';
+import ReminderModal from './statusModal/ReminderModal';
+import ProjectStatusModal from './statusModal/ProjectStatusModal';
+import { useParams } from 'react-router-dom';
+import {
+	useAddCommentMutation,
+	useAddPhoneMutation,
+	useUpdateLeadsMutation,
+	useUpdateReminderMutation,
+} from '../../../features/conversation/conversationApi';
 
-const CreStatus = () => {
-    const [status, setStatus] = useState('');
-    const [isModalOpen, setModalOpen] = useState(false);
-    const [isNumberModalOpen, setNumberModalOpen] = useState(false);
+interface CreStatusProps {
+	currentStatus: string;
+}
 
-    // Function to handle status change
-    const handleStatusChange = (event) => {
-        const newStatus = event.target.value;
-        setStatus(newStatus);
-        
-        if (newStatus === 'Number Collected') {
-            setNumberModalOpen(true); // Open number collection modal
-        } else {
-            setModalOpen(true); // Show the modal when a status is selected
-        }
-    };
+const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
+	const [status, setStatus] = useState(currentStatus);
+	const [isModalOpen, setModalOpen] = useState(false);
+	const [modalType, setModalType] = useState<string | null>(null);
+	const { leadId } = useParams(); // Assuming leadId is coming from URL params
 
-    // Function to handle closing of the confirmation modal
-    const handleCloseModal = () => {
-        setModalOpen(false);
-    };
+	// RTK hooks for mutations
+	const [updateLeads] = useUpdateLeadsMutation();
+	const [addPhone] = useAddPhoneMutation();
+	const [addComment] = useAddCommentMutation();
+	const [updateReminder] = useUpdateReminderMutation();
 
-    // Function to handle phone number submission
-    const handlePhoneNumberSubmit = (phoneNumber) => {
-        console.log('Phone number submitted:', phoneNumber);
-        console.log('Status updated:', 'Number Collected');
+	useEffect(() => {
+		setStatus(currentStatus);
+	}, [currentStatus]);
 
-        // Here you would make an API call to update the phone number and status in the backend
-        // Example:
-        // await updateLead({ status: 'Number Collected', phoneNumber });
+	// Handle status change
+	const handleStatusChange = event => {
+		const newStatus = event.target.value;
+		setStatus(newStatus);
 
-        setNumberModalOpen(false);
-        setModalOpen(true);
-    };
+		// Open corresponding modal based on status
+		switch (newStatus) {
+			case 'Number Collected':
+				setModalType('number');
+				break;
+			case 'Message Rescheduled':
+			case 'Call Rescheduled':
+				setModalType('reminder');
+				break;
+			case 'Ongoing':
+				setModalType('projectStatus');
+				break;
+			default:
+				setModalType('comment');
+				break;
+		}
 
-    return (
-        <Box>
-            <FormControl>
-                <InputLabel id="status-select-label">Status</InputLabel>
-                <Select
-                    className='w-32 h-10'
-                    labelId="status-select-label"
-                    id="status-select"
-                    value={status}
-                    label="Status"
-                    onChange={handleStatusChange}
-                >
-                    <MenuItem value="New">New</MenuItem>
-                    <MenuItem value="No-response">No-response</MenuItem>
-                    <MenuItem value="Message Reschedule">Message Reschedule</MenuItem>
-                    <MenuItem value="Number Collected">Number Collected</MenuItem>
-                    <MenuItem value="Call Reschedule">Call Reschedule</MenuItem>
-                    <MenuItem value="Ongoing">Ongoing</MenuItem>
-                    <MenuItem value="Close">Close</MenuItem>
-                    <MenuItem value="Meeting Fixed">Meeting Fixed</MenuItem>
-                    <MenuItem value="Need Support">Need Support</MenuItem>
-                </Select>
-            </FormControl>
+		setModalOpen(true);
+	};
 
-            {/* Modal for generic status confirmation */}
-            <Modal
-                open={isModalOpen}
-                onClose={handleCloseModal}
-                aria-labelledby="status-modal-title"
-                aria-describedby="status-modal-description"
-            >
-                <Box
-                    sx={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        bgcolor: 'background.paper',
-                        boxShadow: 24,
-                        p: 4,
-                        borderRadius: 2,
-                    }}
-                >
-                    <Typography id="status-modal-title" variant="h6" component="h2">
-                        Status Updated
-                    </Typography>
-                    <Typography id="status-modal-description" sx={{ mt: 2 }}>
-                        You have selected: {status}
-                    </Typography>
-                    <Button onClick={handleCloseModal} variant="contained" sx={{ mt: 2 }}>
-                        Close
-                    </Button>
-                </Box>
-            </Modal>
+	// Handle submit for all modals
+	const handleSubmit = async (data: any) => {
+		try {
+			if (leadId && status) {
+				switch (modalType) {
+					case 'comment':
+						await addComment({
+							id: leadId,
+							comment: { comment: data.comment, images: [] }, // Assuming no images for now
+						});
+						break;
+					case 'number':
+						await addPhone({
+							id: leadId,
+							phoneNumber: data.phoneNumber,
+						});
+						break;
+					case 'reminder':
+						await updateReminder({
+							id: leadId,
+							time: data.reminderDate,
+							commentId: undefined, // Add comment ID if needed
+						});
+						break;
+					case 'projectStatus':
+						await updateLeads({
+							id: leadId,
+							data: {
+								status: 'Ongoing' as const,
+								projectStatus: {
+									status: data.projectStatus,
+									subStatus: data.projectSubStatus,
+								},
+							},
+						});
+						break;
+					default:
+						break;
+				}
 
-            {/* NumberModal component for collecting phone number */}
-            <NumberModal
-                isOpen={isNumberModalOpen}
-                onClose={() => setNumberModalOpen(false)}
-                onSubmit={handlePhoneNumberSubmit}
-            />
-        </Box>
-    );
+				// After successful submission, update the lead's status
+				await updateLeads({
+					id: leadId,
+					data: {
+						status: status as
+							| 'Number Collected'
+							| 'Call Rescheduled'
+							| 'Ongoing'
+							| 'New'
+							| 'No Response'
+							| 'Message Rescheduled'
+							| 'Need Support'
+							| 'Follow Up'
+							| 'Meeting Fixed'
+							| 'Meeting Reschedule'
+							| 'Cancel Meeting'
+							| undefined,
+					},
+				});
+			}
+
+			setModalOpen(false);
+			setModalType(null);
+		} catch (error) {
+			console.error('Error updating lead:', error);
+		}
+	};
+	return (
+		<Box>
+			<FormControl>
+				<InputLabel id="status-select-label">Status</InputLabel>
+				<Select
+					className="w-44 h-10"
+					labelId="status-select-label"
+					id="status-select"
+					value={status}
+					label="Status"
+					onChange={handleStatusChange}
+				>
+					{[
+						'New',
+						'No Response',
+						'Message Rescheduled',
+						'Number Collected',
+						'Call Rescheduled',
+						'Ongoing',
+						'Close',
+						'Meeting Fixed',
+						'Need Support',
+					].map(statusOption => (
+						<MenuItem key={statusOption} value={statusOption}>
+							{statusOption}
+						</MenuItem>
+					))}
+				</Select>
+			</FormControl>
+
+			{/* Modal for comments, phone number, reminder, and project status */}
+			{modalType === 'comment' && (
+				<AddCommentModal
+					isOpen={isModalOpen}
+					onClose={() => setModalOpen(false)}
+					onSubmit={handleSubmit}
+					status={status}
+				/>
+			)}
+
+			{modalType === 'number' && (
+				<NumberModal
+					isOpen={isModalOpen}
+					onClose={() => setModalOpen(false)}
+					onSubmit={handleSubmit}
+				/>
+			)}
+
+			{modalType === 'reminder' && (
+				<ReminderModal
+					isOpen={isModalOpen}
+					onClose={() => setModalOpen(false)}
+					onSubmit={handleSubmit}
+				/>
+			)}
+
+			{modalType === 'projectStatus' && (
+				<ProjectStatusModal
+					isOpen={isModalOpen}
+					onClose={() => setModalOpen(false)}
+					onSubmit={handleSubmit}
+				/>
+			)}
+		</Box>
+	);
 };
 
 export default CreStatus;

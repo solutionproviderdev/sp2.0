@@ -15,7 +15,7 @@ interface Conversation {
 
 const LeadCenter = () => {
 	return (
-		<div className="flex h-[92vh] ">
+		<div className="flex h-[90vh] ">
 			{/* Fixed width for conversation list */}
 			<div className="w-3/12 h-full border-r border-gray-300">
 				<ConversationList />
@@ -24,10 +24,13 @@ const LeadCenter = () => {
 			<div className="w-9/12 ">
 				{/* Inbox component */}
 				<Outlet />
-				{/* {selectedConversation && <Inbox conversation={selectedConversation} />} */}
-			</div>
+ 			</div>
 		</div>
 	);
 };
 
 export default LeadCenter;
+
+
+
+

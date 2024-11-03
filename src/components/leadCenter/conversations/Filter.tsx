@@ -124,14 +124,21 @@ const Filter = ({ onApplyFilters, availableFilters }) => {
 							<Typography variant="subtitle1">CRE</Typography>
 						</AccordionSummary>
 						<AccordionDetails>
-							{creNames.map((item, index) => (
+							{creNames.map((cre, index) => (
 								<Box key={index} display="flex" alignItems="center">
 									<Checkbox
-										checked={selectedFilters.creNames.includes(item)}
-										onChange={() => handleCheckboxChange('creNames', item)}
+										checked={selectedFilters.creNames.includes(cre._id)}
+										onChange={() => handleCheckboxChange('creNames', cre._id)}
 										size="small"
 									/>
-									<Typography>{item}</Typography>
+									<div className="flex items-center gap-2">
+										<img
+											src={cre.profilePicture}
+											alt={cre.name}
+											className="w-5 h-5 rounded-full"
+										/>
+										<Typography>{cre.nickname}</Typography>
+									</div>
 								</Box>
 							))}
 						</AccordionDetails>

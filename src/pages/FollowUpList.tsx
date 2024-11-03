@@ -33,8 +33,6 @@ const FollowUpList = () => {
 
 	// Fetch filter options and reminders
 	const { data: reminders, refetch } = useGetAllLeadsWithRemindersQuery({
-		page: 1, // Default page
-		limit: 20, // Default limit
 		startDate: dateRange.startDate
 			? dayjs(dateRange.startDate).format('YYYY-MM-DD')
 			: '',
@@ -75,12 +73,17 @@ const FollowUpList = () => {
 	// Placeholder for options from the API (use these to dynamically populate the filter dropdowns)
 	const filterOptions = reminders?.filterOptions || {};
 
-	// create a array of leadIds from the reminders data
-	const leadIds = reminders?.leads?.map(lead => lead._id);
+	// create a array of not complete leadIds from the reminders data
+	const leadIds = reminders?.leads
+		?.filter(lead => {
+			// check if the last reminder of the lead is not complete
+			const lastReminder = lead.reminder[lead.reminder.length - 1];
+			return lastReminder && lastReminder.status !== 'Complete';
+		})
+		.map(lead => lead._id);
 
 	// handle start button click
 	const handleStartClick = () => {
-
 		if (leadIds && leadIds.length > 0) {
 			navigate(`/admin/lead-followUp/${leadIds[0]}`);
 		}
