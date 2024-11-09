@@ -1,18 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import {
-	Box,
-	Button,
-	MenuItem,
-	FormControl,
-	Select,
-	InputLabel,
-	Modal,
-	Typography,
-} from '@mui/material';
+import { Box, MenuItem, FormControl, Select, InputLabel } from '@mui/material';
 import AddCommentModal from './statusModal/AddCommentModal';
 import NumberModal from './statusModal/NumberModal';
 import ReminderModal from './statusModal/ReminderModal';
 import ProjectStatusModal from './statusModal/ProjectStatusModal';
+import FixMeetingModal from './statusModal/MeetingFix';
 import { useParams } from 'react-router-dom';
 import {
 	useAddCommentMutation,
@@ -25,11 +17,19 @@ interface CreStatusProps {
 	currentStatus: string;
 }
 
+const statusToModalType = {
+	'Number Collected': 'number',
+	'Message Rescheduled': 'reminder',
+	'Call Rescheduled': 'reminder',
+	Ongoing: 'projectStatus',
+	'Meeting Fixed': 'fixMeeting', // Added mapping for Meeting Fixed
+};
+
 const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 	const [status, setStatus] = useState(currentStatus);
 	const [isModalOpen, setModalOpen] = useState(false);
 	const [modalType, setModalType] = useState<string | null>(null);
-	const { leadId } = useParams(); // Assuming leadId is coming from URL params
+	const { leadId } = useParams<{ leadId: string }>(); // Assuming leadId is coming from URL params
 
 	// RTK hooks for mutations
 	const [updateLeads] = useUpdateLeadsMutation();
@@ -42,90 +42,75 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 	}, [currentStatus]);
 
 	// Handle status change
-	const handleStatusChange = event => {
-		const newStatus = event.target.value;
+	const handleStatusChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+		const newStatus = event.target.value as keyof typeof statusToModalType;
 		setStatus(newStatus);
-
-		// Open corresponding modal based on status
-		switch (newStatus) {
-			case 'Number Collected':
-				setModalType('number');
-				break;
-			case 'Message Rescheduled':
-			case 'Call Rescheduled':
-				setModalType('reminder');
-				break;
-			case 'Ongoing':
-				setModalType('projectStatus');
-				break;
-			default:
-				setModalType('comment');
-				break;
-		}
-
+		const mappedModalType = statusToModalType[newStatus] || 'comment';
+		setModalType(mappedModalType);
 		setModalOpen(true);
 	};
 
 	// Handle submit for all modals
 	const handleSubmit = async (data: any) => {
 		try {
-			if (leadId && status) {
-				switch (modalType) {
-					case 'comment':
-						await addComment({
-							id: leadId,
-							comment: { comment: data.comment, images: [] }, // Assuming no images for now
-						});
-						break;
-					case 'number':
-						await addPhone({
-							id: leadId,
-							phoneNumber: data.phoneNumber,
-						});
-						break;
-					case 'reminder':
-						await updateReminder({
-							id: leadId,
-							time: data.reminderDate,
-							commentId: undefined, // Add comment ID if needed
-						});
-						break;
-					case 'projectStatus':
-						await updateLeads({
-							id: leadId,
-							data: {
-								status: 'Ongoing' as const,
-								projectStatus: {
-									status: data.projectStatus,
-									subStatus: data.projectSubStatus,
-								},
-							},
-						});
-						break;
-					default:
-						break;
-				}
+			if (!leadId) return;
 
-				// After successful submission, update the lead's status
-				await updateLeads({
-					id: leadId,
-					data: {
-						status: status as
-							| 'Number Collected'
-							| 'Call Rescheduled'
-							| 'Ongoing'
-							| 'New'
-							| 'No Response'
-							| 'Message Rescheduled'
-							| 'Need Support'
-							| 'Follow Up'
-							| 'Meeting Fixed'
-							| 'Meeting Reschedule'
-							| 'Cancel Meeting'
-							| undefined,
-					},
-				});
+			switch (modalType) {
+				case 'comment':
+					await addComment({
+						id: leadId,
+						comment: { comment: data.comment, images: [] }, // Assuming no images for now
+					});
+					break;
+				case 'number':
+					await addPhone({ id: leadId, phoneNumber: data.phoneNumber });
+					break;
+				case 'reminder':
+					await updateReminder({
+						id: leadId,
+						time: data.reminderDate,
+						commentId: undefined, // Add comment ID if needed
+					});
+					break;
+				case 'projectStatus':
+					await updateLeads({
+						id: leadId,
+						data: {
+							status: 'Ongoing' as const,
+							projectStatus: {
+								status: data.projectStatus,
+								subStatus: data.projectSubStatus,
+							},
+						},
+					});
+					break;
+				case 'fixMeeting': // Handle fixing a meeting
+					// Call the fixMeeting mutation with the meeting data
+					// Example: You can use a mutation here with fixMeeting hook
+					break;
+				default:
+					break;
 			}
+
+			// Update the lead's general status after successful submission
+			await updateLeads({
+				id: leadId,
+				data: {
+					status: status as
+						| 'Number Collected'
+						| 'Call Rescheduled'
+						| 'Ongoing'
+						| 'New'
+						| 'No Response'
+						| 'Message Rescheduled'
+						| 'Need Support'
+						| 'Follow Up'
+						| 'Meeting Fixed'
+						| 'Meeting Reschedule'
+						| 'Cancel Meeting'
+						| undefined,
+				},
+			});
 
 			setModalOpen(false);
 			setModalType(null);
@@ -133,6 +118,7 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 			console.error('Error updating lead:', error);
 		}
 	};
+
 	return (
 		<Box>
 			<FormControl>
@@ -163,7 +149,7 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 				</Select>
 			</FormControl>
 
-			{/* Modal for comments, phone number, reminder, and project status */}
+			{/* Render the appropriate modal based on modal type */}
 			{modalType === 'comment' && (
 				<AddCommentModal
 					isOpen={isModalOpen}
@@ -194,6 +180,14 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 					isOpen={isModalOpen}
 					onClose={() => setModalOpen(false)}
 					onSubmit={handleSubmit}
+				/>
+			)}
+
+			{modalType === 'fixMeeting' && (
+				<FixMeetingModal
+					isOpen={isModalOpen}
+					onClose={() => setModalOpen(false)}
+					leadId={leadId}
 				/>
 			)}
 		</Box>

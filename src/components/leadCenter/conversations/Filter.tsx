@@ -33,6 +33,7 @@ const Filter = ({ onApplyFilters, availableFilters }) => {
 	const { statuses = [], creNames = [], pages = [] } = availableFilters || {};
 
 	const handleFilterButtonClick = (event: React.MouseEvent<HTMLElement>) => {
+		console.log(event?.currentTarget);
 		setAnchorEl(anchorEl ? null : event.currentTarget); // Toggle the filter panel
 	};
 

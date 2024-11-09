@@ -62,7 +62,7 @@ const ConversationList = () => {
 		// Apply filters for creNames
 		if (filters.creNames.length > 0) {
 			filtered = filtered.filter(conversation =>
-				filters.creNames.includes(conversation.creName._id)
+				filters.creNames.includes(conversation.creName?._id)
 			);
 		}
 

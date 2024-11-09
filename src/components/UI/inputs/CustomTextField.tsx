@@ -6,6 +6,7 @@ interface CustomTextFieldProps {
 	name: string;
 	value: string;
 	onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+	className?: string;
 	fullWidth?: boolean;
 	required?: boolean;
 	size?: 'small' | 'medium';
@@ -15,6 +16,7 @@ interface CustomTextFieldProps {
 	helperText?: string;
 	InputProps?: Partial<MuiInputProps>; // Accepting InputProps for handling password visibility toggle
 	rows?: number;
+	disabled?: boolean;
 }
 
 const CustomTextField: React.FC<CustomTextFieldProps> = ({
@@ -28,12 +30,14 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 	type = 'text',
 	multiline = false,
 	error,
+	className,
 	helperText,
+	disabled,
 	InputProps, // Destructuring InputProps for use
 	rows,
 }) => {
 	return (
-		<Grid item xs={12} md={6}>
+		<Grid item xs={12} md={6} className={className}>
 			<TextField
 				label={label}
 				name={name}
@@ -45,6 +49,7 @@ const CustomTextField: React.FC<CustomTextFieldProps> = ({
 				type={type}
 				multiline={multiline}
 				error={error}
+				disabled={disabled}
 				helperText={helperText}
 				InputProps={InputProps} // Applying InputProps here
 				rows={rows}

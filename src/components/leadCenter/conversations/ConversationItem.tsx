@@ -37,10 +37,10 @@ const ConversationItem = ({ conversation, onSelect }) => {
 							<div className="capitalize text-xs text-white bg-blue-600 px-1.5 py-0.5 rounded-sm">
 								{conversation.status}
 							</div>
-							<Tooltip title={conversation.creName.name}>
+							<Tooltip title={conversation.creName?.name}>
 								<img
-									src={conversation.creName.profilePicture}
-									alt={conversation.creName.name}
+									src={conversation.creName?.profilePicture}
+									alt={conversation.creName?.name}
 									className="w-5 h-5 rounded-full border-2 border-blue-400"
 								/>
 							</Tooltip>

@@ -1,42 +1,207 @@
-// src/services/meetingsApi.ts
- import apiSlice from '../api/apiSlice';
+import apiSlice from '../api/apiSlice';
 
-const meetingsApi = apiSlice.injectEndpoints({
-     endpoints: (builder) => ({
-        GetAllMeetings: builder.query({
-            query: () => '/',
-            providesTags: ['Meeting'],
-        }),
-        GetSingleMeeting: builder.query({
-            query: (id) => `/${id}`,
-            providesTags: (result, error, id) => [{ type: 'Meeting', id }],
-        }),
-        CreateMeeting: builder.mutation({
-            query: (meetingData) => ({
-                url: '/',
-                method: 'POST',
-                body: meetingData,
-            }),
-            invalidatesTags: ['Meeting'],
-        }),
-        UpdateMeeting: builder.mutation({
-            query: ({ id, ...updates }) => ({
-                url: `/${id}`,
-                method: 'PUT',
-                body: updates,
-            }),
-            invalidatesTags: (result, error, { id }) => [{ type: 'Meeting', id }],
-        }),
-    }),
+export interface Meeting {
+	_id: string;
+	lead: string;
+	date: string;
+	slot: string;
+	salesExecutive: string;
+	status: string;
+	visitCharge: number;
+	auditFields: {
+		createdBy: string;
+		updatedBy: string;
+	};
+}
+
+// Meeting type for RTK
+export interface MeetingPayload {
+	_id?: string; // Optional because it might not be present in the request payload
+	leadId: string;
+	date: string;
+	slot: string;
+	salesExecutive: string;
+	status?: 'Fixed' | 'Postponed' | 'Rescheduled' | 'Canceled';
+	visitCharge?: number;
+	name?: string;
+	requirements?: string[];
+	projectStatus?: {
+		status: string;
+		subStatus: string;
+	};
+	comment?: {
+		text: string;
+		images?: string[];
+	};
+	address: {
+		division: string;
+		district: string;
+		area: string;
+		address: string;
+	};
+}
+
+interface CommentPayload {
+	commentText?: string;
+	images?: string[];
+}
+
+interface ProjectStatus {
+	status: string;
+	subStatus: string;
+}
+
+interface Address {
+	division: string;
+	district: string;
+	area: string;
+	address: string;
+}
+
+interface RescheduleMeetingPayload {
+	id: string; // Meeting ID
+	date: string;
+	slot: string;
+	salesExecutive: string;
+	comment: CommentPayload;
+	name?: string;
+	address?: Address;
+	phone?: string[];
+	projectLocation?: string;
+	requirements?: string[];
+	projectStatus?: ProjectStatus;
+}
+
+interface PostponeMeetingPayload {
+	id: string; // Meeting ID
+	comment: CommentPayload;
+	reminderTime: string; // Added to handle the reminder creation
+}
+
+export const meetingsApi = apiSlice.injectEndpoints({
+	endpoints: builder => ({
+		getAllMeetings: builder.query<
+			Meeting[],
+			{ status?: string; dateRange?: string; salesExecutiveId?: string }
+		>({
+			query: params => ({
+				url: '/meeting/',
+				params,
+			}),
+			providesTags: ['Meeting'],
+		}),
+
+		// get meeting by date range
+		getMeetingByDateRange: builder.query<
+			Meeting[],
+			{ startDate: string; endDate: string }
+		>({
+			query: ({ startDate, endDate }) => ({
+				url: '/meeting',
+				params: { dateRange: `${startDate}_${endDate}` },
+			}),
+			providesTags: ['Meeting'],
+		}),
+
+		// get meeting by id
+		getMeetingById: builder.query<Meeting, string>({
+			query: id => `/meeting/${id}`,
+			providesTags: ['Meeting'],
+		}),
+		fixMeeting: builder.mutation<Meeting, Partial<MeetingPayload>>({
+			query: newMeeting => ({
+				url: '/meeting/fix',
+				method: 'POST',
+				body: newMeeting,
+			}),
+			invalidatesTags: ['Meeting'],
+		}),
+		postponeMeeting: builder.mutation<Meeting, PostponeMeetingPayload>({
+			query: ({ id, comment, reminderTime }) => ({
+				url: `/meeting/${id}/postpone`,
+				method: 'PATCH',
+				body: {
+					...comment,
+					reminderTime, // Pass the reminder time to the endpoint
+				},
+			}),
+			invalidatesTags: ['Meeting'],
+		}),
+		rescheduleMeeting: builder.mutation<Meeting, RescheduleMeetingPayload>({
+			query: ({
+				id,
+				date,
+				slot,
+				comment,
+				salesExecutive,
+				name,
+				address,
+				phone,
+				projectLocation,
+				requirements,
+				projectStatus,
+			}) => ({
+				url: `/meeting/${id}/reschedule`,
+				method: 'PATCH',
+				body: {
+					date,
+					slot,
+					salesExecutive,
+					...comment,
+					name,
+					address,
+					phone,
+					projectLocation,
+					requirements,
+					projectStatus,
+				},
+			}),
+			invalidatesTags: ['Meeting'],
+		}),
+
+		cancelMeeting: builder.mutation<Meeting, PostponeMeetingPayload>({
+			query: ({ id, comment, reminderTime }) => ({
+				url: `/meeting/${id}/cancel`,
+				method: 'PATCH',
+				body: { ...comment, reminderTime },
+			}),
+			invalidatesTags: ['Meeting'],
+		}),
+		updateMeetingDetails: builder.mutation<
+			Meeting,
+			{ id: string; updates: Partial<Meeting> }
+		>({
+			query: ({ id, updates }) => ({
+				url: `/meeting/${id}/update`,
+				method: 'PATCH',
+				body: updates,
+			}),
+			invalidatesTags: ['Meeting'],
+		}),
+		reassignOrSwapMeeting: builder.mutation<
+			Meeting,
+			{ id: string; newSalesExecutiveId?: string; newSlot: string }
+		>({
+			query: ({ id, newSalesExecutiveId, newSlot }) => {
+				return {
+					url: `/meeting/${id}/reassign`,
+					method: 'PATCH',
+					body: { newSalesExecutiveId, newSlot },
+				};
+			},
+			invalidatesTags: ['Meeting'],
+		}),
+	}),
 });
 
-// Export hooks for usage in functional components
 export const {
-    useGetSingleMeetingQuery,
-    useLazyGetSingleMeetingQuery,
-    useCreateMeetingMutation,
-    useUpdateMeetingMutation,
+	useGetAllMeetingsQuery,
+	useGetMeetingByIdQuery,
+	useFixMeetingMutation,
+	usePostponeMeetingMutation,
+	useGetMeetingByDateRangeQuery,
+	useRescheduleMeetingMutation,
+	useCancelMeetingMutation,
+	useUpdateMeetingDetailsMutation,
+	useReassignOrSwapMeetingMutation,
 } = meetingsApi;
-
-// Export the API slice reducer
-export default meetingsApi.reducer;

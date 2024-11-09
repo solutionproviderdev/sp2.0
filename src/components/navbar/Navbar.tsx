@@ -13,9 +13,9 @@ import NavItem from './NavItem';
 import ProgressBar from './ProhressBar';
 import { Link, useLocation } from 'react-router-dom';
 // import { FaUsersLine } from 'react-icons/fa6';
-import { MdMeetingRoom } from 'react-icons/md';
 import { GrSchedule } from 'react-icons/gr';
 import { FaCheckToSlot, FaUsersLine } from 'react-icons/fa6';
+import { useSelector } from 'react-redux';
 
 interface NavbarProps {
 	className?: string;
@@ -23,6 +23,9 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ className }) => {
 	const location = useLocation();
+
+	const { user } = useSelector((state: any) => state.auth);
+	console.log(user.type);
 
 	return (
 		<div
@@ -35,11 +38,13 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					active={location.pathname.includes('dashboard')}
 					icon={<FaHome />}
 				/>
-				<NavItem
-					to="users"
-					active={location.pathname.includes('users')}
-					icon={<FaUsersLine />}
-				/>
+				{user.type === 'Admin' && (
+					<NavItem
+						to="lead-management"
+						active={location.pathname.includes('lead-management')}
+						icon={<FaUsersLine />}
+					/>
+				)}
 				<NavItem
 					to="lead-center"
 					active={location.pathname.includes('lead-center')}
@@ -68,9 +73,9 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 			</div>
 			<div className="flex items-center space-x-4">
 				<ProgressBar progress={33} />
-				<NavItem to="search" icon={<FaSearch />} />
-				<NavItem to="notifications" icon={<FaBell />} />
-				<NavItem to="profile" icon={<FaUserCircle />} />
+				<NavItem disabled to="search" icon={<FaSearch />} />
+				<NavItem disabled to="notifications" icon={<FaBell />} />
+				<NavItem to={`users/${user._id}`} icon={<FaUserCircle />} />
 			</div>
 		</div>
 	);

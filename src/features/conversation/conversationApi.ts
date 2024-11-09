@@ -1,5 +1,6 @@
 import { getSocket } from '../../hooks/getSocket';
 import apiSlice from '../api/apiSlice';
+import { Lead } from '../lead/leadAPI';
 
 // Define Types for Message, Conversation, Lead, and other entities
 
@@ -38,25 +39,6 @@ interface CallLog {
 	timestamp: string;
 	callType: string;
 	status: string;
-}
-
-interface Lead {
-	_id: string;
-	name: string;
-	phone: string[];
-	source: string;
-	status: string;
-	messagesSeen: boolean;
-	createdAt: string;
-	lastMessage: string;
-	pageInfo: {
-		pageId: string;
-		pageName: string;
-		pageProfilePicture: string;
-		fbSenderID?: string;
-	};
-	comment: Comment[];
-	callLogs: CallLog[];
 }
 
 interface Reminder {
@@ -236,7 +218,6 @@ interface GetConversationByIdResponse {
 	leads: ConversationLead[];
 }
 
-
 interface UpdateReminderPayload {
 	id: string;
 	time: string;
@@ -345,7 +326,7 @@ const conversationApi = apiSlice.injectEndpoints({
 							(a, b) =>
 								new Date(b.lastMessageTime).getTime() -
 								new Date(a.lastMessageTime).getTime()
-						);
+						); 
 					});
 				};
 
@@ -489,7 +470,7 @@ const conversationApi = apiSlice.injectEndpoints({
 			query: ({ id, message }) => ({
 				url: `/lead/conversation/${id}/messages`,
 				method: 'POST',
-				body: { message },
+				body: message,
 			}),
 		}),
 

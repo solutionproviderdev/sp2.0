@@ -6,20 +6,20 @@ import { useEffect, useRef } from 'react';
 interface Message {
 	_id: string;
 	messageId: string;
-	content: string;
+	content?: string;
 	senderId: string;
 	sentByMe: boolean;
 	isAutomatedMessage: boolean;
-	fileUrl: string[];
+	fileUrl?: string[];
 	isSticker: boolean;
-	date: string; // Date is stored as string in the messages
+	date?: string; // Date is stored as string in the messages
 }
 
 interface ChatsProps {
-	messages: Message[];
+	messages?: Message[];
 }
 
-const Chats: React.FC<ChatsProps> = ({ messages }) => {
+const Chats: React.FC<ChatsProps> = ({ messages = [] }) => {
 	const endOfMessagesRef = useRef<HTMLDivElement>(null);
 
 	useEffect(() => {
@@ -45,7 +45,7 @@ const Chats: React.FC<ChatsProps> = ({ messages }) => {
 			/>
 		);
 
-		if (msg.fileUrl.length > 4) {
+		if (msg?.fileUrl?.length && msg.fileUrl.length > 4) {
 			return (
 				<div className="grid grid-cols-3 gap-2">
 					{msg.fileUrl.map(renderMultipleImages)}
@@ -53,7 +53,11 @@ const Chats: React.FC<ChatsProps> = ({ messages }) => {
 			);
 		}
 
-		if (msg.fileUrl.length > 1 && msg.fileUrl.length <= 4) {
+		if (
+			msg?.fileUrl?.length &&
+			msg.fileUrl.length > 1 &&
+			msg.fileUrl.length <= 4
+		) {
 			return (
 				<div className="grid grid-cols-2 gap-2">
 					{msg.fileUrl.map(renderMultipleImages)}
@@ -61,18 +65,18 @@ const Chats: React.FC<ChatsProps> = ({ messages }) => {
 			);
 		}
 
-		if (msg.fileUrl.length > 0) {
+		if (msg?.fileUrl?.length && msg.fileUrl.length > 0) {
 			return <>{msg.fileUrl.map(renderSingleImage)}</>;
 		}
 
 		// Automated message styling
-		if (msg.isAutomatedMessage) {
+		if (msg?.isAutomatedMessage) {
 			return (
 				<div
-					key={msg.date}
+					key={msg?.date ?? 'default-date'}
 					className="text-xs text-gray-500 dark:text-gray-300 text-center"
 				>
-					{msg.content || '...'}
+					{msg?.content || '...'}
 				</div>
 			);
 		}
@@ -80,33 +84,33 @@ const Chats: React.FC<ChatsProps> = ({ messages }) => {
 		// Regular message styling
 		return (
 			<div
-				key={msg.date}
+				key={msg?.date ?? 'default-date'}
 				className={`rounded-md px-2 py-1 max-w-[80%] text-base overflow-hidden ${
-					msg.sentByMe
+					msg?.sentByMe
 						? 'bg-blue-500 text-white'
 						: 'bg-dark-tremor-brand-faint/20 dark:bg-white text-dark'
 				}`}
 			>
-				{msg.content || '...'}
+				{msg?.content || '...'}
 			</div>
 		);
 	};
 
 	return (
 		<div className="px-2 py-1 space-y-2 h-full scrollbar-none bg-bright dark:bg-dark ">
-			{messages.map((message, index) => (
+			{messages?.map((message, index) => (
 				<div
-					key={message._id}
+					key={message?._id ?? index}
 					className={`flex ${
-						message.isAutomatedMessage
+						message?.isAutomatedMessage
 							? 'justify-center' // Center align for automated messages
-							: message.sentByMe
+							: message?.sentByMe
 							? 'justify-end' // Right align for sent messages
 							: 'justify-start' // Left align for received messages
 					} mb-2`}
 				>
 					<Tooltip
-						title={new Date(message.date).toLocaleString()}
+						title={message?.date ? new Date(message.date).toLocaleString() : ''}
 						placement="top"
 						arrow
 					>

@@ -28,7 +28,7 @@ import DepartmentManagement from './pages/authentication/DepartmentManagement';
 import RoleManagement from './pages/authentication/RoleManagement';
 import AddRole from './pages/authentication/AddRole';
 import Meetings from './pages/Meeting';
-import MeetingsSlot from './components/meeting/MeetingsSlot';
+import MeetingsSlot from './pages/MeetingsSlot';
 import CreateMeeting from './pages/CreateMeeting';
  
 const App = () => {

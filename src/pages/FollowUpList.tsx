@@ -16,10 +16,14 @@ import { useNavigate, useParams } from 'react-router-dom';
 import FollowUp from './FollowUp';
 
 const FollowUpList = () => {
+	// get today's date
+	const today = dayjs().format('YYYY-MM-DD');
+	
+
 	// State to manage filter options
 	const [dateRange, setDateRange] = useState({
-		startDate: null,
-		endDate: null,
+		startDate: today,
+		endDate: today,
 	});
 	const [cre, setCre] = useState('');
 	const [sales, setSales] = useState('');

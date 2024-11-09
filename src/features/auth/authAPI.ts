@@ -113,10 +113,7 @@ interface GetUserByIdResponse {
 }
 
 // Interface for fetching all users
-interface GetAllUsersResponse {
-	// An array of User objects with populated role and department
-	users: User[];
-}
+type GetAllUsersResponse = User[];
 
 const authApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
@@ -126,13 +123,13 @@ const authApi = apiSlice.injectEndpoints({
 			{ email: string; password: string }
 		>({
 			query: ({ email, password }) => {
-				console.log('redux--->',email,password)
-				return{
-				url: '/users/login',
-				method: 'POST',
-				body: { email, password },
-				credentials: 'include',
-			}},
+				return {
+					url: '/users/login',
+					method: 'POST',
+					body: { email, password },
+					credentials: 'include',
+				};
+			},
 		}),
 
 		// User logout
@@ -146,6 +143,33 @@ const authApi = apiSlice.injectEndpoints({
 		// Fetch all users
 		getAllUsers: builder.query<GetAllUsersResponse, void>({
 			query: () => '/users',
+		}),
+
+		// get user by departments and roles
+		getUserByDepartmentAndRole: builder.query<
+			GetAllUsersResponse,
+			{ departmentName?: string; roleName?: string }
+		>({
+			query: ({ departmentName, roleName }) => {
+				// check if departmentName is provided then add it to the url
+				if (departmentName) {
+					return {
+						url: `/users?departmentName=${departmentName}`,
+					};
+				}
+
+				// check if departmentName and roleName is provided then add it to the url
+				if (departmentName && roleName) {
+					return {
+						url: `/users?departmentName=${departmentName}&roleName=${roleName}`,
+					};
+				}
+
+				// if departmentName and roleName is not provided then return all users
+				return {
+					url: '/users',
+				};
+			},
 		}),
 
 		// Get single user by ID
@@ -245,6 +269,7 @@ export const {
 	useCreateUserMutation,
 	useUpdateUserMutation,
 	useUpdateUserPasswordMutation,
+	useGetUserByDepartmentAndRoleQuery,
 	useAdminUpdateUserPasswordMutation,
 	useUpdateUserProfilePictureMutation,
 	useUpdateUserCoverPhotoMutation,
