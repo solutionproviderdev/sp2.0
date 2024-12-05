@@ -1,4 +1,3 @@
-import React from 'react';
 import {
 	Route,
 	RouterProvider,
@@ -30,6 +29,10 @@ import AddRole from './pages/authentication/AddRole';
 import Meetings from './pages/Meeting';
 import MeetingsSlot from './pages/MeetingsSlot';
 import CreateMeeting from './pages/CreateMeeting';
+import SettingsLayout from './layouts/SettingsLayout';
+import ProfileSettings from './pages/settings/ProfileSettings';
+import LeadSettings from './pages/settings/LeadSettings';
+import FacebookSettings from './pages/settings/FacebookSettings';
  
 const App = () => {
 	const router = createBrowserRouter(
@@ -68,6 +71,13 @@ const App = () => {
 						<Route path="meetings" element={<Meetings />} />
 						<Route path="meeting-slot" element={<MeetingsSlot />} />
 						<Route path="meeting-create" element={<CreateMeeting />} />
+
+						{/* Settings Routes */}
+						<Route path="settings" element={<SettingsLayout />}>
+							<Route path="profile" element={<ProfileSettings />} />
+							<Route path="lead-settings" element={<LeadSettings />} />
+							<Route path="facebook" element={<FacebookSettings />} />
+						</Route>
 					</Route>
 
 					{/* Operator Routes */}

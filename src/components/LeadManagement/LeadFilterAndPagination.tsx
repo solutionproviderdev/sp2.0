@@ -9,6 +9,7 @@ import ViewAgendaSharpIcon from '@mui/icons-material/ViewAgendaSharp';
 import FormatListBulletedSharpIcon from '@mui/icons-material/FormatListBulletedSharp';
 import CreateLead from './CreateLead';
 import CustomSelectWithPictures from '../UI/inputs/CustomSelectWithPictures';
+import { useNavigate } from 'react-router-dom';
 
 interface LeadFilterAndPaginationProps {
 	selectedStatus: string;
@@ -78,6 +79,8 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 	) => {
 		setPageLimit(event.target.value as number);
 	};
+
+	const navigate = useNavigate();
 
 	const handlePreviousPage = () => {
 		if (currentPage > 1) {
@@ -187,7 +190,7 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 				</Button>
 
 				{/* Settings Button */}
-				<Button variant="contained" color="secondary">
+				<Button variant="contained" color="secondary" onClick={() => navigate('../settings/lead-settings')}>
 					<SettingsIcon />
 				</Button>
 			</Box>
