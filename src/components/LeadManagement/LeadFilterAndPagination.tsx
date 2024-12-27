@@ -28,18 +28,18 @@ interface LeadFilterAndPaginationProps {
 	viewAsCard: boolean;
 	handleToggleView: () => void;
 	currentPage: number;
-	totalPages: number;
+	totalPages: number | undefined;
 	pageLimit: number;
 	setPageLimit: (limit: number) => void;
 	setPage: (page: number) => void;
-	totalLeads: number;
+	totalLeads: number | undefined;
 	displayedLeads: number;
 	filterOptions?: {
 		statuses: string[];
 		sources: string[];
 		creNames: {
 			_id: string;
-			name: string;
+			nameAsPerNID: string;
 			nickname: string;
 			profilePicture: string;
 		}[];
@@ -93,6 +93,8 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 			setPage(currentPage + 1);
 		}
 	};
+
+	console.log(filterOptions?.creNames);
 
 	return (
 		<Box mb={3}>
@@ -156,10 +158,11 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 						options={
 							filterOptions?.creNames.map(cre => ({
 								value: cre._id,
-								label: cre.name,
+								label: cre.nameAsPerNID,
 								profilePicture: cre.profilePicture,
 							})) || []
 						}
+						clearable
 					/>
 				</div>
 
@@ -190,7 +193,11 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 				</Button>
 
 				{/* Settings Button */}
-				<Button variant="contained" color="secondary" onClick={() => navigate('../settings/lead-settings')}>
+				<Button
+					variant="contained"
+					color="secondary"
+					onClick={() => navigate('../settings/lead-settings')}
+				>
 					<SettingsIcon />
 				</Button>
 			</Box>

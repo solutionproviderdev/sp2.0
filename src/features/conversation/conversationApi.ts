@@ -194,17 +194,21 @@ interface ConversationLead {
 	address: Address;
 }
 
-interface GetConversationByIdResponse {
+interface GetAllLeadResponse {
 	total: number;
 	page: number;
 	limit: number;
 	totalPages: number;
+	barchartData: {
+		status: string;
+		count: number;
+	};
 	filters: {
 		statuses: string[];
 		sources: string[];
 		creNames: {
 			_id: string;
-			name: string;
+			nameAsPerNID: string;
 			nickname: string;
 			profilePicture: string;
 		}[];
@@ -253,7 +257,7 @@ const conversationApi = apiSlice.injectEndpoints({
 
 		// Get all leads with filters
 		getAllLead: builder.query<
-			GetConversationByIdResponse,
+			GetAllLeadResponse,
 			{
 				page?: number;
 				limit?: number;

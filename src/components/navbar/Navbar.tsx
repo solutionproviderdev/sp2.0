@@ -16,6 +16,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { GrSchedule } from 'react-icons/gr';
 import { FaCheckToSlot, FaUsersLine } from 'react-icons/fa6';
 import { useSelector } from 'react-redux';
+import UserMenu from './UserMenu';
 
 interface NavbarProps {
 	className?: string;
@@ -38,13 +39,13 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					active={location.pathname.includes('dashboard')}
 					icon={<FaHome />}
 				/>
-				{user.type === 'Admin' && (
+				{/* {user.type === 'Admin' && (
 					<NavItem
 						to="lead-management"
 						active={location.pathname.includes('lead-management')}
-						icon={<FaUsersLine />}
+						icon={<Fa UsersLine />}
 					/>
-				)}
+				)} */}
 				<NavItem
 					to="lead-center"
 					active={location.pathname.includes('lead-center')}
@@ -75,7 +76,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 				<ProgressBar progress={33} />
 				<NavItem disabled to="search" icon={<FaSearch />} />
 				<NavItem disabled to="notifications" icon={<FaBell />} />
-				<NavItem to={`users/${user._id}`} icon={<FaUserCircle />} />
+				<UserMenu />
+				{/* <NavItem to={`users/${user._id}`} icon={<FaUserCircle />} /> */}
 			</div>
 		</div>
 	);

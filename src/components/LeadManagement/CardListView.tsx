@@ -26,6 +26,7 @@ import { useNavigate } from 'react-router-dom';
 
 const CardListView = ({ viewAsCard, data }) => {
 	const navigate = useNavigate();
+	console.log(data);
 
 	return viewAsCard ? (
 		<Grid container spacing={2}>
@@ -110,6 +111,9 @@ const CardListView = ({ viewAsCard, data }) => {
 										variant="outlined"
 										startIcon={<PhoneIcon />}
 										sx={{ flex: 1, mr: 1 }}
+										onClick={() => {
+											window.location.href = `tel:${lead.phone[0]}`;
+										}}
 									>
 										Call
 									</Button>
@@ -176,12 +180,12 @@ const CardListView = ({ viewAsCard, data }) => {
 											? `${lead.address.division || ''}, ${
 													lead.address.district || ''
 											  }, ${lead.address.area || ''}`
-											: 'Bangladesh, ✱✱✱✱✱✱✱'}
+											: 'N/A'}
 									</Typography>
 								</Tooltip>
 							</TableCell>
 							<TableCell>
-								{lead?.phone?.length > 0 ? lead.phone[0] : '01✱✱✱✱✱✱✱'}
+								{lead?.phone?.length > 0 ? lead.phone[0] : 'N/A'}
 							</TableCell>
 							<TableCell>
 								<Typography variant="body2" color="text.secondary">
@@ -190,11 +194,19 @@ const CardListView = ({ viewAsCard, data }) => {
 							</TableCell>
 							<TableCell>
 								<div style={{ display: 'flex', gap: '8px' }}>
-									<Tooltip title="Call">
-										<IconButton color="primary" size="small">
-											<PhoneIcon fontSize="small" />
-										</IconButton>
-									</Tooltip>
+									{lead?.phone?.length > 0 && (
+										<Tooltip title="Call">
+											<IconButton
+												color="primary"
+												size="small"
+												onClick={() => {
+													window.location.href = `tel:${lead.phone[0]}`;
+												}}
+											>
+												<PhoneIcon fontSize="small" />
+											</IconButton>
+										</Tooltip>
+									)}
 									<Tooltip title="Chat">
 										<IconButton
 											color="secondary"

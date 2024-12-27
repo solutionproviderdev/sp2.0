@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useGetAllLeadQuery } from '../features/conversation/conversationApi';
@@ -35,23 +35,7 @@ const LeadManagement = () => {
 		salesExecutive: sales,
 	});
 
-
-	const leadData = useMemo(() => {
-		if (!data) return [];
-
-		const normalizedStatuses = data.leads.map(lead =>
-			lead.status.trim().toLowerCase()
-		);
-		const statusCountMap = normalizedStatuses.reduce((acc, status) => {
-			acc[status] = (acc[status] || 0) + 1;
-			return acc;
-		}, {});
-
-		return Object.entries(statusCountMap).map(([status, count]) => ({
-			status: status.charAt(0).toUpperCase() + status.slice(1),
-			count,
-		}));
-	}, [data]);
+	console.log(data?.barchartData);
 
 	const handleStatusChange = event => {
 		setSelectedStatus(event.target.value);
@@ -80,7 +64,7 @@ const LeadManagement = () => {
 				</Typography>
 				<Box sx={{ height: 300, width: '100%' }}>
 					<BarChart
-						dataset={leadData}
+						dataset={Array.isArray(data?.barchartData) ? data.barchartData : []}
 						xAxis={[{ scaleType: 'band', dataKey: 'status' }]}
 						series={[{ dataKey: 'count', label: 'Lead Count' }]}
 						height={300}
@@ -120,5 +104,4 @@ const LeadManagement = () => {
 		</Box>
 	);
 };
-
 export default LeadManagement;
