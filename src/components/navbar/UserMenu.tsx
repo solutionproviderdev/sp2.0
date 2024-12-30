@@ -63,15 +63,19 @@ export default function UserMenu() {
 				>
 					<FaUser size={16} /> Profile
 				</MenuItem>
-				<MenuItem
-					onClick={() => {
-						handleClose();
-						navigate('settings/profile');
-					}}
-					className="hover:bg-blue-500 text-black px-4 py-2 flex items-center gap-2"
-				>
-					<FaCog size={16} /> My Account
-				</MenuItem>
+
+				{user.type === 'Admin' && (
+					<MenuItem
+						onClick={() => {
+							handleClose();
+							navigate('settings/profile');
+						}}
+						className="hover:bg-blue-500 text-black px-4 py-2 flex items-center gap-2"
+					>
+						<FaCog size={16} /> My Account
+					</MenuItem>
+				)}
+
 				<MenuItem
 					onClick={handleLogout}
 					className="hover:bg-blue-500 text-black px-4 py-2 flex items-center gap-2"

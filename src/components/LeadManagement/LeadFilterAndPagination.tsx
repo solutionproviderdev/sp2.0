@@ -10,6 +10,8 @@ import FormatListBulletedSharpIcon from '@mui/icons-material/FormatListBulletedS
 import CreateLead from './CreateLead';
 import CustomSelectWithPictures from '../UI/inputs/CustomSelectWithPictures';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { RootState } from '@reduxjs/toolkit/query';
 
 interface LeadFilterAndPaginationProps {
 	selectedStatus: string;
