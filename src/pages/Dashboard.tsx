@@ -49,8 +49,8 @@ const Dashboard: React.FC = () => {
 					setFilter={setFilter}
 					meetingsData={meetingsData?.meetings}
 				/>
-				<EarningsThisMonth />
-				<NotificationCard notifications={notificationsData?.notifications} />
+				{/* <EarningsThisMonth />
+				<NotificationCard notifications={notificationsData?.notifications} /> */}
 			</div>
 		</div>
 	);
