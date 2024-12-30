@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 let socket;
 
 export const connectSocket = () => {
-	socket = io('http://localhost:5000', {
+	socket = io(import.meta.env.VITE_API_URL, {
 		path: '/socket.io',
 		reconnectionDelay: 1000,
 		reconnection: true,
