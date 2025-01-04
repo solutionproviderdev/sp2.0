@@ -56,6 +56,26 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({ userData }) => {
 		{ label: 'Sales', value: getPercentage(totalSales, meetingsCompleted) },
 	];
 
+	console.log(barChartData);
+	// [
+	// 	{
+	// 		label: 'Collected Numbers',
+	// 		value: '22.59',
+	// 	},
+	// 	{
+	// 		label: 'Meetings Set',
+	// 		value: '0.40',
+	// 	},
+	// 	{
+	// 		label: 'Meetings Completed',
+	// 		value: '0.00',
+	// 	},
+	// 	{
+	// 		label: 'Sales',
+	// 		value: 'NaN',
+	// 	},
+	// ];
+
 	return (
 		<div className="w-full border rounded-lg p-4 shadow-lg bg-white hover:shadow-xl transition-shadow duration-300">
 			<Box display="flex" alignItems="center" mb={2}>

@@ -29,6 +29,8 @@ export default function UserMenu() {
 		handleClose();
 	};
 
+	console.log(user.profilePicture);
+
 	return (
 		<div>
 			{/* Icon Button */}
@@ -40,7 +42,11 @@ export default function UserMenu() {
 				onClick={handleClick}
 				className="text-lg cursor-pointer p-2 rounded-full hover:bg-blue-500 text-white"
 			>
-				<FaRegUserCircle size={20} className="text-white" />
+				<img
+					src={user.profilePicture}
+					alt="Profile"
+					className="w-8 h-8 rounded-full"
+				/>
 			</IconButton>
 
 			{/* Dropdown Menu */}

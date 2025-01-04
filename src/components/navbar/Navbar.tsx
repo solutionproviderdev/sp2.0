@@ -7,11 +7,10 @@ import {
 	FaRegClock,
 	FaSearch,
 	FaBell,
-	FaUserCircle,
 } from 'react-icons/fa';
 import NavItem from './NavItem';
 import ProgressBar from './ProhressBar';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 // import { FaUsersLine } from 'react-icons/fa6';
 import { GrSchedule } from 'react-icons/gr';
 import { FaCheckToSlot, FaUsersLine } from 'react-icons/fa6';
@@ -25,8 +24,8 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ className }) => {
 	const location = useLocation();
 
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const { user } = useSelector((state: any) => state.auth);
-	console.log(user.type);
 
 	return (
 		<div
@@ -51,6 +50,13 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 						to="lead-management"
 						active={location.pathname.includes('lead-management')}
 						icon={<FaUsers />}
+					/>
+				)}
+				{user.type === 'Admin' && (
+					<NavItem
+						to="users"
+						active={location.pathname.includes('users')}
+						icon={<FaUsersLine />}
 					/>
 				)}
 
