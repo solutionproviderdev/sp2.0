@@ -19,7 +19,6 @@ const Dashboard: React.FC = () => {
 
 	const { data: notificationsData } = useGetNotificationsQuery();
 
-	console.log(notificationsData);
 	// Fetch user data
 	const { data: userData } = useGetCREPerformanceDataByIdQuery(user._id);
 
