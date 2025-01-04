@@ -7,8 +7,8 @@ import authReducer from '../features/auth/authSlice'; // Import your authReducer
 // Configure the Redux store
 const store = configureStore({
 	reducer: {
-		[apiSlice.reducerPath]: apiSlice.reducer, // Add the apiSlice reducer once
 		auth: authReducer, // Add your authReducer here
+		[apiSlice.reducerPath]: apiSlice.reducer, // Add the apiSlice reducer once
 	},
 	middleware: getDefaultMiddleware =>
 		getDefaultMiddleware().concat(apiSlice.middleware), // Add the apiSlice middleware once

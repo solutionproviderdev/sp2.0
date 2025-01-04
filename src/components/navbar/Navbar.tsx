@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import logo from '../../images/logoWhite.png';
 import {
 	FaHome,
@@ -16,6 +16,7 @@ import { GrSchedule } from 'react-icons/gr';
 import { FaCheckToSlot, FaUsersLine } from 'react-icons/fa6';
 import { useSelector } from 'react-redux';
 import UserMenu from './UserMenu';
+import useGetPerformance from '../../hooks/useGetPerformance';
 
 interface NavbarProps {
 	className?: string;
@@ -26,6 +27,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	const { user } = useSelector((state: any) => state.auth);
+
+	// const { overallPerformancePercentage } = useGetPerformance();
 
 	return (
 		<div
@@ -77,7 +80,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 				/>
 			</div>
 			<div className="flex items-center space-x-4">
-				<ProgressBar progress={33} />
+				{/* <ProgressBar progress={overallPerformancePercentage} /> */}
 				<NavItem disabled to="search" icon={<FaSearch />} />
 				<NavItem disabled to="notifications" icon={<FaBell />} />
 				<UserMenu />
