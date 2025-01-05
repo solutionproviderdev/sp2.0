@@ -30,7 +30,6 @@ const Sidebar: React.FC<SidebarProps> = ({ leadId, lead, isOpen, onClose }) => {
 				<Typography variant="h6" sx={{ fontWeight: 'bold' }}>
 					{lead?.name}
 				</Typography>
-
 				{lead?.phone && (
 					<PhoneNumbers leadId={leadId} phoneNumbers={lead.phone} />
 				)}
@@ -47,7 +46,7 @@ const Sidebar: React.FC<SidebarProps> = ({ leadId, lead, isOpen, onClose }) => {
 				{lead?.callLogs && (
 					<CallLogs leadId={leadId} leadCallLogs={lead.callLogs} />
 				)}
-				<Comments leadId={leadId} />
+				{leadId && <Comments leadId={leadId} />}
 			</Box>
 		</Drawer>
 	);

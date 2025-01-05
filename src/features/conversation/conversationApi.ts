@@ -26,13 +26,6 @@ interface Conversation {
 	lastMessageTime: string;
 	sentByMe: boolean;
 }
-export interface Comment {
-	comment: string;
-	commentBy: string; // Assuming commentBy is a user ID (ObjectId as string)
-	images: string[];
-	timestamp: string;
-	_id: string;
-}
 interface CallLog {
 	recipientNumber: string;
 	callDuration: number | string; // Allow string format as "MM:SS"
@@ -120,16 +113,19 @@ interface PageInfo {
 	fbSenderID: string;
 }
 
-interface Comment {
+export interface Comment {
 	comment: string;
-	commentBy?: string; // ObjectId as string (optional based on existence in the data)
+	commentBy: {
+		_id: string;
+		nameAsPerNID: string;
+		profilePicture: string;
+	};
 	images: string[];
 	date: string; // Assuming it's a string (ISO format)
 	_id: string;
 	createdAt: string;
 	updatedAt: string;
 }
-
 interface Reminder {
 	time: string; // ISO format date string
 	status: 'Pending' | 'Complete' | 'Missed' | 'Late Complete';
@@ -330,7 +326,7 @@ const conversationApi = apiSlice.injectEndpoints({
 							(a, b) =>
 								new Date(b.lastMessageTime).getTime() -
 								new Date(a.lastMessageTime).getTime()
-						); 
+						);
 					});
 				};
 
@@ -497,6 +493,7 @@ const conversationApi = apiSlice.injectEndpoints({
 					leadId: string;
 					comment: Comment;
 				}) => {
+					console.log(leadId, comment);
 					dispatch(
 						conversationApi.util.updateQueryData('getSingleLead', id, lead => {
 							// check if the comment already exists in the lead's comment array
@@ -511,6 +508,20 @@ const conversationApi = apiSlice.injectEndpoints({
 							}
 						})
 					);
+
+					dispatch(
+						conversationApi.util.updateQueryData('getComments', id, draft => {
+							// check if the comment already exists in the lead's comment array
+							const existingComment = draft.comments.find(
+								c => c._id === comment._id
+							);
+							if (!existingComment) {
+								// If the comment not exists, push it
+
+								draft.comments.push(comment);
+							}
+						})
+					);
 				};
 				socket.on(`newComment_${id}`, handleCommentAdded);
 
@@ -518,6 +529,12 @@ const conversationApi = apiSlice.injectEndpoints({
 				// await queryFulfilled;
 				// socket.off(`newComment_${id}`, handleCommentAdded);
 			},
+		}),
+
+		// Get comments from Lead by lead I
+		getComments: builder.query<{ comments: Comment[] }, string>({
+			query: id => `/lead/${id}/comments`,
+			providesTags: (result, error, id) => [{ type: 'Comment', id }],
 		}),
 
 		// Update a lead
@@ -551,6 +568,7 @@ export const {
 	useMarkAsSeenMutation,
 	useGetAllLeadQuery,
 	useCreateLeadWithNumberMutation,
+	useGetCommentsQuery,
 } = conversationApi;
 
 export default conversationApi;
