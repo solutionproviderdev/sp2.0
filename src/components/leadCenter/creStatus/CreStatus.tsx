@@ -63,13 +63,16 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 					});
 					break;
 				case 'number':
-					await addPhone({ id: leadId, phoneNumber: data.phoneNumber });
+					await addPhone({
+						id: leadId,
+						phoneNumber: data.phoneNumber,
+						comment: { comment: data.comment, images: [] },
+					});
 					break;
 				case 'reminder':
 					await updateReminder({
 						id: leadId,
 						time: data.reminderDate,
-						commentId: undefined, // Add comment ID if needed
 					});
 					break;
 				case 'projectStatus':

@@ -1,10 +1,4 @@
-import {
-	FormControl,
-	InputLabel,
-	MenuItem,
-	Select,
-	Button,
-} from '@mui/material';
+import { FormControl, Button } from '@mui/material';
 import { useState, useEffect } from 'react';
 import Datepicker from 'react-tailwindcss-datepicker';
 import { PieChart } from '@mui/x-charts/PieChart';
@@ -14,11 +8,14 @@ import { FaAngleRight } from 'react-icons/fa';
 import ReminderCard from '../components/follow-up/ReminderCard';
 import { useNavigate, useParams } from 'react-router-dom';
 import FollowUp from './FollowUp';
+import { useSelector } from 'react-redux';
+import CustomSelectWithPictures from '../components/UI/inputs/CustomSelectWithPictures';
 
 const FollowUpList = () => {
-	// get today's date
+	// Get today's date
 	const today = dayjs().format('YYYY-MM-DD');
-	
+
+	const { user } = useSelector(state => state.auth);
 
 	// State to manage filter options
 	const [dateRange, setDateRange] = useState({
@@ -34,6 +31,13 @@ const FollowUpList = () => {
 	const [completeCount, setCompleteCount] = useState(0);
 	const navigate = useNavigate();
 	const { leadId } = useParams();
+
+	// Automatically set CRE filter for CRE users
+	useEffect(() => {
+		if (user.type === 'CRE') {
+			setCre(user._id);
+		}
+	}, [user]);
 
 	// Fetch filter options and reminders
 	const { data: reminders, refetch } = useGetAllLeadsWithRemindersQuery({
@@ -74,19 +78,16 @@ const FollowUpList = () => {
 		refetch(); // Refetch with the current filter values
 	};
 
-	// Placeholder for options from the API (use these to dynamically populate the filter dropdowns)
-	const filterOptions = reminders?.filterOptions || {};
-
-	// create a array of not complete leadIds from the reminders data
+	// Create an array of not complete leadIds from the reminders data
 	const leadIds = reminders?.leads
 		?.filter(lead => {
-			// check if the last reminder of the lead is not complete
+			// Check if the last reminder of the lead is not complete
 			const lastReminder = lead.reminder[lead.reminder.length - 1];
 			return lastReminder && lastReminder.status !== 'Complete';
 		})
 		.map(lead => lead._id);
 
-	// handle start button click
+	// Handle start button click
 	const handleStartClick = () => {
 		if (leadIds && leadIds.length > 0) {
 			navigate(`/admin/lead-followUp/${leadIds[0]}`);
@@ -107,47 +108,53 @@ const FollowUpList = () => {
 
 					{/* Date Range Picker */}
 					<FormControl fullWidth>
-						<Datepicker
-							value={dateRange}
-							onChange={newValue => setDateRange(newValue)}
-							asSingle={false} // For date range
-							useRange={true}
-							displayFormat="MM/DD/YYYY"
-						/>
+						<div className="border border-gray-400 rounded-md">
+							<Datepicker
+								value={dateRange}
+								onChange={newValue => setDateRange(newValue)}
+								asSingle={false} // For date range
+								useRange={true}
+								showShortcuts
+								displayFormat="MM/DD/YYYY"
+							/>
+						</div>
 					</FormControl>
 
-					<FormControl fullWidth>
-						<InputLabel id="cre-label">CRE</InputLabel>
-						<Select
-							labelId="cre-label"
+					{/* CRE Filter (Only for Admin) */}
+					{user.type === 'Admin' && (
+						<CustomSelectWithPictures
 							label="CRE"
+							name="cre"
 							value={cre}
-							onChange={e => setCre(e.target.value)}
-						>
-							{filterOptions?.creNames?.map(creName => (
-								<MenuItem key={creName} value={creName}>
-									{creName}
-								</MenuItem>
-							))}
-						</Select>
-					</FormControl>
+							onChange={e => setCre(e.target.value as string)}
+							options={
+								reminders?.filterOptions?.creNames?.map(creName => ({
+									value: creName._id,
+									label: creName.name,
+									profilePicture: creName.profilePicture,
+								})) || []
+							}
+							clearable={true}
+						/>
+					)}
 
-					<FormControl fullWidth>
-						<InputLabel id="sales-label">Sales</InputLabel>
-						<Select
-							labelId="sales-label"
-							label="Sales"
-							value={sales}
-							onChange={e => setSales(e.target.value)}
-						>
-							{filterOptions?.salesNames?.map(salesName => (
-								<MenuItem key={salesName} value={salesName}>
-									{salesName}
-								</MenuItem>
-							))}
-						</Select>
-					</FormControl>
+					{/* Sales Filter */}
+					<CustomSelectWithPictures
+						label="Sales"
+						name="sales"
+						value={sales}
+						onChange={e => setSales(e.target.value as string)}
+						options={
+							reminders?.filterOptions?.salesNames?.map(salesName => ({
+								value: salesName._id,
+								label: salesName.name,
+								profilePicture: salesName.profilePicture,
+							})) || []
+						}
+						clearable={true}
+					/>
 
+					{/* Search Button */}
 					<Button
 						variant="contained"
 						color="primary"
@@ -181,6 +188,7 @@ const FollowUpList = () => {
 						<p>Complete: {completeCount}</p>
 					</div>
 				</div>
+
 				{/* Right Start Button Section */}
 				<Button
 					onClick={handleStartClick}

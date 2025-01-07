@@ -379,13 +379,20 @@ const conversationApi = apiSlice.injectEndpoints({
 		}),
 
 		// Add a phone number to a lead
-		addPhone: builder.mutation<Lead, { id: string; phoneNumber: string }>({
-			query: ({ id, phoneNumber }) => {
+		addPhone: builder.mutation<
+			Lead,
+			{
+				id: string;
+				phoneNumber: string;
+				comment: { comment: string; images: string[] };
+			}
+		>({
+			query: ({ id, phoneNumber, comment }) => {
 				console.log(phoneNumber, typeof phoneNumber);
 				return {
 					url: `/lead/${id}/add-phone-number`,
 					method: 'PUT',
-					body: { phoneNumber },
+					body: { phoneNumber, comment },
 				};
 			},
 		}),

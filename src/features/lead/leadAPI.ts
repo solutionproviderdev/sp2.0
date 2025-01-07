@@ -52,6 +52,12 @@ export interface Lead {
 	projectLocation: string;
 }
 
+interface user {
+	_id: string;
+	name: string;
+	profilePicture: string;
+}
+
 interface GetAllLeadsWithRemindersResponse {
 	total: number;
 	totalPages: number;
@@ -59,8 +65,8 @@ interface GetAllLeadsWithRemindersResponse {
 	limit: number;
 	leads: Lead[];
 	filterOptions: {
-		creNames: string[];
-		salesNames: string[];
+		creNames: user[];
+		salesNames: user[];
 		statuses: string[];
 		sources: string[];
 	};
