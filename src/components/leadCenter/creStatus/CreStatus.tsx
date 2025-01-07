@@ -20,7 +20,7 @@ interface CreStatusProps {
 const statusToModalType = {
 	'Number Collected': 'number',
 	'Message Rescheduled': 'reminder',
-	'Call Rescheduled': 'reminder',
+	'Call Reschedule': 'reminder',
 	Ongoing: 'projectStatus',
 	'Meeting Fixed': 'fixMeeting', // Added mapping for Meeting Fixed
 };
@@ -66,14 +66,24 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 					await addPhone({
 						id: leadId,
 						phoneNumber: data.phoneNumber,
-						comment: { comment: data.comment, images: [] },
+					});
+					await addComment({
+						id: leadId,
+						comment: { comment: data.comment, images: [] }, // Assuming no images for now
 					});
 					break;
 				case 'reminder':
 					await updateReminder({
 						id: leadId,
 						time: data.reminderDate,
+						completeLastReminder: true,
 					});
+
+					await addComment({
+						id: leadId,
+						comment: { comment: data.comment, images: [] }, // Assuming no images for now
+					});
+
 					break;
 				case 'projectStatus':
 					await updateLeads({
@@ -85,6 +95,10 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 								subStatus: data.projectSubStatus,
 							},
 						},
+					});
+					await addComment({
+						id: leadId,
+						comment: { comment: data.comment, images: [] }, // Assuming no images for now
 					});
 					break;
 				case 'fixMeeting': // Handle fixing a meeting
@@ -101,7 +115,7 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 				data: {
 					status: status as
 						| 'Number Collected'
-						| 'Call Rescheduled'
+						| 'Call Reschedule'
 						| 'Ongoing'
 						| 'New'
 						| 'No Response'
@@ -139,7 +153,7 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 						'No Response',
 						'Message Rescheduled',
 						'Number Collected',
-						'Call Rescheduled',
+						'Call Reschedule',
 						'Ongoing',
 						'Close',
 						'Meeting Fixed',

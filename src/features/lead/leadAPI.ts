@@ -1,10 +1,6 @@
+import { getSocket } from '../../hooks/getSocket';
 import apiSlice from '../api/apiSlice';
-
-interface Comment {
-	comment: string;
-	images: string[];
-	date: string;
-}
+import { Comment } from '../conversation/conversationApi';
 
 interface Reminder {
 	_id: string;
@@ -50,9 +46,10 @@ export interface Lead {
 	updatedAt: string;
 	address: Address;
 	projectLocation: string;
+	comment: Comment[];
 }
 
-interface user {
+interface User {
 	_id: string;
 	name: string;
 	profilePicture: string;
@@ -65,12 +62,14 @@ interface GetAllLeadsWithRemindersResponse {
 	limit: number;
 	leads: Lead[];
 	filterOptions: {
-		creNames: user[];
-		salesNames: user[];
+		creNames: User[];
+		salesNames: User[];
 		statuses: string[];
 		sources: string[];
 	};
 }
+
+const socket = getSocket();
 
 // Extend the apiSlice with specific endpoints for leads with reminders
 const leadApi = apiSlice.injectEndpoints({
@@ -111,6 +110,56 @@ const leadApi = apiSlice.injectEndpoints({
 					url: `/lead/reminders${params}`, // Assuming `/lead/reminders` is the endpoint
 				};
 			},
+			async onCacheEntryAdded(
+				arg,
+				{ updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+			) {
+				try {
+					// Wait for the initial query to resolve
+					await cacheDataLoaded;
+
+					// Listen for the missedReminder event
+					socket.on('missedReminder', data => {
+						console.log('Missed reminder received:', data);
+
+						// Update the cache data
+						updateCachedData(draft => {
+							const leadIndex = draft.leads.findIndex(
+								lead => lead._id === data.leadId
+							);
+							if (leadIndex !== -1) {
+								const reminderIndex = draft.leads[leadIndex].reminder.findIndex(
+									reminder => reminder._id === data.reminderId
+								);
+								if (reminderIndex !== -1) {
+									// Update the reminder status to "Missed"
+									draft.leads[leadIndex].reminder[reminderIndex].status =
+										'Missed';
+								}
+							}
+						});
+					});
+
+					// Listen for the newReminder event
+					socket.on('newReminder', data => {
+						console.log('New reminder received:', data);
+
+						// Update the cache data
+						updateCachedData(draft => {
+							// Push the new lead object to the front of the leads array
+							draft.leads.unshift(data.lead);
+						});
+					});
+				} catch (error) {
+					console.error('Error handling socket event:', error);
+				}
+
+				// Cleanup the socket listener when the cache entry is removed
+				await cacheEntryRemoved;
+				socket.off('missedReminder');
+				socket.off('newReminder');
+			},
+
 			providesTags: result =>
 				result
 					? [

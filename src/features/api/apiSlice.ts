@@ -5,8 +5,8 @@ import { checkTokenAndLogout } from '../../hooks/checkTokenAndLogout';
 const apiSlice = createApi({
 	reducerPath: 'api',
 	baseQuery: fetchBaseQuery({
-		baseUrl: `${import.meta.env.VITE_API_URL}/api`,
-		// baseUrl: `${import.meta.env.VITE_API_URL}`,
+		// baseUrl: `${import.meta.env.VITE_API_URL}/api`,
+		baseUrl: `${import.meta.env.VITE_API_URL}`,
 		prepareHeaders: (headers, { getState }) => {
 			// Get token from auth state
 			const token = (getState() as RootState).auth.token;

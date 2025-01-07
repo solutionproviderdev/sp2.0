@@ -1,3 +1,4 @@
+import React, { useState } from 'react';
 import {
 	Grid,
 	Typography,
@@ -7,12 +8,13 @@ import {
 	TextField,
 } from '@mui/material';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useState } from 'react';
 import CongratulationsModal from '../components/follow-up/CongratulationsModal';
 import {
+	useAddCommentMutation,
 	useGetConversationMessagesQuery,
 	useGetSingleLeadQuery,
 	useSentMessageMutation,
+	useUpdateReminderStatusMutation,
 } from '../features/conversation/conversationApi';
 import Chats from '../components/leadCenter/Inbox/chats';
 import {
@@ -25,6 +27,8 @@ import LeadDetails from '../components/leadCenter/LeadDetails';
 import FollowUpButtons from '../components/follow-up/FollowUpButtons';
 import AllComments from '../components/leadCenter/Sidebar/AllComments';
 import CreStatus from '../components/leadCenter/creStatus/CreStatus';
+import CommentModal from '../components/follow-up/CommentModal'; // Import the new modal
+import { FaPhone } from 'react-icons/fa';
 
 interface FollowUpProps {
 	leadIdList?: string[];
@@ -34,16 +38,17 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 	const { leadId: currentLeadId } = useParams();
 	const navigate = useNavigate();
 	const [showCongratsModal, setShowCongratsModal] = useState(false);
+	const [showCommentModal, setShowCommentModal] = useState(false); // State for comment modal
 	const [newMessage, setNewMessage] = useState('');
 	const { data: lead } = useGetSingleLeadQuery(currentLeadId ?? '');
 	const { data } = useGetConversationMessagesQuery(currentLeadId ?? '', {
 		skip: !currentLeadId,
 	});
 	const [sendMessage] = useSentMessageMutation();
+	const [addComment] = useAddCommentMutation();
+	const [updateReminderStatus] = useUpdateReminderStatusMutation();
 
 	const messages = data?.messages || [];
-
-	console.log(lead?.comment);
 
 	// Function to handle sending a message
 	const handleSendMessage = async () => {
@@ -60,6 +65,32 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 			} catch (err) {
 				console.error('Failed to send message:', err);
 			}
+		}
+	};
+
+	// Function to handle adding a comment and updating the reminder status
+	const handleCommentSubmit = async (comment: string) => {
+		if (!currentLeadId || !lead?.reminder || lead.reminder.length === 0) return;
+
+		try {
+			// Add the comment
+			await addComment({
+				id: currentLeadId,
+				comment: { comment, images: [] },
+			}).unwrap();
+
+			// Update the last reminder status to "Complete"
+			const lastReminder = lead.reminder[lead.reminder.length - 1];
+			await updateReminderStatus({
+				leadId: currentLeadId,
+				reminderId: lastReminder._id,
+				status: 'Complete',
+			}).unwrap();
+
+			// Move to the next lead
+			handleNextLead();
+		} catch (err) {
+			console.error('Failed to add comment or update reminder status:', err);
 		}
 	};
 
@@ -89,10 +120,12 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 		navigate(`/admin/lead-followUp/${nextLeadId}`);
 	};
 
-	// function to stop and move to the followup page
+	// Function to stop and move to the followup page
 	const handleStop = () => {
 		navigate('/admin/lead-followUp');
 	};
+
+	console.log(lead?.phone);
 
 	return (
 		<Grid container spacing={2} sx={{ height: '100%' }}>
@@ -103,12 +136,25 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 					<Box className="p-4 border-b flex justify-between">
 						<Typography variant="h6">{lead?.name ?? 'No Name'}</Typography>
 
-						{lead?.status && <CreStatus currentStatus={lead?.status} />}
+						<div className="flex gap-2">
+							{/* Call Button if phone number is present? */}
+							{lead?.phone && lead.phone.length > 0 && (
+								<button
+									className=" text-gray-800 px-4 py-2 rounded-md hover:bg-gray-200 border border-gray-400"
+									onClick={() => {
+										window.open(`tel:${lead?.phone}`, '_blank');
+									}}
+								>
+									<FaPhone />
+								</button>
+							)}
 
+							{lead?.status && <CreStatus currentStatus={lead?.status} />}
+						</div>
 					</Box>
 
 					{/* Messages Section */}
-					<Box className="flex-1 h-full overflow-y-auto min-h-[78vh] max-h-[78vh] scrollbar-none">
+					<Box className="flex-1 h-full overflow-y-auto min-h-[77vh] max-h-[77vh] scrollbar-none">
 						{messages && messages.length > 0 && <Chats messages={messages} />}
 					</Box>
 
@@ -152,15 +198,18 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 				</div>
 			</Grid>
 
-			{/* middle Section for lead Details */}
+			{/* Middle Section for Lead Details */}
 			<Grid item xs={3} sx={{ borderRight: '1px solid #ddd', padding: 2 }}>
 				<LeadDetails leadId={currentLeadId} lead={lead} />
 			</Grid>
 
-			{/* last section for comments and done and stop buttons */}
+			{/* Last Section for Comments and Done/Stop Buttons */}
 			<Grid item xs={3}>
-				{/* Stop and done buttons */}
-				<FollowUpButtons onStop={handleStop} onDone={handleNextLead} />
+				{/* Stop and Done Buttons */}
+				<FollowUpButtons
+					onStop={handleStop}
+					onDone={() => setShowCommentModal(true)} // Show comment modal on "Done" click
+				/>
 				{/* Comments Section */}
 				{lead?.comment && (
 					<AllComments leadId={currentLeadId} comments={lead?.comment} />
@@ -169,6 +218,13 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 
 			{/* Congratulations Modal */}
 			<CongratulationsModal open={showCongratsModal} />
+
+			{/* Comment Modal */}
+			<CommentModal
+				open={showCommentModal}
+				onClose={() => setShowCommentModal(false)}
+				onSubmit={handleCommentSubmit}
+			/>
 		</Grid>
 	);
 }

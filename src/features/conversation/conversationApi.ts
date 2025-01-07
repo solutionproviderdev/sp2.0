@@ -76,7 +76,7 @@ interface UpdateLeadPayload {
 		| 'Need Support'
 		| 'Number Collected'
 		| 'Ongoing'
-		| 'Call Rescheduled'
+		| 'Call Reschedule'
 		| 'Follow Up'
 		| 'Meeting Fixed'
 		| 'Meeting Reschedule'
@@ -104,6 +104,10 @@ interface UpdateLeadPayload {
 	projectLocation?: 'Inside' | 'Outside'; // Enum for project location
 	messagesSeen?: boolean; // Boolean for messagesSeen
 	requirements?: string[]; // Array of requirements
+	comment?: {
+		comment: string;
+		images: string[];
+	};
 }
 
 interface PageInfo {
@@ -222,6 +226,11 @@ interface UpdateReminderPayload {
 	id: string;
 	time: string;
 	commentId?: string;
+	comment?: {
+		comment: string;
+		images: string[];
+	};
+	completeLastReminder?: boolean;
 }
 
 interface ReminderResponse {
@@ -384,7 +393,7 @@ const conversationApi = apiSlice.injectEndpoints({
 			{
 				id: string;
 				phoneNumber: string;
-				comment: { comment: string; images: string[] };
+				comment?: { comment: string; images: string[] };
 			}
 		>({
 			query: ({ id, phoneNumber, comment }) => {
@@ -402,12 +411,28 @@ const conversationApi = apiSlice.injectEndpoints({
 			ReminderResponse, // Response type (reminders array)
 			UpdateReminderPayload // Request type (with optional commentId)
 		>({
-			query: ({ id, time, commentId }) => ({
+			query: ({ id, time, commentId, comment, completeLastReminder }) => ({
 				url: `/lead/${id}/reminders`,
 				method: 'POST',
-				body: { time, commentId }, // Send both time and optional commentId
+				body: { time, commentId, comment, completeLastReminder }, // Send both time and optional commentId
 			}),
 			invalidatesTags: (result, error, { id }) => [{ type: 'Lead', id }],
+		}),
+
+		// Update a reminder's status
+		updateReminderStatus: builder.mutation<
+			{ msg: string; lead: Lead }, // Response type
+			{ leadId: string; reminderId: string; status: string } // Request type
+		>({
+			query: ({ leadId, reminderId, status }) => ({
+				url: `/lead/${leadId}/reminders/${reminderId}`, // Endpoint URL
+				method: 'PUT', // HTTP method
+				body: { status }, // Request body
+			}),
+			// Invalidate the cache for the specific lead to reflect the updated reminder status
+			invalidatesTags: (result, error, { leadId }) => [
+				{ type: 'Lead', id: leadId },
+			],
 		}),
 
 		// Mark messages as seen with optimistic update
@@ -576,6 +601,7 @@ export const {
 	useGetAllLeadQuery,
 	useCreateLeadWithNumberMutation,
 	useGetCommentsQuery,
+	useUpdateReminderStatusMutation,
 } = conversationApi;
 
 export default conversationApi;
