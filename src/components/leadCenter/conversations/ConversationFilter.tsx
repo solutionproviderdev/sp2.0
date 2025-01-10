@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from '@mui/material';
-import Filter from './Filter'; // Assuming you already have a Filter component
+import Filter from './Filter';
 
 const ConversationFilter = ({ setFilters, filters, availableFilters }) => {
 	// Handle "All" button click

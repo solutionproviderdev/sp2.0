@@ -1,8 +1,8 @@
 import apiSlice from '../api/apiSlice';
+import { Lead } from '../lead/leadAPI';
 
 export interface Meeting {
 	_id: string;
-	lead: string;
 	date: string;
 	slot: string;
 	salesExecutive: string;
@@ -12,6 +12,7 @@ export interface Meeting {
 		createdBy: string;
 		updatedBy: string;
 	};
+	lead: Lead;
 }
 
 // Meeting type for RTK

@@ -5,6 +5,7 @@ import { useGetAllActiveTimeSlotsQuery } from '../../../../../features/metings/t
 import { useGetUserByDepartmentAndRoleQuery } from '../../../../../features/auth/authAPI';
 import { useGetMeetingByDateRangeQuery } from '../../../../../features/meeting/meetinApi';
 import DateSelector from '../../../../meeting/DateSelector';
+import { useSelector } from 'react-redux';
 
 // SalesTeamColumn Component: Displaying the sales team members
 const SalesTeamColumn = ({ salespeople }) => (
@@ -58,6 +59,8 @@ const MeetingSlotsGrid = ({
 		);
 	};
 
+	const { user } = useSelector(state => state.auth);
+
 	return (
 		<div
 			className="flex-1 min-w-max grid"
@@ -82,7 +85,17 @@ const MeetingSlotsGrid = ({
 								const meeting = visibleMeetings.find(
 									m => m.salesExecutive?._id === id && m.slot === slot
 								);
+
+								// const meetingFromSameCRE = meeting.lead.creName === user._id;
+
+								// console.log('Meeting From same CRE', meetingFromSameCRE);
+
 								const isOccupied = !!meeting;
+
+								if (isOccupied) {
+									console.log('Meeting From same CRE', meeting);
+								}
+
 								const isSelected =
 									selectedSlot &&
 									selectedSlot.salesExecutiveId === id &&
@@ -113,7 +126,10 @@ const MeetingSlotsGrid = ({
 												cursor: isSelectable ? 'pointer' : 'default',
 											}}
 										>
-											{isOccupied && (
+											{' '}
+											{/* user.type === 'Admin' || user._id === meeting.lead.creName */}
+											{(isOccupied && user.type === 'Admin') ||
+											user._id === meeting.lead.creName ? (
 												<div className="absolute inset-0 p-1 bg-blue-200 text-xs">
 													<div className="flex flex-col h-full justify-between">
 														<div>
@@ -132,6 +148,12 @@ const MeetingSlotsGrid = ({
 															)}
 														</div>
 													</div>
+												</div>
+											) : (
+												<div
+													className={`h-full bg-blue-300 p-2 rounded flex items-center justify-center cursor-grab`}
+												>
+													<h1 className="font-bold">Booked</h1>
 												</div>
 											)}
 											{/* Display an icon if the slot is selected */}

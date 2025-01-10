@@ -13,10 +13,13 @@ import {
 } from '@mui/material';
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { useSelector } from 'react-redux';
 
 const Filter = ({ onApplyFilters, availableFilters }) => {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [expanded, setExpanded] = useState<string | false>(false);
+
+	const { user } = useSelector(state => state.auth);
 
 	// Store selected filter values
 	const [selectedFilters, setSelectedFilters] = useState<{
@@ -117,33 +120,36 @@ const Filter = ({ onApplyFilters, availableFilters }) => {
 					</Accordion>
 
 					{/* CRE Filter */}
-					<Accordion
-						expanded={expanded === 'creNames'}
-						onChange={handleAccordionChange('creNames')}
-					>
-						<AccordionSummary expandIcon={<ExpandMoreIcon />}>
-							<Typography variant="subtitle1">CRE</Typography>
-						</AccordionSummary>
-						<AccordionDetails>
-							{creNames.map((cre, index) => (
-								<Box key={index} display="flex" alignItems="center">
-									<Checkbox
-										checked={selectedFilters.creNames.includes(cre._id)}
-										onChange={() => handleCheckboxChange('creNames', cre._id)}
-										size="small"
-									/>
-									<div className="flex items-center gap-2">
-										<img
-											src={cre.profilePicture}
-											alt={cre.name}
-											className="w-5 h-5 rounded-full"
+					{user.type === 'Admin' && (
+						<Accordion
+							expanded={expanded === 'creNames'}
+							onChange={handleAccordionChange('creNames')}
+						>
+							<AccordionSummary expandIcon={<ExpandMoreIcon />}>
+								<Typography variant="subtitle1">CRE</Typography>
+							</AccordionSummary>
+
+							<AccordionDetails>
+								{creNames.map((cre, index) => (
+									<Box key={index} display="flex" alignItems="center">
+										<Checkbox
+											checked={selectedFilters.creNames.includes(cre._id)}
+											onChange={() => handleCheckboxChange('creNames', cre._id)}
+											size="small"
 										/>
-										<Typography>{cre.nickname}</Typography>
-									</div>
-								</Box>
-							))}
-						</AccordionDetails>
-					</Accordion>
+										<div className="flex items-center gap-2">
+											<img
+												src={cre.profilePicture}
+												alt={cre.name}
+												className="w-5 h-5 rounded-full"
+											/>
+											<Typography>{cre.nickname}</Typography>
+										</div>
+									</Box>
+								))}
+							</AccordionDetails>
+						</Accordion>
+					)}
 
 					{/* Pages Filter */}
 					<Accordion

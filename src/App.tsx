@@ -70,7 +70,7 @@ const App = () => {
 						{/* meeting page */}
 						<Route path="meetings" element={<Meetings />} />
 						<Route path="meeting-slot" element={<MeetingsSlot />} />
-						<Route path="meeting-create" element={<CreateMeeting />} />
+						{/* <Route path="meeting-create" element={<CreateMeeting />} /> */}
 
 						{/* Settings Routes */}
 						<Route path="settings" element={<SettingsLayout />}>

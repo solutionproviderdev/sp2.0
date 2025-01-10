@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, CircularProgress } from '@mui/material';
 import {
 	useGetAllConversationsQuery,
@@ -8,6 +8,8 @@ import SearchInput from './SearchInput';
 import ConversationFilter from './ConversationFilter'; // Import the new filter component
 import { useNavigate } from 'react-router-dom';
 import ConversationItem from './ConversationItem';
+import { useSelector } from 'react-redux';
+import { useGetDepartmentByIdQuery } from '../../../features/auth/department/departmentAPI';
 
 const ConversationList = () => {
 	// Set the page to 1 and the limit to 500
@@ -18,6 +20,16 @@ const ConversationList = () => {
 		limit,
 	});
 
+	const { user } = useSelector(state => state.auth);
+	const { data: department } = useGetDepartmentByIdQuery(user.departmentId, {
+		skip: !user.departmentId,
+	});
+
+	// find CRE role id in department
+	const creRoleId = department?.roles.find(
+		role => role.roleName === 'CRE'
+	)?._id;
+
 	const navigate = useNavigate();
 	const [markAsSeen] = useMarkAsSeenMutation();
 	const [filters, setFilters] = useState({
@@ -27,6 +39,19 @@ const ConversationList = () => {
 		messagesSeen: null, // Initialize the filter for messages seen (read/unread)
 		searchText: '', // Search text state
 	});
+
+	useEffect(() => {
+		// if user is a cre then add user to cre Filter
+		if (user.roleId === creRoleId) {
+			setFilters(
+				prevFilters =>
+					({
+						...prevFilters,
+						creNames: [user._id],
+					} as typeof prevFilters)
+			);
+		}
+	}, [user.roleId, creRoleId, user._id]);
 
 	// Handle selecting a conversation
 	const handleSelectConversation = async selectedLeadId => {

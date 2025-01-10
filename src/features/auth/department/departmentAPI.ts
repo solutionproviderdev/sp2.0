@@ -32,9 +32,7 @@ type GetAllPermissionsResponse = Permission[];
 // Responses
 type GetAllDepartmentsResponse = Department[];
 
-interface GetDepartmentByIdResponse {
-	department: Department;
-}
+type GetDepartmentByIdResponse = Department;
 
 interface CreateDepartmentRequest {
 	departmentName: string;
