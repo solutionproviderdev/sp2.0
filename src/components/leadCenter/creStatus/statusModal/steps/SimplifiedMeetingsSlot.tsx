@@ -80,7 +80,7 @@ const MeetingSlotsGrid = ({
 								}
 
 								const meeting = visibleMeetings.find(
-									m => m.salesExecutive._id === id && m.slot === slot
+									m => m.salesExecutive?._id === id && m.slot === slot
 								);
 								const isOccupied = !!meeting;
 								const isSelected =

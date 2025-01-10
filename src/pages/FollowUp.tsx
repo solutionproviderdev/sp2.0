@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
 	Grid,
 	Typography,
@@ -14,6 +14,7 @@ import {
 	useGetConversationMessagesQuery,
 	useGetSingleLeadQuery,
 	useSentMessageMutation,
+	useUpdateReminderMutation,
 	useUpdateReminderStatusMutation,
 } from '../features/conversation/conversationApi';
 import Chats from '../components/leadCenter/Inbox/chats';
@@ -29,6 +30,7 @@ import AllComments from '../components/leadCenter/Sidebar/AllComments';
 import CreStatus from '../components/leadCenter/creStatus/CreStatus';
 import CommentModal from '../components/follow-up/CommentModal'; // Import the new modal
 import { FaPhone } from 'react-icons/fa';
+import { Dayjs } from 'dayjs';
 
 interface FollowUpProps {
 	leadIdList?: string[];
@@ -46,7 +48,34 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 	});
 	const [sendMessage] = useSentMessageMutation();
 	const [addComment] = useAddCommentMutation();
+	const [updateReminder] = useUpdateReminderMutation();
 	const [updateReminderStatus] = useUpdateReminderStatusMutation();
+	const [newReminderAdded, setNewReminderAdded] = useState(false);
+
+	const [initialReminderCount, setInitialReminderCount] = useState<
+		number | null
+	>(null);
+
+	// Set the initial reminder count after the lead data is fetched
+	useEffect(() => {
+		if (lead?.reminder && initialReminderCount === null) {
+			setInitialReminderCount(lead.reminder.length);
+		}
+	}, [lead?.reminder, initialReminderCount]);
+
+	// Track if a new reminder has been added
+	useEffect(() => {
+		if (lead?.reminder && initialReminderCount !== null) {
+			const currentReminderCount = lead.reminder.length;
+
+			// If the reminder count has increased, a new reminder has been added
+			if (currentReminderCount > initialReminderCount) {
+				setNewReminderAdded(true);
+			}
+		}
+	}, [lead?.reminder, initialReminderCount]);
+
+	console.log(newReminderAdded);
 
 	const messages = data?.messages || [];
 
@@ -69,7 +98,10 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 	};
 
 	// Function to handle adding a comment and updating the reminder status
-	const handleCommentSubmit = async (comment: string) => {
+	const handleCommentSubmit = async (
+		comment: string,
+		nextReminderTime?: Dayjs | null
+	) => {
 		if (!currentLeadId || !lead?.reminder || lead.reminder.length === 0) return;
 
 		try {
@@ -79,13 +111,23 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 				comment: { comment, images: [] },
 			}).unwrap();
 
-			// Update the last reminder status to "Complete"
-			const lastReminder = lead.reminder[lead.reminder.length - 1];
-			await updateReminderStatus({
-				leadId: currentLeadId,
-				reminderId: lastReminder._id,
-				status: 'Complete',
-			}).unwrap();
+			// Update the last reminder status to "Complete" if new reminder is not added
+			if (!newReminderAdded) {
+				const lastReminder = lead.reminder[lead.reminder.length - 1];
+				await updateReminderStatus({
+					leadId: currentLeadId,
+					reminderId: lastReminder._id,
+					status: 'Complete',
+				}).unwrap();
+			}
+
+			// If a next reminder time is provided, create a new reminder
+			if (nextReminderTime) {
+				await updateReminder({
+					id: currentLeadId,
+					time: nextReminderTime.toISOString(),
+				}).unwrap();
+			}
 
 			// Move to the next lead
 			handleNextLead();
@@ -224,6 +266,7 @@ export default function FollowUp({ leadIdList }: FollowUpProps) {
 				open={showCommentModal}
 				onClose={() => setShowCommentModal(false)}
 				onSubmit={handleCommentSubmit}
+				showNextReminderField={!newReminderAdded} // Pass whether to show the next reminder field
 			/>
 		</Grid>
 	);

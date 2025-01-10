@@ -68,11 +68,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					active={location.pathname.includes('lead-followUp')}
 					icon={<FaRegClock />}
 				/>
-				<NavItem
+				{/* <NavItem
 					to="meetings"
 					active={location.pathname.includes('meetings')}
 					icon={<GrSchedule />}
-				/>
+				/> */}
 				<NavItem
 					to="meeting-slot"
 					active={location.pathname.includes('meeting-slot')}
