@@ -76,6 +76,7 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 	totalLeads,
 	displayedLeads,
 }) => {
+	const { user } = useSelector(state => state.auth);
 	const handlePageLimitChange = (
 		event: React.ChangeEvent<{ value: unknown }>
 	) => {
@@ -151,22 +152,24 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 				</div>
 
 				{/* CRE Dropdown */}
-				<div className="flex-1">
-					<CustomSelectWithPictures
-						label="CRE"
-						name="cre"
-						value={cre}
-						onChange={e => setCre(e.target.value as string)}
-						options={
-							filterOptions?.creNames.map(cre => ({
-								value: cre._id,
-								label: cre.nameAsPerNID,
-								profilePicture: cre.profilePicture,
-							})) || []
-						}
-						clearable
-					/>
-				</div>
+				{user.type === 'Admin' && (
+					<div className="flex-1">
+						<CustomSelectWithPictures
+							label="CRE"
+							name="cre"
+							value={cre}
+							onChange={e => setCre(e.target.value as string)}
+							options={
+								filterOptions?.creNames.map(cre => ({
+									value: cre._id,
+									label: cre.nameAsPerNID,
+									profilePicture: cre.profilePicture,
+								})) || []
+							}
+							clearable
+						/>
+					</div>
+				)}
 
 				{/* Sales Dropdown */}
 				<div className="flex-1">

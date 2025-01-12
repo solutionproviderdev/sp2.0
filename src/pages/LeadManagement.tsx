@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Typography, Paper } from '@mui/material';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { useGetAllLeadQuery } from '../features/conversation/conversationApi';
 import CardListView from '../components/LeadManagement/CardListView';
 import LeadFilterAndPagination from '../components/LeadManagement/LeadFilterAndPagination';
+import { useSelector } from 'react-redux';
+import { useGetDepartmentByIdQuery } from '../features/auth/department/departmentAPI';
 
 const LeadManagement = () => {
 	const today = new Date().toISOString().split('T')[0];
@@ -35,13 +37,29 @@ const LeadManagement = () => {
 		salesExecutive: sales,
 	});
 
-	console.log(data?.barchartData);
+	const { user } = useSelector(state => state.auth);
+	const { data: department } = useGetDepartmentByIdQuery(user.departmentId, {
+		skip: !user.departmentId,
+	});
 
-	const handleStatusChange = event => {
+	// find CRE role id in department
+	const creRoleId = department?.roles.find(
+		role => role.roleName === 'CRE'
+	)?._id;
+
+	useEffect(() => {
+		// if user is a cre then add user to cre Filter
+		if (user.roleId === creRoleId) {
+			console.log(creRoleId === user.roleId);
+			setCre(user._id);
+		}
+	}, [user.roleId, creRoleId, user._id]);
+
+	const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		setSelectedStatus(event.target.value);
 	};
 
-	const handleSourceChange = event => {
+	const handleSourceChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
 		setSelectedSource(event.target.value);
 	};
 

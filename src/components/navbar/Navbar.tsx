@@ -48,13 +48,11 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 					icon={<FaRocketchat />}
 				/>
 
-				{user.type === 'Admin' && (
-					<NavItem
-						to="lead-management"
-						active={location.pathname.includes('lead-management')}
-						icon={<FaUsers />}
-					/>
-				)}
+				<NavItem
+					to="lead-management"
+					active={location.pathname.includes('lead-management')}
+					icon={<FaUsers />}
+				/>
 				{user.type === 'Admin' && (
 					<NavItem
 						to="users"
@@ -81,8 +79,8 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 			</div>
 			<div className="flex items-center space-x-4">
 				{/* <ProgressBar progress={overallPerformancePercentage} /> */}
-				<NavItem disabled to="search" icon={<FaSearch />} />
-				<NavItem disabled to="notifications" icon={<FaBell />} />
+				{/* <NavItem disabled to="search" icon={<FaSearch />} /> */}
+				{/* <NavItem disabled to="notifications" icon={<FaBell />} /> */}
 				<UserMenu />
 				{/* <NavItem to={`users/${user._id}`} icon={<FaUserCircle />} /> */}
 			</div>
