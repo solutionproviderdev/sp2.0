@@ -13,6 +13,7 @@ import { Meeting } from '../../features/meeting/meetinApi';
 import Meeting from '../../pages/Meeting';
 import { useSelector } from 'react-redux';
 import { useGetDepartmentByIdQuery } from '../../features/auth/department/departmentAPI';
+import { useGetUserByIdQuery } from '../../features/auth/authAPI';
 
 interface DraggableItemProps {
 	id: string;
@@ -30,7 +31,13 @@ const DraggableItem: React.FC<DraggableItemProps> = ({
 	const { attributes, listeners, setNodeRef, transform } = useDraggable({ id });
 	const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
-	const { user } = useSelector(state => state.auth);
+	const { data: userData } = useGetUserByIdQuery(meeting.lead.creName || '', {
+		skip: !meeting.lead.creName,
+	});
+
+	const creName = userData?.nickname || userData?.nameAsPerNID;
+
+	const { user } = useSelector((state: { auth: { user: any } }) => state.auth);
 
 	const meetingFromSameCRE = meeting.lead.creName === user._id;
 
@@ -150,7 +157,7 @@ const DraggableItem: React.FC<DraggableItemProps> = ({
 				} cursor-grab`}
 				style={style}
 			>
-				<h1 className="font-bold">Booked</h1>
+				<h1 className="font-bold">{`Booked By ${creName}`}</h1>
 			</div>
 		);
 	}

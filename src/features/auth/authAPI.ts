@@ -110,6 +110,7 @@ interface GetUserByIdResponse {
 	role?: Role;
 	profilePicture?: string;
 	coverPhoto?: string;
+	nickname: string;
 }
 
 // Interface for fetching all users

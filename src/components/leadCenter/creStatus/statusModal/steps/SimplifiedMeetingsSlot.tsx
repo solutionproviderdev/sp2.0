@@ -2,10 +2,13 @@ import React, { useState, useMemo } from 'react';
 import moment from 'moment';
 import { FaCheckCircle } from 'react-icons/fa'; // Import an icon for highlighting selected slot
 import { useGetAllActiveTimeSlotsQuery } from '../../../../../features/metings/timeSlotAPI';
-import { useGetUserByDepartmentAndRoleQuery } from '../../../../../features/auth/authAPI';
+import {
+	useGetUserByDepartmentAndRoleQuery,
+} from '../../../../../features/auth/authAPI';
 import { useGetMeetingByDateRangeQuery } from '../../../../../features/meeting/meetinApi';
 import DateSelector from '../../../../meeting/DateSelector';
 import { useSelector } from 'react-redux';
+import BookedMeetingCard from './BookedMeetingCard';
 
 // SalesTeamColumn Component: Displaying the sales team members
 const SalesTeamColumn = ({ salespeople }) => (
@@ -150,11 +153,7 @@ const MeetingSlotsGrid = ({
 													</div>
 												</div>
 											) : (
-												<div
-													className={`h-full bg-blue-300 p-2 rounded flex items-center justify-center cursor-grab`}
-												>
-													<h1 className="font-bold">Booked</h1>
-												</div>
+												<BookedMeetingCard creId={meeting.lead.creName} />
 											)}
 											{/* Display an icon if the slot is selected */}
 											{isSelected && (
