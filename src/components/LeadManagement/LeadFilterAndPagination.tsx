@@ -12,6 +12,7 @@ import CustomSelectWithPictures from '../UI/inputs/CustomSelectWithPictures';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { RootState } from '@reduxjs/toolkit/query';
+import { DefaultRootState } from 'react-redux';
 
 interface LeadFilterAndPaginationProps {
 	selectedStatus: string;
@@ -76,7 +77,6 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 	totalLeads,
 	displayedLeads,
 }) => {
-	const { user } = useSelector(state => state.auth);
 	const handlePageLimitChange = (
 		event: React.ChangeEvent<{ value: unknown }>
 	) => {
@@ -84,6 +84,7 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 	};
 
 	const navigate = useNavigate();
+	const { user } = useSelector((state: DefaultRootState) => state.auth);
 
 	const handlePreviousPage = () => {
 		if (currentPage > 1) {
@@ -143,7 +144,7 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 				</div>
 
 				{/* Datepicker */}
-				<div className="flex-1">
+				<div className="flex-1 border border-gray-400 rounded-md">
 					<Datepicker
 						value={selectedDateRange}
 						onChange={handleDateRangeChange}
@@ -198,13 +199,15 @@ const LeadFilterAndPagination: React.FC<LeadFilterAndPaginationProps> = ({
 				</Button>
 
 				{/* Settings Button */}
-				<Button
-					variant="contained"
-					color="secondary"
-					onClick={() => navigate('../settings/lead-settings')}
-				>
-					<SettingsIcon />
-				</Button>
+				{user.type === 'Admin' && (
+					<Button
+						variant="contained"
+						color="secondary"
+						onClick={() => navigate('../settings/lead-settings')}
+					>
+						<SettingsIcon />
+					</Button>
+				)}
 			</Box>
 
 			{/* Pagination and Page Limit Control */}

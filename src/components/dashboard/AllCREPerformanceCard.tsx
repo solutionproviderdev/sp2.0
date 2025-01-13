@@ -99,7 +99,7 @@ const AllCREPerformanceCard = ({ allCREsData }) => {
 						</Box>
 					))}
 				</Box>
-				<Box flex={1} height={400}>
+				<Box flex={2} height={300}>
 					<BarChart
 						dataset={chartData}
 						xAxis={[{ scaleType: 'band', dataKey: 'name' }]}
@@ -111,14 +111,13 @@ const AllCREPerformanceCard = ({ allCREsData }) => {
 							{ dataKey: 'totalSales', label: 'Total Sales' },
 							{ dataKey: 'target', label: 'Target' },
 						]}
-						width={600}
-						height={300}
 						sx={{ '.MuiChart-bar': { borderRadius: '4px' } }}
 						slotProps={{
 							legend: {
 								hidden: true,
 							},
 						}}
+						height={300}
 					>
 						{/* <Tooltip /> */}
 					</BarChart>

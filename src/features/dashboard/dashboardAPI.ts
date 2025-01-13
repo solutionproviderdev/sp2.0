@@ -39,6 +39,15 @@ interface Notification {
 interface NotificationsResponse {
 	notifications: Notification[];
 }
+// Define the interfaces for the new endpoint response
+export interface DateWiseLeadData {
+	date: string;
+	leads: number;
+	numberCollected: number;
+	meetingsFixed: number;
+	meetingsCompleted: number;
+	meetingsSold: number;
+}
 
 // Extend the apiSlice with dashboard endpoints
 const dashboardApi = apiSlice.injectEndpoints({
@@ -76,6 +85,17 @@ const dashboardApi = apiSlice.injectEndpoints({
 				method: 'GET',
 			}),
 		}),
+		// Endpoint to get date-wise lead data
+		getDateWiseLeadData: builder.query<
+			DateWiseLeadData[],
+			{ startDate: string; endDate: string }
+		>({
+			query: ({ startDate, endDate }) => ({
+				url: '/dashboard/date-wise-lead-data',
+				method: 'GET',
+				params: { startDate, endDate },
+			}),
+		}),
 	}),
 	overrideExisting: false,
 });
@@ -86,6 +106,7 @@ export const {
 	useGetCREPerformanceDataByIdQuery,
 	useGetMeetingsDataQuery,
 	useGetNotificationsQuery,
+	useGetDateWiseLeadDataQuery,
 } = dashboardApi;
 
 export default dashboardApi;

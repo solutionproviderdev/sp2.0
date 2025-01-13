@@ -79,7 +79,7 @@ const WeeklyMeetingCard: React.FC<WeeklyMeetingCardProps> = ({
 				series={[
 					{ dataKey: 'value', label: 'Meetings Count', color: '#4CAF50' },
 				]}
-				height={200}
+				// height={200}
 			/>
 		</Box>
 	);

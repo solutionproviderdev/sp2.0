@@ -112,7 +112,7 @@ const PerformanceCard: React.FC<PerformanceCardProps> = ({ userData }) => {
 						series={[
 							{ dataKey: 'value', label: '%', color: '#4CAF50' },
 						]}
-						height={200}
+						// height={200}
 						sx={{ '.MuiChart-bar': { borderRadius: '4px' } }}
 					/>
 				</Box>
