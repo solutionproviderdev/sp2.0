@@ -59,7 +59,7 @@ const DateWiseLeadDataCard: React.FC = () => {
 				leadData && (
 					<BarChart
 						dataset={leadData.map(data => ({
-							date: data.date,
+							date: dayjs(data.date).format('MMMM Do, dddd'),
 							leads: data.leads,
 							numberCollected: data.numberCollected,
 							meetingsFixed: data.meetingsFixed,
@@ -105,7 +105,7 @@ const DateWiseLeadDataCard: React.FC = () => {
 						}}
 						slotProps={{
 							legend: {
-								hidden: false, // Show legend for stacked bars
+								hidden: true,
 							},
 						}}
 					/>
