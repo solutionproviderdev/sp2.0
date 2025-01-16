@@ -1,18 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const NavItem: React.FC<{ icon: React.ReactNode; to: string; active?: boolean; disabled?: boolean }> = ({
-	icon,
-	to,
-	active,
-	disabled,
-}) => {
-
-
+const NavItem: React.FC<{
+	icon: React.ReactNode;
+	to: string;
+	active?: boolean;
+	disabled?: boolean;
+}> = ({ icon, to, active, disabled }) => {
 	return (
 		<div
 			className={`text-lg cursor-pointer p-2 rounded-full ${
-				active ? 'bg-blue-700 text-white' : 'hover:bg-blue-500 text-white'
+				active ? 'bg-[#034e6d] text-white' : 'hover:bg-[#046288] text-white'
 			}`}
 		>
 			{disabled ? (

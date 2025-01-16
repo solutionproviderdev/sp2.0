@@ -5,6 +5,7 @@ import {
 	createRoutesFromElements,
 } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import RootLayout from './layouts/RootLayout';
 import LoggedOutRoute from './layouts/LoggedOutRoute';
 import LoggedInRoute from './layouts/LoggedInRoute';
@@ -28,12 +29,61 @@ import RoleManagement from './pages/authentication/RoleManagement';
 import AddRole from './pages/authentication/AddRole';
 import Meetings from './pages/Meeting';
 import MeetingsSlot from './pages/MeetingsSlot';
-import CreateMeeting from './pages/CreateMeeting';
 import SettingsLayout from './layouts/SettingsLayout';
 import ProfileSettings from './pages/settings/ProfileSettings';
 import LeadSettings from './pages/settings/LeadSettings';
 import FacebookSettings from './pages/settings/FacebookSettings';
- 
+
+// 🌐 Custom MUI Theme
+const theme = createTheme({
+	palette: {
+		primary: {
+			main: '#046288', // Primary color
+		},
+		secondary: {
+			main: '#F5F5F5',
+		},
+		background: {
+			default: '#F9FAFB',
+			paper: '#FFFFFF',
+		},
+		text: {
+			primary: '#333333',
+			secondary: '#555555',
+		},
+	},
+	components: {
+		MuiButton: {
+			styleOverrides: {
+				root: {
+					borderRadius: 8,
+					textTransform: 'none',
+				},
+			},
+		},
+		MuiTextField: {
+			styleOverrides: {
+				root: {
+					'& label.Mui-focused': {
+						color: '#046288',
+					},
+					'& .MuiOutlinedInput-root': {
+						'& fieldset': {
+							borderColor: '#046288',
+						},
+						'&:hover fieldset': {
+							borderColor: '#046288',
+						},
+						'&.Mui-focused fieldset': {
+							borderColor: '#046288',
+						},
+					},
+				},
+			},
+		},
+	},
+});
+
 const App = () => {
 	const router = createBrowserRouter(
 		createRoutesFromElements(
@@ -49,7 +99,6 @@ const App = () => {
 				<Route path="/" element={<LoggedInRoute />}>
 					<Route path="admin" element={<AdminLayout />}>
 						<Route path="dashboard" element={<Dashboard />} />
-
 						<Route path="users" element={<UsersLayout />}>
 							<Route path="all-users" element={<UserManagement />} />
 							<Route path=":userId" element={<UserProfile />} />
@@ -67,10 +116,9 @@ const App = () => {
 							<Route path=":leadId" element={<Inbox />} />
 						</Route>
 
-						{/* meeting page */}
+						{/* Meeting Routes */}
 						<Route path="meetings" element={<Meetings />} />
 						<Route path="meeting-slot" element={<MeetingsSlot />} />
-						{/* <Route path="meeting-create" element={<CreateMeeting />} /> */}
 
 						{/* Settings Routes */}
 						<Route path="settings" element={<SettingsLayout />}>
@@ -92,7 +140,10 @@ const App = () => {
 
 	return (
 		<Provider store={store}>
-			<RouterProvider router={router} />
+			<ThemeProvider theme={theme}>
+				<CssBaseline /> {/* Provides consistent styling across browsers */}
+				<RouterProvider router={router} />
+			</ThemeProvider>
 		</Provider>
 	);
 };

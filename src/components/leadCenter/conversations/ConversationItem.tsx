@@ -13,7 +13,7 @@ const ConversationItem = ({ conversation, onSelect }) => {
 				{/* Page Profile Picture */}
 				<div
 					style={{
-						border: isMessageSeen ? 'none' : '2px solid #1976d2',
+						border: isMessageSeen ? 'none' : '2px solid #046288',
 						borderRadius: '50%',
 						overflow: 'hidden',
 					}}
@@ -38,7 +38,7 @@ const ConversationItem = ({ conversation, onSelect }) => {
 										style={{
 											width: '6px',
 											height: '6px',
-											backgroundColor: '#1976d2',
+											backgroundColor: '#046288', // Changed from #1976d2
 											borderRadius: '50%',
 											marginRight: '4px',
 										}}
@@ -51,8 +51,13 @@ const ConversationItem = ({ conversation, onSelect }) => {
 						</div>
 						<div className="flex space-x-1">
 							<div
-								className="capitalize text-xs text-white bg-blue-600 px-1.5 py-0.5 rounded-sm"
-								style={{ fontSize: '0.75rem' }}
+								className="capitalize text-xs text-white"
+								style={{
+									backgroundColor: '#046288', // Changed from bg-blue-600
+									padding: '2px 6px',
+									borderRadius: '4px',
+									fontSize: '0.75rem',
+								}}
 							>
 								{conversation.status}
 							</div>
@@ -62,7 +67,7 @@ const ConversationItem = ({ conversation, onSelect }) => {
 										src={conversation.creName?.profilePicture}
 										alt={conversation.creName?.name}
 										className="w-5 h-5 rounded-full"
-										style={{ border: '2px solid #1976d2' }}
+										style={{ border: '2px solid #046288' }} // Changed from #1976d2
 									/>
 								</Tooltip>
 							)}
@@ -75,7 +80,7 @@ const ConversationItem = ({ conversation, onSelect }) => {
 							variant="body2"
 							className="line-clamp-1"
 							style={{
-								color: isMessageSeen ? 'gray' : 'black',
+								color: isMessageSeen ? 'gray' : '#046288', // Changed to primary color
 								fontWeight: isMessageSeen ? 'normal' : 'bold',
 								maxWidth: '200px',
 							}}
@@ -85,7 +90,7 @@ const ConversationItem = ({ conversation, onSelect }) => {
 						<Typography
 							variant="caption"
 							style={{
-								color: isMessageSeen ? 'gray' : 'black',
+								color: isMessageSeen ? 'gray' : '#046288', // Changed to primary color
 								fontSize: '0.75rem',
 							}}
 						>

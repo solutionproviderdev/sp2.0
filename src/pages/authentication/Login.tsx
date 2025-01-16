@@ -16,8 +16,9 @@ import { setUser } from '../../features/auth/authSlice'; // Adjust the import fo
 import { useLoginUserMutation } from '../../features/auth/authAPI';
 import { AiOutlinePhone } from 'react-icons/ai';
 import logo from '../../images/logop-ng.png'; // Import the logo from the image folder
-import icon from '../../images/Asset 2.svg'; // Import the SVG icon
-import animation from '../../images/Asset 3.svg'; // Import the animation SVG
+import icon from '../../images/Asset2.svg'; // Import the SVG icon
+// import animation from '../../images/Asset 3.svg'; // Import the animation SVG
+import smartname from '../../images/advanceSoftwear.png';
 
 const Login: React.FC = () => {
 	const [username, setUsername] = useState('');
@@ -47,7 +48,7 @@ const Login: React.FC = () => {
 
 			// Navigate to the dashboard after successful login
 			navigate('/admin/dashboard');
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		} catch (err: any) {
 			setErrorMessage(err?.data?.msg || 'Failed to login'); // Set error message
 		}
@@ -66,10 +67,11 @@ const Login: React.FC = () => {
 					backgroundSize: 'contain',
 					backgroundPosition: '-300px center',
 					backgroundRepeat: 'no-repeat',
-					opacity: 0.2, // 20% opacity
+					opacity: 0.1, // 20% opacity
+					// overlay: 'rgba(0, 0, 0, 0.5)',
+					// display: 'none',
 				}}
 			/>
-
 			{/* Left Side: Login Form */}
 			<div className="flex-1 flex justify-center z-10">
 				<div className="bg-gray-100 p-8 rounded-lg shadow-md w-full max-w-lg">
@@ -110,6 +112,7 @@ const Login: React.FC = () => {
 							autoComplete="current-password"
 							value={password}
 							onChange={e => setPassword(e.target.value)}
+							style={{ borderBlockColor: '#046288' }}
 							className="mb-4"
 							InputProps={{
 								endAdornment: (
@@ -164,8 +167,9 @@ const Login: React.FC = () => {
 							type="submit"
 							fullWidth
 							variant="contained"
-							className="mt-4 py-3 bg-gradient-to-r from-blue-700 to-blue-900 text-white hover:from-blue-900 hover:to-blue-700"
+							// className="mt-4 py-3 bg-black text-white"
 							disabled={isLoading}
+							style={{ backgroundColor: '#046288' }}
 						>
 							{isLoading ? 'Logging in...' : 'Login'}
 						</Button>
@@ -174,9 +178,9 @@ const Login: React.FC = () => {
 			</div>
 
 			{/* Right Side: Visible SVG Icon */}
-			<div className="flex-1 flex justify-center items-center relative z-10 opacity-0">
+			<div className="flex-1 flex justify-center items-center relative z-10 opacity-100">
 				<img
-					src={animation}
+					src={smartname}
 					alt="Decorative Icon"
 					className="w-3/4 h-auto max-w-2xl"
 				/>

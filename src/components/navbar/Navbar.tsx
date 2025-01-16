@@ -32,7 +32,7 @@ const Navbar: React.FC<NavbarProps> = ({ className }) => {
 
 	return (
 		<div
-			className={`${className} bg-blue-600 text-white h-16 flex items-center justify-between px-4`}
+			className={`${className} bg-[#046288] text-white h-16 flex items-center justify-between px-4`}
 		>
 			<div className="flex items-center h-16 space-x-4 ">
 				<img src={logo} alt="Logo" className="w-40 h-full object-cover" />
