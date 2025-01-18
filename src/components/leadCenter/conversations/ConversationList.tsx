@@ -51,7 +51,7 @@ const ConversationList = () => {
 					} as typeof prevFilters)
 			);
 		}
-	}, [user.roleId, creRoleId, user._id]);
+	}, [user.roleId, creRoleId, user._id, filters]);
 
 	// Handle selecting a conversation
 	const handleSelectConversation = async selectedLeadId => {
