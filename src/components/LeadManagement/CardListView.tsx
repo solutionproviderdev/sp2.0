@@ -213,7 +213,7 @@ const CardListView = ({ viewAsCard, data }) => {
 											size="small"
 											onClick={() => navigate(`/admin/lead-center/${lead._id}`)}
 										>
-											<ChatIcon fontSize="small" />
+											<ChatIcon fontSize="small" className="text-black" />
 										</IconButton>
 									</Tooltip>
 								</div>
