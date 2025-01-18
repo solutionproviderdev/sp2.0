@@ -144,7 +144,7 @@ const CreStatus: React.FC<CreStatusProps> = ({ currentStatus }) => {
 					className="w-44 h-10"
 					labelId="status-select-label"
 					id="status-select"
-					value={status}
+					value={currentStatus}
 					label="Status"
 					onChange={handleStatusChange}
 				>

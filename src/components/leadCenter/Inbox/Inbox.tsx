@@ -126,6 +126,11 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 					value={newMessage}
 					onChange={e => setNewMessage(e.target.value)}
 					sx={{ backgroundColor: '#fff', borderRadius: '5px' }}
+					onKeyDown={e => {
+						if (e.key === 'Enter') {
+							handleSendMessage();
+						}
+					}}
 					InputProps={{
 						endAdornment: (
 							<InputAdornment position="end">
