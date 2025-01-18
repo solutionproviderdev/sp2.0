@@ -39,7 +39,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 	const { leadId } = useParams(); // Use leadId from params
 	const { data: lead } = useGetSingleLeadQuery(leadId ?? '');
 	const { data } = useGetConversationMessagesQuery(leadId ?? '');
-	const [sendMessage] = useSentMessageMutation();
+	const [sendMessage, { isLoading }] = useSentMessageMutation();
 
 	useEffect(() => {
 		if (data && data.messages) {
@@ -131,6 +131,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 							handleSendMessage();
 						}
 					}}
+					disabled={isLoading}
 					InputProps={{
 						endAdornment: (
 							<InputAdornment position="end">
@@ -138,6 +139,7 @@ const Inbox: React.FC<InboxProps> = ({ conversation }) => {
 									color="primary"
 									aria-label="send message"
 									onClick={handleSendMessage}
+									disabled={isLoading}
 								>
 									<SendIcon />
 								</IconButton>
