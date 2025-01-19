@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
 	Box,
-	Grid,
 	Chip,
 	TextField,
 	Button,
@@ -28,6 +27,7 @@ interface AdditionalDetailsStepProps {
 		requirements: string[];
 		visitCharge: number;
 		comment: string;
+		source?: string;
 	};
 	onChange: (updatedData: {
 		name?: string;
@@ -40,12 +40,15 @@ interface AdditionalDetailsStepProps {
 		requirements?: string[];
 		visitCharge?: number;
 		comment?: string;
+		source?: string;
 	}) => void;
+	sourceField?: boolean;
 }
 
 const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
 	defaultData,
 	onChange,
+	sourceField,
 }) => {
 	const [formData, setFormData] = useState(defaultData);
 	const [newRequirement, setNewRequirement] = useState('');
@@ -135,9 +138,9 @@ const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
 					label="Name"
 					name="name"
 					value={formData.name}
-					onChange={() => {}}
+					onChange={e => handleInputChange('name', e.target.value)}
 					fullWidth
-					disabled
+					// disabled
 				/>
 			</div>
 
@@ -153,7 +156,6 @@ const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
 								value={phone}
 								onChange={() => {}}
 								fullWidth
-								disabled
 							/>
 						</div>
 					))
@@ -174,6 +176,22 @@ const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
 				)}
 			</div>
 
+			{/* Conditional Source Section */}
+			{sourceField && (
+				<div>
+					<CustomSelect
+						label="Source"
+						name="source"
+						value={formData?.source}
+						onChange={e => handleInputChange('source', e.target.value)}
+						options={[
+							{ value: 'Phone', label: 'Phone' },
+							{ value: 'WhatsApp', label: 'WhatsApp' },
+						]}
+					/>
+				</div>
+			)}
+
 			{/* Project Location Section */}
 			<div>
 				<CustomSelect
@@ -185,7 +203,6 @@ const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
 						{ value: 'Inside', label: 'Inside' },
 						{ value: 'Outside', label: 'Outside' },
 					]}
-					clearable
 				/>
 			</div>
 

@@ -18,7 +18,7 @@ import {
 import { Lead } from '../../../../../features/lead/leadAPI';
 
 interface AddressStepProps {
-	lead: Lead;
+	lead?: Lead;
 	onChange: (updatedAddress: {
 		division: string;
 		district: string;

@@ -17,7 +17,7 @@ export interface Meeting {
 
 // Meeting type for RTK
 export interface MeetingPayload {
-	_id?: string; // Optional because it might not be present in the request payload
+	_id?: string;
 	leadId: string;
 	date: string;
 	slot: string;
@@ -26,6 +26,7 @@ export interface MeetingPayload {
 	visitCharge?: number;
 	name?: string;
 	requirements?: string[];
+	projectLocation?: string;
 	projectStatus?: {
 		status: string;
 		subStatus: string;

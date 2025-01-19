@@ -249,7 +249,10 @@ const socket = getSocket();
 
 const conversationApi = apiSlice.injectEndpoints({
 	endpoints: builder => ({
-		createLeadWithNumber: builder.mutation({
+		createLeadWithNumber: builder.mutation<
+			{ msg: string; lead: Lead },
+			{ leadData: CreateLeadPayload }
+		>({
 			query: ({ leadData }) => {
 				console.log('rtk rtk phone lead create------', leadData);
 				return {

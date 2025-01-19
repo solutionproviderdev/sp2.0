@@ -11,6 +11,7 @@ import {
 	useReassignOrSwapMeetingMutation,
 } from '../features/meeting/meetinApi';
 import moment from 'moment';
+import NewMeeting from '../components/meeting/NewMeeting';
 
 // SalesTeamColumn Component: Displaying the sales team members
 const SalesTeamColumn = ({ salespeople }) => (
@@ -203,10 +204,13 @@ const MeetingsSlot: React.FC = () => {
 
 	return (
 		<div className="w-full">
-			<DateSelector
-				selectedDate={selectedDate}
-				onDateChange={setSelectedDate}
-			/>
+			<div className="flex items-center justify-between px-8">
+				<DateSelector
+					selectedDate={selectedDate}
+					onDateChange={setSelectedDate}
+				/>
+				<NewMeeting />
+			</div>
 			<div className="overflow-x-auto">
 				<div className="min-w-max flex">
 					<SalesTeamColumn salespeople={salespeople} />
