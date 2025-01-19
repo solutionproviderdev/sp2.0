@@ -15,7 +15,10 @@ import {
 } from '@mui/material';
 import { FaGenderless, FaMale, FaFemale } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
-import { useGetAllUsersQuery } from '../../features/auth/authAPI';
+import {
+	useGetAllUsersQuery,
+	useUpdateUserStatusMutation,
+} from '../../features/auth/authAPI';
 import UserFilter from '../../components/user/UserFilter';
 
 interface User {
@@ -46,6 +49,7 @@ const UserManagement: React.FC = () => {
 	const [genderFilter, setGenderFilter] = useState<string>('all');
 	const [departmentFilter, setDepartmentFilter] = useState<string>('all');
 	const [roleFilter, setRoleFilter] = useState<string>('all');
+	const [updateUserStatus] = useUpdateUserStatusMutation();
 
 	const departments = users
 		? [
@@ -109,10 +113,10 @@ const UserManagement: React.FC = () => {
 	};
 
 	const handleStatusToggle = (userId: string, currentStatus: string) => {
-		// Logic to handle status change
-		console.log(
-			`Toggling status for user ID: ${userId}, current status: ${currentStatus}`
-		);
+		updateUserStatus({
+			id: userId,
+			data: { status: currentStatus === 'Active' ? 'Inactive' : 'Active' },
+		});
 	};
 
 	const renderGenderIcon = (gender: string) => {

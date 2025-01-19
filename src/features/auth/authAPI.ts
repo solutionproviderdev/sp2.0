@@ -144,6 +144,7 @@ const authApi = apiSlice.injectEndpoints({
 		// Fetch all users
 		getAllUsers: builder.query<GetAllUsersResponse, void>({
 			query: () => '/users',
+			providesTags: ['User'],
 		}),
 
 		// get user by departments and roles
@@ -257,6 +258,7 @@ const authApi = apiSlice.injectEndpoints({
 				method: 'PATCH',
 				body: data,
 			}),
+			invalidatesTags: ['User'],
 		}),
 	}),
 });
