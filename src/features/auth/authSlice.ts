@@ -20,6 +20,7 @@ interface User {
 	status: string;
 	roleId?: string;
 	departmentId?: string;
+	type: string;
 }
 
 interface AuthState {

@@ -12,6 +12,7 @@ export default function LeadDetails({ lead, leadId }) {
 			<Typography variant="h6" className="text-center">
 				Lead Details
 			</Typography>
+
 			{/* Phone Numbers */}
 			{lead?.phone && (
 				<PhoneNumbers leadId={leadId} phoneNumbers={lead?.phone} />

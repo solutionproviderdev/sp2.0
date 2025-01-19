@@ -33,7 +33,7 @@ export interface Lead {
 	_id: string;
 	name: string;
 	status: string;
-	creName: string | null;
+	creName: string;
 	salesExqName: string | null;
 	reminder: Reminder[];
 	projectStatus: ProjectStatus;
@@ -170,11 +170,23 @@ const leadApi = apiSlice.injectEndpoints({
 					  ]
 					: [{ type: 'Lead', id: 'LIST' }],
 		}),
+
+		AssignLeadToCRE: builder.mutation<
+			Lead,
+			{ id: string; data: { newCREId: string } }
+		>({
+			query: ({ id, data }) => ({
+				url: `/lead/${id}/assign-cre`,
+				method: 'PUT',
+				body: data,
+			}),
+		}),
 	}),
 	overrideExisting: false, // Prevents overriding existing endpoints
 });
 
 // Export the auto-generated hooks for usage in functional components
-export const { useGetAllLeadsWithRemindersQuery } = leadApi;
+export const { useGetAllLeadsWithRemindersQuery, useAssignLeadToCREMutation } =
+	leadApi;
 
 export default leadApi;

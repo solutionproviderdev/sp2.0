@@ -7,15 +7,20 @@ import CallLogs from './CallLogs';
 import Comments from './Comments';
 import AddressCard from './Locations';
 import ProjectStatus from './ProjectStatus';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../app/store';
+import AssignLead from './AssignLead';
+import { Lead } from '../../../features/lead/leadAPI';
 
 interface SidebarProps {
-	leadId: string | undefined;
+	leadId: string;
 	isOpen: boolean;
-	lead: any;
+	lead: Lead;
 	onClose: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ leadId, lead, isOpen, onClose }) => {
+	const { user } = useSelector((state: RootState) => state.auth);
 	const handleSidebarClick = (event: React.MouseEvent) => {
 		event.stopPropagation();
 	};
@@ -30,6 +35,11 @@ const Sidebar: React.FC<SidebarProps> = ({ leadId, lead, isOpen, onClose }) => {
 				<Typography variant="h6" sx={{ fontWeight: 'bold' }}>
 					{lead?.name}
 				</Typography>
+
+				{user?.type === 'Admin' && lead?.creName && (
+					<AssignLead leadID={leadId} currentCREId={lead.creName} />
+				)}
+
 				{lead?.phone && (
 					<PhoneNumbers leadId={leadId} phoneNumbers={lead.phone} />
 				)}
