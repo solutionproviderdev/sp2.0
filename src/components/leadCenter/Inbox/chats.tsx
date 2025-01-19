@@ -1,7 +1,6 @@
 import { Tooltip } from '@mui/material';
 import Image from '../../UI/Image';
 import { useEffect, useRef } from 'react';
-import { getFileTypeFromURL } from '../../../hooks/getFileTypeFromURL';
 
 // Define the types for the messages and file URLs
 interface Message {
@@ -28,11 +27,6 @@ const Chats: React.FC<ChatsProps> = ({ messages = [] }) => {
 	}, [messages]);
 
 	const renderMessageContent = (msg: Message) => {
-		if (msg.fileUrl && msg.fileUrl.length > 0) {
-			const fileType = getFileTypeFromURL(msg.fileUrl[0]);
-			console.log(fileType);
-		}
-
 		const renderMultipleImages = (fileUrl: string) => (
 			<Image
 				key={fileUrl}
