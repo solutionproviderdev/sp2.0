@@ -63,6 +63,7 @@ interface CreateLeadPayload {
 	status?: string;
 	comment?: string;
 	images?: string[];
+	cre?: string;
 }
 
 interface UpdateLeadPayload {

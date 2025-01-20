@@ -14,6 +14,12 @@ import CustomSelect from '../../../../UI/inputs/CustomSelect';
 import AddIcon from '@mui/icons-material/Add';
 import DoneIcon from '@mui/icons-material/Done';
 import CloseIcon from '@mui/icons-material/Close';
+import { useGetAllDepartmentsQuery } from '../../../../../features/auth/department/departmentAPI';
+import {
+	useGetAllUsersQuery,
+	useGetUserByDepartmentAndRoleQuery,
+} from '../../../../../features/auth/authAPI';
+import CustomSelectWithPictures from '../../../../UI/inputs/CustomSelectWithPictures';
 
 interface AdditionalDetailsStepProps {
 	defaultData: {
@@ -28,6 +34,7 @@ interface AdditionalDetailsStepProps {
 		visitCharge: number;
 		comment: string;
 		source?: string;
+		cre?: string;
 	};
 	onChange: (updatedData: {
 		name?: string;
@@ -41,20 +48,37 @@ interface AdditionalDetailsStepProps {
 		visitCharge?: number;
 		comment?: string;
 		source?: string;
+		cre?: string;
 	}) => void;
 	sourceField?: boolean;
+	creField?: boolean;
 }
 
 const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
 	defaultData,
 	onChange,
 	sourceField,
+	creField,
 }) => {
 	const [formData, setFormData] = useState(defaultData);
 	const [newRequirement, setNewRequirement] = useState('');
 	const [editIndex, setEditIndex] = useState<number | null>(null);
 	const [showTextField, setShowTextField] = useState(false);
 	const [newPhone, setNewPhone] = useState('');
+
+	// get all the cre options
+	const { data: allCRE } = useGetUserByDepartmentAndRoleQuery({
+		departmentName: 'CRE',
+		roleName: 'CRE',
+	});
+
+	// prepear cre options
+	const CREOptions =
+		allCRE?.map(cre => ({
+			value: cre._id, // Use CRE ID as the value
+			label: cre.nameAsPerNID, // Use CRE name as the label
+			profilePicture: cre.profilePicture, // Use CRE profile picture
+		})) || [];
 
 	// Project Status and SubStatus Options
 	const statusOptions = ['Ongoing', 'Ready', 'Renovation'];
@@ -132,6 +156,18 @@ const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
 
 	return (
 		<Box className="p-6 space-y-6">
+			{creField && (
+				<div>
+					<CustomSelectWithPictures
+						label="CRE"
+						name="cre"
+						value={formData.cre}
+						onChange={e => handleInputChange('cre', e.target.value)}
+						options={CREOptions}
+					/>
+				</div>
+			)}
+
 			{/* Name Section */}
 			<div>
 				<CustomTextField

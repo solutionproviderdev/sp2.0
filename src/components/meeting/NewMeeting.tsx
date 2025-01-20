@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
 	Modal,
 	Box,
@@ -13,11 +13,22 @@ import { useCreateLeadWithNumberMutation } from '../../features/conversation/con
 import AdditionalDetailsStep from '../leadCenter/creStatus/statusModal/steps/AdditionalDetailsStep';
 import AddressStep from '../leadCenter/creStatus/statusModal/steps/AddressStep';
 import SimplifiedMeetingsSlot from '../leadCenter/creStatus/statusModal/steps/SimplifiedMeetingsSlot';
+import { RootState } from '../../app/store';
+import { useSelector } from 'react-redux';
+import { useGetDepartmentByIdQuery } from '../../features/auth/department/departmentAPI';
 
 const NewMeeting: React.FC = () => {
 	const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
 	const [activeStep, setActiveStep] = useState(0); // State to track the current step
 	const [isStepValid, setIsStepValid] = useState(false); // State to track step validation
+	const { user } = useSelector((state: RootState) => state.auth);
+	const [cre, setCre] = useState<string>('');
+	const { data: departments } = useGetDepartmentByIdQuery(
+		user?.departmentId || '',
+		{
+			skip: !user?.departmentId,
+		}
+	);
 
 	// Combined state for lead and meeting data
 	const [formData, setFormData] = useState({
@@ -28,6 +39,7 @@ const NewMeeting: React.FC = () => {
 		projectStatus: { status: '', subStatus: '' },
 		address: { district: '', division: '', area: '', address: '' },
 		source: 'Phone',
+		cre: '',
 
 		// Meeting data
 		leadId: '', // Will be set after lead creation
@@ -39,6 +51,21 @@ const NewMeeting: React.FC = () => {
 		comment: { text: '', images: [] },
 		projectLocation: 'Inside',
 	});
+
+	useEffect(() => {
+		// check if the department has a cre role
+		const creRole = departments?.roles.find(role => role.roleName === 'CRE');
+
+		// check if the user has the cre role
+		const userHasCreRole = user?.roleId === creRole?._id;
+
+		if (userHasCreRole) {
+			setFormData(prev => ({
+				...prev,
+				cre: user?._id || '',
+			}));
+		}
+	}, [departments, user?._id, user?.roleId]);
 
 	// API mutations
 	const [createLead] = useCreateLeadWithNumberMutation();
@@ -64,7 +91,6 @@ const NewMeeting: React.FC = () => {
 	};
 
 	const validateAdditionalDetailsStep = () => {
-		console.log(formData);
 		return (
 			(formData.visitCharge ?? 0) > 0 && // Check if visit charge is greater than 0
 			!!formData.projectStatus?.status && // Check if project status is selected
@@ -83,8 +109,6 @@ const NewMeeting: React.FC = () => {
 		console.log(valid);
 	}, [activeStep, formData]);
 
-	console.log(formData);
-
 	// Handle next step
 	const handleNext = async () => {
 		if (activeStep === steps.length - 1) {
@@ -97,6 +121,7 @@ const NewMeeting: React.FC = () => {
 						name: formData.name,
 						phone: formData.phone[0],
 						source: formData.source,
+						cre: formData.cre,
 					},
 				}).unwrap();
 				const newLeadId = leadResponse?.lead?._id; // Assuming the API returns the created lead ID
@@ -155,6 +180,7 @@ const NewMeeting: React.FC = () => {
 			date,
 		}));
 	};
+	console.log(formData);
 
 	return (
 		<>
@@ -200,8 +226,10 @@ const NewMeeting: React.FC = () => {
 									requirements: formData.requirements,
 									visitCharge: formData.visitCharge || 0,
 									comment: formData.comment?.text || '',
+									cre: formData.cre || '',
 								}}
 								sourceField={true}
+								creField={user?.type === 'Admin'}
 								onChange={updatedData => {
 									setFormData(prevData => ({
 										...prevData,
@@ -209,6 +237,7 @@ const NewMeeting: React.FC = () => {
 										phone: updatedData.phone || prevData.phone,
 										projectStatus:
 											updatedData.projectStatus || prevData.projectStatus,
+										cre: updatedData.cre || prevData.cre,
 										requirements:
 											updatedData.requirements || prevData.requirements,
 										visitCharge:
