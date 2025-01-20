@@ -145,6 +145,27 @@ const NewMeeting: React.FC = () => {
 				// Reset the form and close the modal
 				setActiveStep(0);
 				setIsModalOpen(false);
+				// clear the form data
+				setFormData({
+					// Lead data
+					name: '',
+					phone: [],
+					requirements: [],
+					projectStatus: { status: '', subStatus: '' },
+					address: { district: '', division: '', area: '', address: '' },
+					source: 'Phone',
+					cre: '',
+
+					// Meeting data
+					leadId: '', // Will be set after lead creation
+					date: '', // Filled in Step 2
+					slot: '', // Filled in Step 2
+					salesExecutive: '', // Filled in Step 2
+					status: 'Fixed', // Default status
+					visitCharge: 0, // Updated in Step 3
+					comment: { text: '', images: [] },
+					projectLocation: 'Inside',
+				});
 			} catch (error) {
 				console.error('Error creating lead or fixing meeting:', error);
 			}
